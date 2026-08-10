@@ -1,0 +1,119 @@
+:host{
+
+    display:block;
+
+}
+
+.stat-card{
+
+    background:#111827;
+
+    border-radius:18px;
+
+    border-left:6px solid #2563EB;
+
+    padding:24px;
+
+    transition:.25s;
+
+    box-shadow:0 10px 25px rgba(0,0,0,.25);
+
+}
+
+.stat-card:hover{
+
+    transform:translateY(-5px);
+
+    box-shadow:0 18px 40px rgba(0,0,0,.35);
+
+}
+
+.top{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:25px;
+
+}
+
+.icon{
+
+    width:60px;
+
+    height:60px;
+
+    border-radius:15px;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    color:white;
+
+    font-size:22px;
+
+}
+
+.content h2{
+
+    color:white;
+
+    font-size:34px;
+
+    margin:0;
+
+}
+
+.content h3{
+
+    color:#E5E7EB;
+
+    margin-top:10px;
+
+    margin-bottom:6px;
+
+    font-size:18px;
+
+}
+
+.content p{
+
+    color:#94A3B8;
+
+    margin:0;
+
+    font-size:14px;
+
+}
+
+.trend{
+
+    display:flex;
+
+    gap:8px;
+
+    align-items:center;
+
+    font-weight:600;
+
+    font-size:14px;
+
+}
+
+.positive{
+
+    color:#10B981;
+
+}
+
+.negative{
+
+    color:#EF4444;
+
+}

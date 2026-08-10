@@ -1,0 +1,135 @@
+<div class="layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" [class.collapsed]="!menuOpen">
+
+        <div class="profile-card">
+            <div class="avatar">
+                <i class="fas fa-user-shield"></i>
+            </div>
+
+            <h3 *ngIf="menuOpen">Vigilante</h3>
+            <p *ngIf="menuOpen">Control de accesos</p>
+        </div>
+
+        <div class="logo">
+            <i class="fas fa-shield-alt"></i>
+            <span *ngIf="menuOpen">SegurEntry</span>
+        </div>
+
+        <nav>
+            <button class="active">
+                <i class="fas fa-door-open"></i>
+                <span *ngIf="menuOpen">Accesos</span>
+            </button>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <button class="logout" (click)="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span *ngIf="menuOpen">Cerrar sesión</span>
+            </button>
+        </div>
+
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+
+        <!-- HEADER -->
+        <header>
+            <button class="menu-btn" (click)="toggleMenu()">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <div>
+                <h2>Control de Accesos</h2>
+                <p class="header-subtitle">
+                    Monitoreo en tiempo real de ingresos y salidas
+                </p>
+            </div>
+        </header>
+
+        <!-- STATS -->
+        <section class="stats">
+
+            <div class="card stat-card">
+                <h2>{{ totalIngresos }}</h2>
+                <p>Ingresos Hoy</p>
+            </div>
+
+            <div class="card stat-card">
+                <h2>{{ totalSalidas }}</h2>
+                <p>Salidas Hoy</p>
+            </div>
+
+            <div class="card stat-card">
+                <h2>{{ accesosHoy.length }}</h2>
+                <p>Movimientos</p>
+            </div>
+
+        </section>
+
+        <!-- TABLA -->
+        <section class="card list-card">
+
+            <div class="table-header">
+                <div>
+                    <h3>Registro de accesos</h3>
+                    <p>Entradas y salidas en tiempo real</p>
+                </div>
+
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input
+                        type="text"
+                        [(ngModel)]="search"
+                        placeholder="Buscar por nombre o correo">
+                </div>
+            </div>
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Correo</th>
+                            <th>Tipo</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        <tr *ngFor="let a of filteredAccesses()">
+
+                            <td>{{ a.name }}</td>
+
+                            <td>{{ a.email }}</td>
+
+                            <td>
+                                <span [class.ingreso]="a.type === 'entrada'"
+                                      [class.salida]="a.type === 'salida'">
+
+                                    {{ a.type === 'entrada' ? 'Ingreso' : 'Salida' }}
+
+                                </span>
+                            </td>
+
+                            <td>{{ a.date | date:'short' }}</td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>

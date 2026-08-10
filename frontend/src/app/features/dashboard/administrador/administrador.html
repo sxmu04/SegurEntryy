@@ -1,0 +1,332 @@
+<!-- ====================== SIDEBAR ====================== -->
+<aside class="sidebar" [class.collapsed]="!menuOpen">
+
+    <div class="profile-card">
+        <div class="avatar">
+            <i class="fas fa-user"></i>
+        </div>
+
+        <h3 *ngIf="menuOpen">Administrador</h3>
+        <p *ngIf="menuOpen">Gestión del Centro</p>
+    </div>
+
+    <div class="logo">
+        <i class="fas fa-shield-alt"></i>
+        <span *ngIf="menuOpen">SegurEntry</span>
+    </div>
+
+    <nav>
+
+        <button
+            [class.active]="activeRoute === 'dashboard'"
+            (click)="goTo('dashboard')">
+
+            <i class="fas fa-home"></i>
+
+            <span *ngIf="menuOpen">
+                Dashboard
+            </span>
+
+        </button>
+
+        <button
+            [class.active]="activeRoute === 'usuarios'"
+            (click)="goTo('usuarios')">
+
+            <i class="fas fa-users"></i>
+
+            <span *ngIf="menuOpen">
+                Usuarios
+            </span>
+
+        </button>
+
+        <button
+            [class.active]="activeRoute === 'reportes'"
+            (click)="goTo('reportes')">
+
+            <i class="fas fa-chart-line"></i>
+
+            <span *ngIf="menuOpen">
+                Reportes
+            </span>
+
+        </button>
+
+        <button
+            [class.active]="activeRoute === 'notificaciones'"
+            (click)="goTo('notificaciones')">
+
+            <i class="fas fa-bell"></i>
+
+            <span *ngIf="menuOpen">
+                Notificaciones
+            </span>
+
+        </button>
+
+        <button
+            [class.active]="activeRoute === 'perfil'"
+            (click)="goTo('perfil')">
+
+            <i class="fas fa-user-circle"></i>
+
+            <span *ngIf="menuOpen">
+                Perfil
+            </span>
+
+        </button>
+
+        <button
+            [class.active]="activeRoute === 'configuracion'"
+            (click)="goTo('configuracion')">
+
+            <i class="fas fa-cog"></i>
+
+            <span *ngIf="menuOpen">
+                Configuración
+            </span>
+
+        </button>
+
+    </nav>
+
+    <div class="sidebar-bottom">
+
+        <button
+            class="logout"
+            (click)="logout()">
+
+            <i class="fas fa-sign-out-alt"></i>
+
+            <span *ngIf="menuOpen">
+                Cerrar sesión
+            </span>
+
+        </button>
+
+    </div>
+
+</aside>
+
+<!-- ====================== MAIN ====================== -->
+
+<main class="main">
+
+    <header>
+
+        <button
+            class="menu-btn"
+            (click)="toggleMenu()">
+
+            <i class="fas fa-bars"></i>
+
+        </button>
+
+        <div>
+
+            <h2>{{ activeRoute | titlecase }}</h2>
+
+            <p class="header-subtitle">
+                Panel administrativo
+            </p>
+
+        </div>
+
+    </header>
+
+    <!-- ================= DASHBOARD ================= -->
+
+    <section
+        *ngIf="activeRoute==='dashboard'"
+        class="section stats">
+
+        <div class="card stat-card">
+
+            <h2>{{ accesses.length }}</h2>
+
+            <p>Usuarios registrados</p>
+
+        </div>
+
+        <div class="card stat-card">
+
+            <h2>{{ totalTemporales }}</h2>
+
+            <p>Accesos temporales</p>
+
+        </div>
+
+    </section>
+
+    <!-- ================= USUARIOS ================= -->
+
+    <section
+        *ngIf="activeRoute==='usuarios'"
+        class="card">
+
+        <button
+            class="primary-btn"
+            (click)="openForm()">
+
+            <i class="fas fa-user-plus"></i>
+
+            Nuevo Usuario
+
+        </button>
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Nombre</th>
+
+                    <th>Correo</th>
+
+                    <th>Documento</th>
+
+                    <th>Rol</th>
+
+                    <th>Acciones</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                <tr *ngFor="let a of accesses">
+
+                    <td>{{ a.name }}</td>
+
+                    <td>{{ a.email }}</td>
+
+                    <td>{{ a.document || '-' }}</td>
+
+                    <td>{{ a.role }}</td>
+
+                    <td>
+
+                        <button
+                            class="icon-btn delete"
+                            (click)="deleteAccess(a.uid!)">
+
+                            <i class="fas fa-trash"></i>
+
+                        </button>
+
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </section>
+
+    <!-- ================= REPORTES ================= -->
+
+    <section
+        *ngIf="activeRoute==='reportes'"
+        class="card">
+
+        <h3>Reportes</h3>
+
+        <p>
+            Próximamente estadísticas del sistema.
+        </p>
+
+    </section>
+
+    <!-- ================= NOTIFICACIONES ================= -->
+
+    <section
+        *ngIf="activeRoute==='notificaciones'"
+        class="card">
+
+        <h3>Notificaciones</h3>
+
+        <p>No existen notificaciones.</p>
+
+    </section>
+
+    <!-- ================= PERFIL ================= -->
+
+    <section
+        *ngIf="activeRoute==='perfil'"
+        class="card">
+
+        <h3>Perfil</h3>
+
+        <input
+            type="text"
+            placeholder="Nombre del administrador">
+
+    </section>
+
+    <!-- ================= CONFIG ================= -->
+
+    <section
+        *ngIf="activeRoute==='configuracion'"
+        class="card">
+
+        <h3>Configuración</h3>
+
+        <p>Opciones del sistema.</p>
+
+    </section>
+
+</main>
+
+<!-- ================= MODAL ================= -->
+
+<div
+    class="modal-backdrop"
+    *ngIf="showForm">
+
+    <div class="modal">
+
+        <h2>Registrar nuevo usuario</h2>
+
+        <input
+            [(ngModel)]="form.name"
+            placeholder="Nombre completo">
+
+        <input
+            [(ngModel)]="form.email"
+            placeholder="Correo electrónico">
+
+        <input
+            [(ngModel)]="form.document"
+            placeholder="Documento">
+
+        <select [(ngModel)]="form.role">
+
+            <option value="">
+                Seleccione un rol
+            </option>
+
+            <option value="usuario">
+                Usuario
+            </option>
+
+            <option value="vigilante">
+                Vigilante
+            </option>
+
+        </select>
+
+        <button (click)="saveAccess()">
+            Guardar usuario
+        </button>
+
+        <button (click)="closeForm()">
+            Cancelar
+        </button>
+
+    </div>
+
+</div>

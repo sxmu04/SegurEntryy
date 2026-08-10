@@ -1,0 +1,727 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<div class="layout">
+
+    <!-- ===================== SIDEBAR ===================== -->
+    <aside class="sidebar" [class.collapsed]="!menuOpen">
+
+        <div>
+
+            <div class="profile-card">
+
+                <div class="avatar-wrapper">
+
+                    <img [src]="profile.photo || 'assets/avatar.png'" class="sidebar-avatar" alt="Foto de perfil">
+
+                    <span class="online-dot"></span>
+
+                </div>
+
+                <div class="profile-info" *ngIf="menuOpen">
+
+                    <h3>{{ profile.name || 'Usuario' }}</h3>
+
+                    <p>{{ profile.email }}</p>
+
+                    <span class="role-badge">
+                        <i class="fas fa-shield-alt"></i>
+                        {{ currentUser?.role }}
+                    </span>
+
+                </div>
+
+            </div>
+
+            <div class="logo">
+                <i class="fas fa-shield-alt"></i>
+                <span *ngIf="menuOpen">SegurEntry</span>
+            </div>
+
+            <nav>
+                <button *ngFor="let item of menuItems" (click)="setSection(item.key)"
+                    [class.active]="isActive(item.key)" [title]="item.label">
+
+                    <i class="fas" [ngClass]="item.icon"></i>
+
+                    <span *ngIf="menuOpen">
+                        {{ item.label }}
+                    </span>
+
+                    <span class="badge" *ngIf="menuOpen && item.key === 'notifications' && stats.denied_access > 0">
+                        {{ stats.denied_access }}
+                    </span>
+                </button>
+            </nav>
+
+        </div>
+
+        <div class="sidebar-bottom">
+            <button class="logout" (click)="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span *ngIf="menuOpen">Cerrar sesión</span>
+            </button>
+        </div>
+
+    </aside>
+
+    <!-- ===================== MAIN ===================== -->
+    <main class="main">
+
+        <header>
+
+            <button class="menu-btn" (click)="toggleMenu()">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <div>
+                <h2>Panel de Control</h2>
+                <p class="header-subtitle">
+                    Administración general del sistema SegurEntry.
+                </p>
+
+                <span class="system-status online">
+                    ● Sistema operativo
+                </span>
+            </div>
+
+        </header>
+
+        <!-- ===================== VISTAS ===================== -->
+        <div [ngSwitch]="activeSection">
+
+            <!-- DASHBOARD -->
+            <ng-container *ngSwitchCase="'dashboard'">
+                <section class="stats">
+
+                    <div class="card stat-card">
+                        <h2>{{ stats.total_users }}</h2>
+                        <p>Usuarios</p>
+                    </div>
+
+                    <div class="card stat-card">
+                        <h2>{{ stats.admins }}</h2>
+                        <p>Administradores</p>
+                    </div>
+
+                    <div class="card stat-card">
+                        <h2>{{ stats.pendingInvitations }}</h2>
+                        <p>Invitaciones Pendientes</p>
+                    </div>
+
+                    <div class="card stat-card">
+                        <h2>{{ stats.acceptedInvitations }}</h2>
+                        <p>Invitaciones Aceptadas</p>
+                    </div>
+
+                    <div class="card stat-card">
+                        <h2>{{ stats.today_access }}</h2>
+                        <p>Accesos Hoy</p>
+                    </div>
+
+                    <div class="card stat-card">
+                        <h2>{{ stats.denied_access }}</h2>
+                        <p>Accesos Denegados</p>
+                    </div>
+
+                </section>
+
+                <section class="card">
+
+                    <h3>Usuarios por Rol</h3>
+
+                    <div class="roles-grid">
+
+                        <div class="role-card">
+                            <h4>Aprendices</h4>
+                            <h2>{{ stats.aprendices }}</h2>
+                        </div>
+
+                        <div class="role-card">
+                            <h4>Administradores</h4>
+                            <h2>{{ stats.admins }}</h2>
+                        </div>
+
+                        <div class="role-card">
+                            <h4>Instructores</h4>
+                            <h2>{{ stats.instructores }}</h2>
+                        </div>
+
+                        <div class="role-card">
+                            <h4>Vigilantes</h4>
+                            <h2>{{ stats.vigilantes }}</h2>
+                        </div>
+
+                        <div class="role-card">
+                            <h4>Super Admin</h4>
+                            <h2>{{ stats.superAdmins }}</h2>
+                        </div>
+
+                    </div>
+
+                </section>
+            </ng-container>
+
+            <!-- ================= USUARIOS ================= -->
+            <ng-container *ngSwitchCase="'users'">
+
+                <section class="card list-card">
+
+                    <div class="table-header">
+
+                        <div class="header-left">
+                            <h3>Usuarios Registrados</h3>
+
+                            <span class="badge-total">
+                                {{ users.length || accesses.length }} usuarios
+                            </span>
+                        </div>
+
+                        <div class="table-actions">
+
+                            <div class="search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" placeholder="Buscar usuario..." (input)="filterUsers($event)">
+                            </div>
+
+                            <button class="primary-btn" (click)="openModal()">
+                                <i class="fas fa-user-plus"></i>
+                                <span>Registrar</span>
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                    <div class="table-container">
+
+                        <table class="modern-table">
+
+                            <thead>
+                                <tr>
+                                    <th>Usuario</th>
+                                    <th>Rol</th>
+                                    <th>Estado</th>
+                                    <th>UID</th>
+                                    <th class="text-center">Acciones</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                <tr *ngIf="(users?.length || accesses?.length) === 0" class="empty-row">
+                                    <td colspan="5">
+                                        <div class="empty-state">
+                                            <i class="fas fa-users-slash"></i>
+                                            <p>No hay usuarios registrados</p>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <tr *ngFor="let a of (users || accesses)" class="table-row">
+
+                                    <td class="user-cell">
+                                        <div class="user-info">
+                                            <div class="avatar">
+                                                {{ a?.name?.charAt(0) || 'U' }}
+                                            </div>
+                                            <div>
+                                                <strong>{{ a?.name }}</strong>
+                                                <small>{{ a?.email }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        <span class="role-badge">
+                                            {{ a?.role }}
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <span class="status-badge" [class.active]="a?.active"
+                                            [class.inactive]="!a?.active">
+                                            <i class="fas" [ngClass]="a?.active ? 'fa-circle' : 'fa-circle-xmark'"></i>
+                                            {{ a?.active ? 'Activo' : 'Inactivo' }}
+                                        </span>
+                                    </td>
+
+                                    <td class="uid">
+                                        {{ a?.uid }}
+                                    </td>
+
+                                    <td class="actions text-center">
+                                        <button class="icon-btn edit" (click)="editUser(a)">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+
+                                        <button class="icon-btn delete" (click)="deleteUser(a)">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </section>
+
+            </ng-container>
+
+            <!-- ================= PERFIL ================= -->
+            <ng-container *ngSwitchCase="'profile'">
+
+                <section class="card profile-card">
+
+                    <div class="profile-layout">
+
+                        <!-- ========= COLUMNA IZQUIERDA ========= -->
+                        <div class="profile-sidebar">
+
+                            <div class="photo-upload">
+
+                                <img [src]="currentUser?.photo || 'assets/avatar.png'" class="avatar">
+
+                                <h3>{{ profile.name }}</h3>
+
+                                <p class="role">
+                                    {{ currentUser?.role }}
+                                </p>
+
+                                <span class="status-badge" [class.active]="currentUser?.active">
+
+                                    {{ currentUser?.active ? 'Activo' : 'Inactivo' }}
+
+                                </span>
+
+                                <label class="upload-btn">
+
+                                    <i class="fas fa-camera"></i>
+
+                                    Cambiar foto
+
+                                    <input type="file" accept="image/*" (change)="uploadPhoto($event)" hidden>
+
+                                </label>
+
+                            </div>
+
+                        </div>
+
+                        <!-- ========= COLUMNA DERECHA ========= -->
+                        <div class="profile-content">
+
+                            <h2>Mi Perfil</h2>
+
+                            <div class="profile-grid">
+
+                                <div class="form-group">
+                                    <label>Nombre</label>
+                                    <input type="text" [(ngModel)]="profile.name">
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Correo</label>
+                                    <input type="email" [(ngModel)]="profile.email">
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Documento</label>
+                                    <input type="text" [(ngModel)]="profile.document">
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Teléfono</label>
+                                    <input type="text" [(ngModel)]="profile.phone">
+                                </div>
+
+                                <div class="form-group full-width">
+                                    <label>Dirección</label>
+                                    <input type="text" [(ngModel)]="profile.address">
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Rol</label>
+                                    <input [value]="currentUser?.role" readonly>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>UID</label>
+                                    <input [value]="currentUser?.uid" readonly>
+                                </div>
+
+                            </div>
+
+                            <div class="profile-actions">
+
+                                <button class="primary-btn" (click)="updateProfile()">
+
+                                    <i class="fas fa-save"></i>
+
+                                    Guardar cambios
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'admins'">
+                <section class="card list-card">
+
+                    <div class="table-header">
+                        <h3>Administradores</h3>
+                        <span class="badge-total">{{ admins.length || 0 }}</span>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="modern-table">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Email</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <tr *ngFor="let admin of admins">
+                                    <td>{{ admin.name }}</td>
+                                    <td>{{ admin.email }}</td>
+                                    <td>
+                                        <span class="status-badge active">Activo</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </section>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'access'">
+                <section class="card list-card">
+
+                    <div class="table-header">
+                        <h3>Registro de Accesos</h3>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="modern-table">
+                            <thead>
+                                <tr>
+                                    <th>Usuario</th>
+                                    <th>Entrada</th>
+                                    <th>Hora</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <tr *ngFor="let log of accessLogs">
+                                    <td>{{ log.user }}</td>
+                                    <td>{{ log.entry }}</td>
+                                    <td>{{ log.time }}</td>
+                                    <td>
+                                        <span class="status-badge" [class.active]="log.allowed"
+                                            [class.inactive]="!log.allowed">
+                                            {{ log.allowed ? 'Permitido' : 'Denegado' }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </section>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'roles'">
+                <section class="card">
+
+                    <h3>Gestión de Roles</h3>
+
+                    <div class="roles-grid">
+
+                        <div class="role-card" *ngFor="let role of roles">
+                            <h4>{{ role.name }}</h4>
+                            <p>{{ role.description }}</p>
+
+                            <span class="badge-total">
+                                {{ role.users }} usuarios
+                            </span>
+                        </div>
+
+                    </div>
+
+                </section>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'invitations'">
+
+                <section class="card list-card">
+
+                    <div class="table-header">
+
+                        <h3>Invitaciones Enviadas</h3>
+
+                        <span class="badge-total">
+
+                            {{ invitations.length }}
+
+                        </span>
+
+                    </div>
+
+                    <div class="table-container">
+
+                        <table class="modern-table">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>Correo</th>
+                                    <th>Rol</th>
+                                    <th>Fecha</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                <tr *ngFor="let invite of invitations">
+
+                                    <td>{{ invite.email }}</td>
+
+                                    <td>{{ invite.role }}</td>
+
+                                    <td>
+
+                                        {{ invite.created_at | date:'dd/MM/yyyy HH:mm' }}
+
+                                    </td>
+
+                                    <td>
+
+                                        <span class="status-badge"
+                                            [class.active]="getInvitationStatus(invite)=='Aceptada'"
+                                            [class.pending]="getInvitationStatus(invite)=='Pendiente'"
+                                            [class.inactive]="getInvitationStatus(invite)=='Expirada'">
+
+                                            {{ getInvitationStatus(invite) }}
+
+                                        </span>
+
+                                    </td>
+
+                                    <td>
+
+                                        <button class="icon-btn edit" (click)="resendInvitation(invite)">
+
+                                            <i class="fas fa-paper-plane"></i>
+
+                                        </button>
+
+                                        <button class="icon-btn delete" (click)="deleteInvitation(invite.id)">
+
+                                            <i class="fas fa-trash"></i>
+
+                                        </button>
+
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </section>
+
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'reports'">
+                <section class="card">
+
+                    <h3>Reportes del Sistema</h3>
+
+                    <div class="report-grid">
+
+                        <div class="report-card">
+                            <h4>Accesos Hoy</h4>
+                            <p>{{ stats.today_access }}</p>
+                        </div>
+
+                        <div class="report-card">
+                            <h4>Denegados</h4>
+                            <p>{{ stats.denied_access }}</p>
+                        </div>
+
+                        <div class="report-card">
+                            <h4>Usuarios</h4>
+                            <p>{{ stats.total_users }}</p>
+                        </div>
+
+                    </div>
+
+                </section>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'notifications'">
+                <section class="card">
+
+                    <h3>Notificaciones</h3>
+
+                    <div class="notification-list">
+
+                        <div class="notification-item" *ngFor="let n of notifications">
+                            <i class="fas fa-bell"></i>
+                            <div>
+                                <p>{{ n.message }}</p>
+                                <small>{{ n.time }}</small>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </section>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'settings'">
+                <section class="card">
+
+                    <h3>Configuración del Sistema</h3>
+
+                    <div class="settings-grid">
+
+                        <div class="setting-item">
+                            <label>Modo Oscuro</label>
+                            <input type="checkbox" [(ngModel)]="settings.darkMode">
+                        </div>
+
+                        <div class="setting-item">
+                            <label>Alertas Activas</label>
+                            <input type="checkbox" [(ngModel)]="settings.alerts">
+                        </div>
+
+                        <div class="setting-item">
+                            <label>Notificaciones</label>
+                            <input type="checkbox" [(ngModel)]="settings.notifications">
+                        </div>
+
+                    </div>
+
+                </section>
+            </ng-container>
+
+        </div>
+
+    </main>
+
+</div>
+
+<!-- ===================== MODAL USUARIO ===================== -->
+<div class="modal-overlay" *ngIf="showModal">
+
+    <div class="modal">
+
+        <h2>
+            {{ isEditing ? 'Editar Usuario' : 'Registrar Usuario' }}
+        </h2>
+
+        <form (ngSubmit)="submitForm()" class="form-grid">
+
+            <div class="form-group">
+                <label>Nombre</label>
+                <input type="text" [(ngModel)]="form.name" name="name" required>
+            </div>
+
+            <div class="form-group">
+                <label>Correo</label>
+                <input type="email" [(ngModel)]="form.email" name="email" required>
+            </div>
+
+            <div class="form-group">
+                <label>Rol</label>
+
+                <select [(ngModel)]="form.role" name="role" required>
+
+                    <option value="">Seleccionar rol</option>
+                    <option value="aprendiz">Aprendiz</option>
+                    <option value="administrador">Administrador</option>
+                    <option value="super-admin">Super Admin</option>
+                    <option value="vigilante">Vigilante</option>
+                    <option value="instructor">Instructor</option>
+                    <option value="usuario">Usuario</option>
+
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Documento</label>
+
+                <input type="text" [(ngModel)]="form.document" name="document">
+            </div>
+
+            <div class="form-group">
+                <label>Teléfono</label>
+
+                <input type="text" [(ngModel)]="form.phone" name="phone">
+            </div>
+
+            <div class="form-group full">
+                <label>Dirección</label>
+
+                <input type="text" [(ngModel)]="form.address" name="address">
+            </div>
+
+            <div class="form-group switch">
+
+                <label>Estado</label>
+
+                <input type="checkbox" [(ngModel)]="form.active" name="active">
+
+                <span>
+                    {{ form.active ? 'Activo' : 'Inactivo' }}
+                </span>
+
+            </div>
+
+            <div class="modal-actions">
+
+                <button type="submit" class="primary-btn">
+
+                    <i class="fas fa-save"></i>
+
+                    {{ isEditing ? 'Actualizar' : 'Guardar' }}
+
+                </button>
+
+                <button type="button" class="secondary-btn" (click)="closeModal()">
+
+                    Cancelar
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>

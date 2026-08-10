@@ -1,0 +1,63 @@
+<div class="container">
+
+  <div class="card">
+    <div class="toggle-container">
+      <button class="theme-btn" (click)="toggleDarkMode()">
+        <i class="fa-solid fa-moon"></i>
+      </button>
+    </div>
+
+    <div class="logo">
+      <i class="fa-solid fa-shield-halved"></i>
+      
+    </div>
+
+    <h2>SEGURENTRY</h2>
+
+    <p class="subtitle">
+      Control Inteligente de Accesos
+    </p>
+
+    <div class="input-group">
+      <i class="fa-solid fa-envelope"></i>
+      <input type="email" placeholder="Correo electrónico" [(ngModel)]="email">
+    </div>
+
+    <div class="input-group">
+      <i class="fa-solid fa-lock"></i>
+      <input [type]="showPassword ? 'text':'password'" placeholder="Contraseña" [(ngModel)]="password">
+      <button type="button" class="eye-btn" (click)="showPassword=!showPassword">
+        <i [class]="showPassword
+          ? 'fa-solid fa-eye-slash'
+          : 'fa-solid fa-eye'">
+        </i>
+      </button>
+    </div>
+
+    <div class="forgot">
+      <a routerLink="/forgot-password">
+        ¿Olvidaste tu contraseña?
+      </a>
+    </div>
+
+    <button class="login-btn" (click)="login()">
+      Iniciar Sesión
+    </button>
+
+    <div class="divider">
+      <span>o</span>
+    </div>
+
+    <button class="google-btn" type="button" (click)="loginWithGoogle()">
+      <i class="fa-brands fa-google"></i>
+      Continuar con Google
+    </button>
+
+    <p class="link">
+      ¿No tienes cuenta?
+      <a routerLink="/register">
+        Crear cuenta
+      </a>
+    </p>
+  </div>
+</div>

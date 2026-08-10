@@ -1,0 +1,599 @@
+@import '@fortawesome/fontawesome-free/css/all.min.css';
+
+/*==================================
+VARIABLES
+==================================*/
+
+:host {
+    
+    --bg: #F8FAFC;
+    --card: #FFFFFF;
+    --input: #FFFFFF;
+
+   
+    --text: #1E293B;      
+    --subtitle: #39A900;  
+
+    --border: #E2E8F0;
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+
+    --primary: #39A900;
+    --primaryHover: #2E8B00;
+}
+
+:host-context(body.dark) {
+    
+    --bg: #35373d;
+    --card: #1e2228;
+    --input: #161a20;
+
+    --text: #F1F5F9;
+    --subtitle: #67E667; 
+
+    --border: #334155;
+    --primary: #39A900;
+    --primaryHover: #7CFC7C;
+}
+
+/*==================================
+RESET
+==================================*/
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+/*==================================
+CONTENEDOR
+==================================*/
+
+.container{
+  min-height:100vh;
+  width:100%;
+
+  display:flex;
+  justify-content:center;
+  align-items:center;
+
+  padding:20px;
+
+  background:var(--bg);
+
+  transition:.35s;
+}
+
+/*==================================
+CARD
+==================================*/
+
+.card{
+
+  width:100%;
+  max-width:430px;
+
+  background:var(--card);
+
+  padding:35px;
+
+  border-radius:22px;
+
+  box-shadow:var(--shadow);
+
+  color:var(--text);
+
+  transition:.35s;
+
+}
+
+.card:hover{
+
+  transform:translateY(-4px);
+
+}
+
+/*==================================
+BOTON MODO OSCURO
+==================================*/
+
+.toggle-container{
+
+  display:flex;
+  justify-content:flex-end;
+
+  margin-bottom:15px;
+
+}
+
+.theme-btn{
+
+  background:none;
+  border:none;
+
+  cursor:pointer;
+
+  color:var(--text);
+
+  font-size:24px;
+
+  transition:.3s;
+
+}
+
+.theme-btn:hover{
+
+  transform:rotate(20deg) scale(1.1);
+
+}
+
+/*==================================
+LOGO
+==================================*/
+
+.logo{
+
+  text-align:center;
+
+  font-size:60px;
+
+  color:var(--text);
+
+  margin-bottom:15px;
+
+}
+
+/*==================================
+TEXTOS
+==================================*/
+
+h2{
+
+  text-align:center;
+
+  letter-spacing:4px;
+
+  color:var(--text);
+
+  margin-bottom:10px;
+
+}
+
+.subtitle{
+
+  text-align:center;
+
+  color:var(--text);
+
+  margin-bottom:30px;
+
+  font-size:14px;
+
+  font-weight:500;
+
+}
+
+/*==================================
+INPUTS
+==================================*/
+
+.input-group{
+
+  display:flex;
+  align-items:center;
+
+  height:55px;
+
+  padding:0 15px;
+
+  margin-bottom:15px;
+
+  border-radius:14px;
+
+  border:2px solid var(--border);
+
+  background:var(--input);
+
+  transition:.3s;
+
+}
+
+.input-group:hover{
+
+  border-color:var(--primary);
+
+}
+
+.input-group:focus-within{
+
+  border-color:var(--primary);
+
+  box-shadow:0 0 0 4px rgba(37,99,235,.15);
+
+}
+
+.input-group i{
+
+  color:var(--primary);
+
+  font-size:17px;
+
+  min-width:20px;
+
+}
+
+.input-group input{
+
+  flex:1;
+
+  border:none;
+  outline:none;
+
+  background:none;
+
+  padding-left:10px;
+
+  color:var(--text);
+
+  font-size:15px;
+
+  font-weight:600;
+
+}
+
+.input-group input::placeholder{
+
+  color:var(--text);
+
+  opacity:.55;
+
+}
+
+.eye-btn{
+
+  border:none;
+  background:none;
+
+  cursor:pointer;
+
+  color:var(--primary);
+
+  font-size:16px;
+
+}
+
+.eye-btn:hover{
+
+  opacity:.8;
+
+}
+
+/*==================================
+RECUPERAR CONTRASEÑA
+==================================*/
+
+.forgot{
+
+  text-align:right;
+
+  margin-bottom:22px;
+
+}
+
+.forgot a{
+
+  color:var(--text);
+
+  text-decoration:none;
+
+  font-size:14px;
+
+  font-weight:600;
+
+}
+
+.forgot a:hover{
+
+  text-decoration:underline;
+
+}
+
+/*==================================
+BOTON LOGIN
+==================================*/
+
+.login-btn{
+
+  width:100%;
+
+  padding:14px;
+
+  border-radius:14px;
+
+  border:2px solid var(--primary);
+
+  background:transparent;
+
+  color:var(--primary);
+
+  font-size:15px;
+
+  font-weight:700;
+
+  cursor:pointer;
+
+  transition:all .3s ease;
+
+}
+
+/* MODO CLARO */
+
+.login-btn:hover{
+
+  background:var(--primary);
+
+  color:#fff;
+
+  box-shadow:0 10px 20px rgba(37,99,235,.35);
+
+  transform:translateY(-2px);
+
+}
+
+/* MODO OSCURO */
+
+:host-context(body.dark) .login-btn{
+
+  background:var(--primary);
+
+  color:white;
+
+}
+
+:host-context(body.dark) .login-btn:hover{
+
+  background:transparent;
+
+  color:var(--primary);
+
+  border-color:var(--primary);
+
+}
+
+/*==================================
+DIVISOR
+==================================*/
+
+.divider{
+
+  margin:25px 0;
+
+  text-align:center;
+
+  position:relative;
+
+}
+
+.divider::before{
+
+  content:"";
+
+  position:absolute;
+
+  left:0;
+  right:0;
+
+  top:50%;
+
+  height:1px;
+
+  background:var(--border);
+
+  z-index:-1;
+
+}
+
+.divider span{
+
+  padding:0 10px;
+
+  background:var(--card);
+
+  color:var(--primary);
+
+  font-weight:700;
+
+}
+
+/*==================================
+BOTON GOOGLE
+==================================*/
+
+.google-btn{
+
+  width:100%;
+
+  padding:14px;
+
+  border-radius:14px;
+
+  border:2px solid var(--primary);
+
+  background:transparent;
+
+  color:var(--primary);
+
+  font-weight:700;
+
+  display:flex;
+  justify-content:center;
+  align-items:center;
+
+  gap:10px;
+
+  cursor:pointer;
+
+  transition:.3s;
+
+}
+
+.google-btn i{
+
+  font-size:18px;
+
+}
+
+/* MODO CLARO */
+
+.google-btn:hover{
+
+  background:var(--primary);
+
+  color:white;
+
+  transform:translateY(-2px);
+
+}
+
+/* MODO OSCURO */
+
+:host-context(body.dark) .google-btn{
+
+  background:var(--primary);
+
+  color:white;
+
+}
+
+:host-context(body.dark) .google-btn:hover{
+
+  background:transparent;
+
+  color:var(--primary);
+
+}
+
+/*==================================
+LINK REGISTRO
+==================================*/
+
+.link{
+
+  margin-top:25px;
+
+  text-align:center;
+
+  color:var(--text);
+
+  font-size:15px;
+
+  font-weight:500;
+
+}
+
+.link a{
+
+  color:var(--primary);
+
+  text-decoration:none;
+
+  font-weight:700;
+
+}
+
+.link a:hover{
+
+  text-decoration:underline;
+
+}
+
+/*==================================
+RESPONSIVE
+==================================*/
+
+@media(max-width:768px){
+
+  .card{
+
+    max-width:450px;
+
+    padding:32px;
+
+  }
+
+}
+
+@media(max-width:480px){
+
+  .container{
+
+    padding:15px;
+
+  }
+
+  .card{
+
+    padding:24px;
+
+    border-radius:18px;
+
+  }
+
+  .logo{
+
+    font-size:50px;
+
+  }
+
+  h2{
+
+    font-size:30px;
+
+    letter-spacing:3px;
+
+  }
+
+  .subtitle{
+
+    font-size:13px;
+
+  }
+
+  .input-group{
+
+    height:52px;
+
+  }
+
+}
+
+@media(max-width:360px){
+
+  .card{
+
+    padding:18px;
+
+  }
+
+  .logo{
+
+    font-size:42px;
+
+  }
+
+  h2{
+
+    font-size:24px;
+
+  }
+
+  .login-btn,
+  .google-btn{
+
+    padding:12px;
+
+    font-size:14px;
+
+  }
+
+}

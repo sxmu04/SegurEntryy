@@ -1,0 +1,78 @@
+<div class="sidebar">
+
+    <!-- LOGO -->
+    <div class="logo">
+
+        <i class="fas fa-shield-alt"></i>
+
+        <span *ngIf="menuOpen">
+            SegurEntry
+        </span>
+
+    </div>
+
+    <!-- PERFIL -->
+
+    <div class="profile">
+
+        <div class="avatar">
+
+            <img src="assets/images/default-user.png"
+                 alt="Perfil">
+
+        </div>
+
+        <div
+            class="profile-info"
+            *ngIf="menuOpen">
+
+            <h4>Juan Pérez</h4>
+
+            <span>SuperAdministrador</span>
+
+        </div>
+
+    </div>
+
+    <!-- MENÚ -->
+
+    <nav>
+
+        <button
+            *ngFor="let item of menuItems"
+            routerLink="{{item.route}}"
+            routerLinkActive="active">
+
+            <i [class]="item.icon"></i>
+
+            <span *ngIf="menuOpen">
+
+                {{item.label}}
+
+            </span>
+
+        </button>
+
+    </nav>
+
+    <!-- FOOTER -->
+
+    <div class="bottom">
+
+        <button
+            class="logout"
+            (click)="logout()">
+
+            <i class="fas fa-sign-out-alt"></i>
+
+            <span *ngIf="menuOpen">
+
+                Cerrar sesión
+
+            </span>
+
+        </button>
+
+    </div>
+
+</div>

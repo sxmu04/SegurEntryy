@@ -1,0 +1,450 @@
+<div class="users-container">
+
+    <!-- ===================== HEADER ===================== -->
+
+    <div class="page-header">
+
+        <div>
+
+            <h2>Gestión de Usuarios</h2>
+
+            <p>
+
+                Administra los usuarios registrados en el sistema SegurEntry.
+
+            </p>
+
+        </div>
+
+        <button
+            class="primary-btn"
+            (click)="showForm = true">
+
+            <i class="fas fa-user-plus"></i>
+
+            Registrar Usuario
+
+        </button>
+
+    </div>
+
+    <!-- ===================== ESTADÍSTICAS ===================== -->
+
+    <section class="stats">
+
+        <div class="card">
+
+            <i class="fas fa-users"></i>
+
+            <h2>{{ users.length }}</h2>
+
+            <p>Total Usuarios</p>
+
+        </div>
+
+        <div class="card">
+
+            <i class="fas fa-user-shield"></i>
+
+            <h2>5</h2>
+
+            <p>Administradores</p>
+
+        </div>
+
+        <div class="card">
+
+            <i class="fas fa-chalkboard-teacher"></i>
+
+            <h2>18</h2>
+
+            <p>Instructores</p>
+
+        </div>
+
+        <div class="card">
+
+            <i class="fas fa-user-graduate"></i>
+
+            <h2>84</h2>
+
+            <p>Aprendices</p>
+
+        </div>
+
+    </section>
+
+    <!-- ===================== FILTROS ===================== -->
+
+    <section class="filters-card">
+
+        <div class="filter-group">
+
+            <input
+
+                type="text"
+
+                placeholder="Buscar por nombre o documento..."
+
+                (keyup)="filterUsers()">
+
+        </div>
+
+        <div class="filter-group">
+
+            <select (change)="filterUsers()">
+
+                <option>
+
+                    Todos los roles
+
+                </option>
+
+                <option>
+
+                    Super Administrador
+
+                </option>
+
+                <option>
+
+                    Administrador
+
+                </option>
+
+                <option>
+
+                    Instructor
+
+                </option>
+
+                <option>
+
+                    Vigilante
+
+                </option>
+
+                <option>
+
+                    Trabajador
+
+                </option>
+
+                <option>
+
+                    Aprendiz
+
+                </option>
+
+            </select>
+
+        </div>
+
+        <div class="filter-group">
+
+            <select (change)="filterUsers()">
+
+                <option>
+
+                    Todos los estados
+
+                </option>
+
+                <option>
+
+                    Activo
+
+                </option>
+
+                <option>
+
+                    Inactivo
+
+                </option>
+
+                <option>
+
+                    Suspendido
+
+                </option>
+
+            </select>
+
+        </div>
+
+    </section>
+
+        <!-- ===================== TABLA ===================== -->
+
+    <section class="users-card">
+
+        <div class="table-header">
+
+            <div>
+
+                <h3>
+
+                    Usuarios Registrados
+
+                </h3>
+
+                <p>
+
+                    Administración de usuarios del sistema.
+
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>Nombre</th>
+
+                        <th>Documento</th>
+
+                        <th>Correo</th>
+
+                        <th>Rol</th>
+
+                        <th>Estado</th>
+
+                        <th>Acciones</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    <tr *ngFor="let user of users">
+
+                        <td>{{ user.name }}</td>
+
+                        <td>{{ user.document }}</td>
+
+                        <td>{{ user.email }}</td>
+
+                        <td>{{ user.role }}</td>
+
+                        <td>
+
+                            <span
+                                class="badge"
+                                [ngClass]="{
+
+                                    'success': user.status === 'Activo',
+
+                                    'warning': user.status === 'Suspendido',
+
+                                    'danger': user.status === 'Inactivo'
+
+                                }">
+
+                                {{ user.status }}
+
+                            </span>
+
+                        </td>
+
+                        <td class="actions">
+
+                            <button
+                                class="view"
+                                (click)="viewUser(user)">
+
+                                <i class="fas fa-eye"></i>
+
+                            </button>
+
+                            <button
+                                class="edit"
+                                (click)="editUser(user)">
+
+                                <i class="fas fa-edit"></i>
+
+                            </button>
+
+                            <button
+                                class="delete"
+                                (click)="deleteUser(user.id)">
+
+                                <i class="fas fa-trash"></i>
+
+                            </button>
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+    <!-- ===================== MODAL ===================== -->
+
+    <div
+        class="modal-backdrop"
+        *ngIf="showForm">
+
+        <div class="modal">
+
+            <div class="modal-header">
+
+                <h2>
+
+                    {{ editMode ? 'Editar Usuario' : 'Registrar Usuario' }}
+
+                </h2>
+
+                <button
+                    class="close-btn"
+                    (click)="showForm = false">
+
+                    <i class="fas fa-times"></i>
+
+                </button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <input
+                    [(ngModel)]="form.name"
+                    placeholder="Nombre completo">
+
+                <input
+                    [(ngModel)]="form.document"
+                    placeholder="Documento">
+
+                <input
+                    [(ngModel)]="form.email"
+                    placeholder="Correo electrónico">
+
+                <input
+                    [(ngModel)]="form.phone"
+                    placeholder="Teléfono">
+
+                <select [(ngModel)]="form.role">
+
+                    <option value="">
+
+                        Seleccione un rol
+
+                    </option>
+
+                    <option>
+
+                        Super Administrador
+
+                    </option>
+
+                    <option>
+
+                        Administrador
+
+                    </option>
+
+                    <option>
+
+                        Instructor
+
+                    </option>
+
+                    <option>
+
+                        Vigilante
+
+                    </option>
+
+                    <option>
+
+                        Trabajador
+
+                    </option>
+
+                    <option>
+
+                        Aprendiz
+
+                    </option>
+
+                </select>
+
+                <select [(ngModel)]="form.status">
+
+                    <option>
+
+                        Activo
+
+                    </option>
+
+                    <option>
+
+                        Inactivo
+
+                    </option>
+
+                    <option>
+
+                        Suspendido
+
+                    </option>
+
+                </select>
+
+                <label class="checkbox">
+
+                    <input
+                        type="checkbox"
+                        [(ngModel)]="form.tempAccess">
+
+                    Acceso temporal
+
+                </label>
+
+                <input
+                    *ngIf="form.tempAccess"
+                    type="date"
+                    [(ngModel)]="form.expirationDate">
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button
+                    class="cancel"
+                    (click)="resetForm(); showForm = false">
+
+                    Cancelar
+
+                </button>
+
+                <button
+                    class="primary"
+                    (click)="saveUser(); showForm = false">
+
+                    <i class="fas fa-save"></i>
+
+                    {{ editMode ? 'Actualizar Usuario' : 'Registrar Usuario' }}
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

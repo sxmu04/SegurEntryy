@@ -1,0 +1,1273 @@
+@import '@fortawesome/fontawesome-free/css/all.min.css';
+
+/* =========================================================
+   SEGURENTRY — PANEL ADMINISTRADOR
+   Diseño CTO | SENA | IoT | Seguridad
+   ========================================================= */
+
+
+/* =========================================================
+   VARIABLES
+   ========================================================= */
+
+:host {
+    --bg-main: #020617;
+    --bg-sidebar: #07111f;
+    --bg-card: #0f172a;
+    --bg-card-hover: #141f33;
+
+    --border: rgba(148, 163, 184, 0.14);
+    --border-strong: rgba(148, 163, 184, 0.22);
+
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+
+    --green: #22c55e;
+    --green-dark: #16a34a;
+    --green-soft: rgba(34, 197, 94, 0.12);
+
+    --orange: #f97316;
+    --orange-dark: #ea580c;
+    --orange-soft: rgba(249, 115, 22, 0.12);
+
+    --blue: #38bdf8;
+    --blue-soft: rgba(56, 189, 248, 0.12);
+
+    --red: #ef4444;
+    --red-soft: rgba(239, 68, 68, 0.12);
+
+    --purple: #a855f7;
+    --purple-soft: rgba(168, 85, 247, 0.12);
+
+    --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.18);
+    --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.25);
+    --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.35);
+
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 18px;
+
+    --sidebar-width: 260px;
+    --sidebar-collapsed: 82px;
+
+    --transition: 0.25s ease;
+}
+
+
+/* =========================================================
+   RESET LOCAL
+   ========================================================= */
+
+:host {
+    display: block;
+    min-height: 100vh;
+    color: var(--text-primary);
+    background: var(--bg-main);
+    font-family:
+        Inter,
+        "Segoe UI",
+        Roboto,
+        Helvetica,
+        Arial,
+        sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   SIDEBAR
+   ========================================================= */
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    width: var(--sidebar-width);
+    height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+
+    padding: 22px 14px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #07111f 0%,
+            #081522 50%,
+            #06101c 100%
+        );
+
+    border-right: 1px solid var(--border);
+
+    box-shadow:
+        8px 0 30px rgba(0, 0, 0, 0.18);
+
+    z-index: 1000;
+
+    transition:
+        width var(--transition),
+        box-shadow var(--transition);
+}
+
+
+/* =========================================================
+   SIDEBAR COLAPSADA
+   ========================================================= */
+
+.sidebar.collapsed {
+    width: var(--sidebar-collapsed);
+}
+
+.sidebar.collapsed .profile-card {
+    padding-left: 0;
+    padding-right: 0;
+    justify-content: center;
+}
+
+.sidebar.collapsed .logo {
+    justify-content: center;
+}
+
+.sidebar.collapsed nav button {
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+
+/* =========================================================
+   PERFIL SIDEBAR
+   ========================================================= */
+
+.profile-card {
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    text-align: center;
+
+    padding: 18px 12px 20px;
+
+    margin-bottom: 14px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(34, 197, 94, 0.08),
+            rgba(249, 115, 22, 0.04)
+        );
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius-lg);
+
+    transition:
+        background var(--transition),
+        border-color var(--transition);
+}
+
+.profile-card:hover {
+    border-color: rgba(34, 197, 94, 0.28);
+}
+
+
+/* =========================================================
+   AVATAR
+   ========================================================= */
+
+.profile-card .avatar {
+    width: 58px;
+    height: 58px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-bottom: 11px;
+
+    border-radius: 50%;
+
+    color: var(--green);
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(34, 197, 94, 0.16),
+            rgba(249, 115, 22, 0.12)
+        );
+
+    border: 1px solid rgba(34, 197, 94, 0.28);
+
+    box-shadow:
+        0 0 0 5px rgba(34, 197, 94, 0.04),
+        0 8px 20px rgba(0, 0, 0, 0.18);
+
+    font-size: 21px;
+}
+
+.profile-card h3 {
+    margin: 0;
+
+    color: var(--text-primary);
+
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.1px;
+}
+
+.profile-card p {
+    margin: 5px 0 0;
+
+    color: var(--text-muted);
+
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   LOGO
+   ========================================================= */
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+
+    min-height: 48px;
+
+    padding: 0 12px;
+    margin-bottom: 12px;
+
+    color: var(--text-primary);
+
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: -0.2px;
+
+    transition: var(--transition);
+}
+
+.logo i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 34px;
+    height: 34px;
+
+    flex-shrink: 0;
+
+    color: var(--orange);
+
+    background: var(--orange-soft);
+
+    border: 1px solid rgba(249, 115, 22, 0.2);
+
+    border-radius: 9px;
+
+    font-size: 16px;
+}
+
+.logo span {
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   NAVEGACIÓN
+   ========================================================= */
+
+.sidebar nav {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    width: 100%;
+}
+
+.sidebar nav button {
+    position: relative;
+
+    width: 100%;
+    min-height: 46px;
+
+    display: flex;
+    align-items: center;
+    gap: 13px;
+
+    padding: 0 13px;
+
+    border: 1px solid transparent;
+    border-radius: 10px;
+
+    background: transparent;
+
+    color: var(--text-secondary);
+
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    text-align: left;
+
+    transition:
+        background var(--transition),
+        color var(--transition),
+        border-color var(--transition),
+        transform var(--transition);
+}
+
+.sidebar nav button i {
+    width: 20px;
+
+    flex-shrink: 0;
+
+    text-align: center;
+
+    font-size: 15px;
+
+    transition:
+        color var(--transition),
+        transform var(--transition);
+}
+
+.sidebar nav button:hover {
+    color: var(--text-primary);
+
+    background: rgba(255, 255, 255, 0.045);
+
+    border-color: var(--border);
+
+    transform: translateX(2px);
+}
+
+.sidebar nav button:hover i {
+    color: var(--orange);
+
+    transform: scale(1.08);
+}
+
+
+/* =========================================================
+   ITEM ACTIVO
+   ========================================================= */
+
+.sidebar nav button.active {
+    color: #ffffff;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(249, 115, 22, 0.15),
+            rgba(34, 197, 94, 0.08)
+        );
+
+    border-color: rgba(249, 115, 22, 0.2);
+
+    box-shadow:
+        inset 3px 0 0 var(--orange),
+        0 5px 18px rgba(0, 0, 0, 0.12);
+}
+
+.sidebar nav button.active i {
+    color: var(--orange);
+}
+
+.sidebar nav button.active::after {
+    content: "";
+
+    position: absolute;
+
+    right: 10px;
+
+    width: 5px;
+    height: 5px;
+
+    border-radius: 50%;
+
+    background: var(--green);
+
+    box-shadow: 0 0 10px rgba(34, 197, 94, 0.65);
+}
+
+
+/* =========================================================
+   PARTE INFERIOR SIDEBAR
+   ========================================================= */
+
+.sidebar-bottom {
+    margin-top: auto;
+
+    padding-top: 14px;
+
+    border-top: 1px solid var(--border);
+}
+
+.logout {
+    width: 100%;
+    min-height: 45px;
+
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    padding: 0 13px;
+
+    border: 1px solid transparent;
+    border-radius: 10px;
+
+    background: transparent;
+
+    color: #fca5a5;
+
+    font-family: inherit;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: var(--transition);
+}
+
+.logout i {
+    width: 20px;
+
+    text-align: center;
+}
+
+.logout:hover {
+    color: #ffffff;
+
+    background: var(--red-soft);
+
+    border-color: rgba(239, 68, 68, 0.18);
+
+    transform: translateX(2px);
+}
+
+.sidebar.collapsed .logout {
+    justify-content: center;
+
+    padding-left: 0;
+    padding-right: 0;
+}
+
+
+/* =========================================================
+   MAIN
+   ========================================================= */
+
+.main {
+    min-height: 100vh;
+
+    margin-left: var(--sidebar-width);
+
+    padding: 32px 36px 48px;
+
+    background:
+        radial-gradient(
+            circle at 85% 5%,
+            rgba(34, 197, 94, 0.045),
+            transparent 28%
+        ),
+        radial-gradient(
+            circle at 15% 95%,
+            rgba(249, 115, 22, 0.035),
+            transparent 25%
+        ),
+        var(--bg-main);
+
+    transition:
+        margin-left var(--transition);
+}
+
+
+/*
+   Si el sidebar está colapsado, el contenido se adapta.
+*/
+.sidebar.collapsed ~ .main {
+    margin-left: var(--sidebar-collapsed);
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.main > header {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+
+    margin-bottom: 30px;
+
+    padding-bottom: 24px;
+
+    border-bottom: 1px solid var(--border);
+}
+
+.main > header > div {
+    min-width: 0;
+}
+
+.main > header h2 {
+    margin: 0;
+
+    color: var(--text-primary);
+
+    font-size: clamp(22px, 2vw, 30px);
+
+    font-weight: 800;
+
+    letter-spacing: -0.7px;
+}
+
+.header-subtitle {
+    margin: 6px 0 0;
+
+    color: var(--text-secondary);
+
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   BOTÓN MENU
+   ========================================================= */
+
+.menu-btn {
+    width: 42px;
+    height: 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border: 1px solid var(--border);
+
+    border-radius: 10px;
+
+    background: var(--bg-card);
+
+    color: var(--text-secondary);
+
+    cursor: pointer;
+
+    transition: var(--transition);
+}
+
+.menu-btn:hover {
+    color: #ffffff;
+
+    border-color: rgba(249, 115, 22, 0.3);
+
+    background: var(--orange-soft);
+
+    transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   SECCIONES
+   ========================================================= */
+
+.section {
+    width: 100%;
+}
+
+
+/* =========================================================
+   STATS
+   ========================================================= */
+
+.stats {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 18px;
+
+    margin-bottom: 24px;
+}
+
+.stats.full-width {
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+}
+
+
+/* =========================================================
+   CARD
+   ========================================================= */
+
+.card {
+    position: relative;
+
+    width: 100%;
+
+    padding: 24px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(15, 23, 42, 0.98),
+            rgba(10, 18, 32, 0.98)
+        );
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius-lg);
+
+    box-shadow: var(--shadow-sm);
+
+    transition:
+        transform var(--transition),
+        border-color var(--transition),
+        box-shadow var(--transition);
+}
+
+.card:hover {
+    border-color: var(--border-strong);
+
+    box-shadow: var(--shadow-md);
+}
+
+
+/* =========================================================
+   STAT CARD
+   ========================================================= */
+
+.stat-card {
+    min-height: 145px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 3px;
+
+    background:
+        linear-gradient(
+            90deg,
+            var(--orange),
+            var(--green)
+        );
+}
+
+.stat-card h2 {
+    position: relative;
+
+    margin: 0 0 8px;
+
+    color: var(--text-primary);
+
+    font-size: 32px;
+    font-weight: 800;
+
+    letter-spacing: -1px;
+}
+
+.stat-card p {
+    position: relative;
+
+    margin: 0;
+
+    color: var(--text-secondary);
+
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   TABLA
+   ========================================================= */
+
+.card:has(table) {
+    overflow: hidden;
+}
+
+.card > .primary-btn {
+    margin-bottom: 22px;
+}
+
+table {
+    width: 100%;
+
+    border-collapse: separate;
+    border-spacing: 0;
+
+    overflow: hidden;
+
+    font-size: 13px;
+}
+
+thead {
+    background:
+        rgba(255, 255, 255, 0.035);
+}
+
+th {
+    padding: 15px 16px;
+
+    color: var(--text-secondary);
+
+    border-bottom: 1px solid var(--border);
+
+    font-size: 11px;
+    font-weight: 700;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.65px;
+
+    text-align: left;
+
+    white-space: nowrap;
+}
+
+td {
+    padding: 16px;
+
+    color: #cbd5e1;
+
+    border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+
+    vertical-align: middle;
+}
+
+tbody tr {
+    transition: background var(--transition);
+}
+
+tbody tr:hover {
+    background: rgba(255, 255, 255, 0.025);
+}
+
+tbody tr:last-child td {
+    border-bottom: none;
+}
+
+
+/* =========================================================
+   BOTÓN PRINCIPAL
+   ========================================================= */
+
+.primary-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+
+    min-height: 42px;
+
+    padding: 0 17px;
+
+    border: 1px solid rgba(249, 115, 22, 0.35);
+
+    border-radius: 10px;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--orange),
+            var(--orange-dark)
+        );
+
+    color: #ffffff;
+
+    font-family: inherit;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 8px 20px rgba(249, 115, 22, 0.15);
+
+    transition: var(--transition);
+}
+
+.primary-btn:hover {
+    background:
+        linear-gradient(
+            135deg,
+            #fb923c,
+            var(--orange)
+        );
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 12px 25px rgba(249, 115, 22, 0.22);
+}
+
+.primary-btn:active {
+    transform: translateY(0);
+}
+
+
+/* =========================================================
+   BOTONES DE ICONO
+   ========================================================= */
+
+.icon-btn {
+    width: 36px;
+    height: 36px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid var(--border);
+
+    border-radius: 9px;
+
+    background: rgba(255, 255, 255, 0.025);
+
+    color: var(--text-secondary);
+
+    cursor: pointer;
+
+    transition: var(--transition);
+}
+
+.icon-btn.delete:hover {
+    color: #fca5a5;
+
+    background: var(--red-soft);
+
+    border-color: rgba(239, 68, 68, 0.25);
+
+    transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   MODAL
+   ========================================================= */
+
+.modal {
+    width: min(520px, calc(100vw - 32px));
+
+    padding: 30px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #111c2e,
+            #0b1423
+        );
+
+    border: 1px solid var(--border-strong);
+
+    border-radius: var(--radius-lg);
+
+    box-shadow: var(--shadow-lg);
+
+    color: var(--text-primary);
+
+    animation: modalEnter 0.25s ease-out;
+}
+
+.modal h2 {
+    margin: 0 0 24px;
+
+    font-size: 22px;
+    font-weight: 800;
+
+    letter-spacing: -0.4px;
+}
+
+.modal h2::after {
+    content: "";
+
+    display: block;
+
+    width: 45px;
+    height: 3px;
+
+    margin-top: 10px;
+
+    border-radius: 10px;
+
+    background:
+        linear-gradient(
+            90deg,
+            var(--orange),
+            var(--green)
+        );
+}
+
+
+/* =========================================================
+   INPUTS DEL MODAL
+   ========================================================= */
+
+.modal input,
+.modal select {
+    width: 100%;
+
+    height: 46px;
+
+    margin-bottom: 14px;
+
+    padding: 0 14px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 9px;
+
+    outline: none;
+
+    background: rgba(2, 6, 23, 0.65);
+
+    color: var(--text-primary);
+
+    font-family: inherit;
+
+    font-size: 13px;
+
+    transition:
+        border-color var(--transition),
+        box-shadow var(--transition),
+        background var(--transition);
+}
+
+.modal input::placeholder {
+    color: var(--text-muted);
+}
+
+.modal input:hover,
+.modal select:hover {
+    border-color: rgba(148, 163, 184, 0.27);
+}
+
+.modal input:focus,
+.modal select:focus {
+    border-color: var(--orange);
+
+    background: rgba(2, 6, 23, 0.8);
+
+    box-shadow:
+        0 0 0 3px rgba(249, 115, 22, 0.09);
+}
+
+.modal select {
+    cursor: pointer;
+}
+
+
+/* =========================================================
+   BOTONES MODAL
+   ========================================================= */
+
+.modal > button {
+    min-height: 42px;
+
+    padding: 0 17px;
+
+    margin-top: 7px;
+    margin-right: 8px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 9px;
+
+    background: rgba(255, 255, 255, 0.04);
+
+    color: var(--text-secondary);
+
+    font-family: inherit;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: var(--transition);
+}
+
+.modal > button:first-of-type {
+    border-color: rgba(249, 115, 22, 0.35);
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--orange),
+            var(--orange-dark)
+        );
+
+    color: #ffffff;
+
+    box-shadow:
+        0 7px 18px rgba(249, 115, 22, 0.14);
+}
+
+.modal > button:first-of-type:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 11px 22px rgba(249, 115, 22, 0.2);
+}
+
+.modal > button:last-of-type:hover {
+    color: #ffffff;
+
+    background: rgba(255, 255, 255, 0.08);
+
+    border-color: var(--border-strong);
+}
+
+
+/* =========================================================
+   CONTENIDO GENERAL
+   ========================================================= */
+
+.card h3 {
+    margin: 0 0 10px;
+
+    color: var(--text-primary);
+
+    font-size: 18px;
+    font-weight: 750;
+}
+
+.card > p {
+    margin: 0;
+
+    color: var(--text-secondary);
+
+    font-size: 13px;
+
+    line-height: 1.7;
+}
+
+
+/* =========================================================
+   PERFIL
+   ========================================================= */
+
+.card input {
+    width: 100%;
+
+    height: 45px;
+
+    margin-top: 16px;
+
+    padding: 0 14px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 9px;
+
+    background: rgba(2, 6, 23, 0.6);
+
+    color: var(--text-primary);
+
+    outline: none;
+
+    font-family: inherit;
+
+    transition: var(--transition);
+}
+
+.card input:focus {
+    border-color: var(--green);
+
+    box-shadow:
+        0 0 0 3px rgba(34, 197, 94, 0.08);
+}
+
+
+/* =========================================================
+   SCROLLBAR
+   ========================================================= */
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #020617;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #263449;
+
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #3b4b63;
+}
+
+
+/* =========================================================
+   ANIMACIONES
+   ========================================================= */
+
+@keyframes modalEnter {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+
+/* =========================================================
+   RESPONSIVE — TABLET
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+    :host {
+        --sidebar-width: 230px;
+    }
+
+    .main {
+        padding: 28px 24px 40px;
+    }
+
+    .stats,
+    .stats.full-width {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    table {
+        min-width: 700px;
+    }
+
+    .card:has(table) {
+        overflow-x: auto;
+    }
+}
+
+
+/* =========================================================
+   RESPONSIVE — MÓVIL
+   ========================================================= */
+
+@media (max-width: 680px) {
+
+    .sidebar {
+        width: var(--sidebar-collapsed);
+    }
+
+    .sidebar:not(.collapsed) {
+        width: 250px;
+
+        box-shadow:
+            12px 0 35px rgba(0, 0, 0, 0.45);
+    }
+
+    .main,
+    .sidebar.collapsed ~ .main {
+        margin-left: var(--sidebar-collapsed);
+
+        padding: 22px 16px 32px;
+    }
+
+    .sidebar:not(.collapsed) ~ .main {
+        margin-left: var(--sidebar-collapsed);
+    }
+
+    .main > header {
+        gap: 12px;
+
+        margin-bottom: 22px;
+
+        padding-bottom: 18px;
+    }
+
+    .main > header h2 {
+        font-size: 21px;
+    }
+
+    .header-subtitle {
+        font-size: 12px;
+    }
+
+    .stats,
+    .stats.full-width {
+        grid-template-columns: 1fr;
+
+        gap: 14px;
+    }
+
+    .card {
+        padding: 19px;
+    }
+
+    .stat-card {
+        min-height: 125px;
+    }
+
+    .modal {
+        padding: 22px;
+    }
+}
+
+
+/* =========================================================
+   MÓVIL PEQUEÑO
+   ========================================================= */
+
+@media (max-width: 420px) {
+
+    .main,
+    .sidebar.collapsed ~ .main {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .menu-btn {
+        width: 39px;
+        height: 39px;
+    }
+
+    .card {
+        padding: 16px;
+        border-radius: 14px;
+    }
+
+    .modal {
+        width: calc(100vw - 20px);
+
+        padding: 20px;
+
+        border-radius: 14px;
+    }
+}

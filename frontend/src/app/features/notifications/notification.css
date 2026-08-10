@@ -1,0 +1,135 @@
+/* ===================== HEADER ===================== */
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.page-header h2 {
+    margin: 0;
+    font-size: 24px;
+    color: #222;
+}
+
+.page-header p {
+    margin: 5px 0 0;
+    font-size: 14px;
+    color: #666;
+}
+
+/* ===================== BOTONES ===================== */
+
+.primary-btn {
+    background-color: #2e7d32;
+    color: #fff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: 0.3s;
+}
+
+.primary-btn:hover {
+    background-color: #1b5e20;
+}
+
+.delete-btn {
+    background: none;
+    border: none;
+    color: #aaa;
+    cursor: pointer;
+    font-size: 15px;
+    transition: 0.2s;
+}
+
+.delete-btn:hover {
+    color: #e53935;
+}
+
+/* ===================== LISTA ===================== */
+
+.notifications-list {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+/* ===================== TARJETAS ===================== */
+
+.notification-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: #ffffff;
+    padding: 16px;
+    border-radius: 12px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+    transition: 0.2s;
+}
+
+.notification-card:hover {
+    transform: translateY(-2px);
+}
+
+.notification-card.unread {
+    border-left: 5px solid #2e7d32;
+    background-color: #f4fbf5;
+}
+
+/* ===================== ICONOS ===================== */
+
+.notification-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 18px;
+}
+
+.notification-icon.success {
+    background-color: #4caf50;
+}
+
+.notification-icon.warning {
+    background-color: #ff9800;
+}
+
+.notification-icon.info {
+    background-color: #2196f3;
+}
+
+.notification-icon.primary {
+    background-color: #673ab7;
+}
+
+/* ===================== CONTENIDO ===================== */
+
+.notification-content {
+    flex: 1;
+}
+
+.notification-content h3 {
+    margin: 0;
+    font-size: 16px;
+    color: #222;
+}
+
+.notification-content p {
+    margin: 6px 0;
+    font-size: 14px;
+    color: #555;
+}
+
+.notification-content span {
+    font-size: 12px;
+    color: #888;
+}

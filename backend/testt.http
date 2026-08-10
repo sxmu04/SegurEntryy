@@ -1,0 +1,155 @@
+@baseUrl = http://127.0.0.1:8000/api
+
+#####################################################
+### AUTENTICACIÓN
+#####################################################
+
+### Login
+POST {{baseUrl}}/auth/login/
+Content-Type: application/json
+
+{
+    "email": "jkest0725@gmail.com"
+}
+
+###
+
+### Login con Google
+POST {{baseUrl}}/auth/google-login/
+Content-Type: application/json
+
+{
+    "id_token": "PEGA_AQUI_EL_TOKEN_FIREBASE"
+}
+
+###
+
+### Verificar proveedor
+POST {{baseUrl}}/auth/check-provider/
+Content-Type: application/json
+
+{
+    "email": "ejuan5427@gmail.com"
+}
+
+#####################################################
+### INVITACIONES
+#####################################################
+
+### Crear invitación
+POST {{baseUrl}}/invitations/create/
+Content-Type: application/json
+
+{
+    "email": "jkest0725@gmail.com",
+    "role": "admin"
+}
+
+###
+
+### Validar invitación
+POST {{baseUrl}}/invitations/validate/
+Content-Type: application/json
+
+{
+    "email": "jkest0725@gmail.com",
+    "code": "15YUFMFX"
+}
+
+#####################################################
+### USUARIOS
+#####################################################
+
+### Crear usuario
+POST {{baseUrl}}/users/create/
+Content-Type: application/json
+
+{
+    "name": "Juan Pérez",
+    "email": "jkest0725@gmail.com",
+    "password": "Admin123456",
+    "invitation_code": "15YUFMFX"
+}
+
+###
+
+### Obtener usuario
+GET {{baseUrl}}/users/get/1UeoO2fYNabC4ogloesQM4H7v2J2/
+
+###
+
+### Listar usuarios
+GET {{baseUrl}}/users/list/
+
+###
+
+### Actualizar usuario
+PUT {{baseUrl}}/users/update/1UeoO2fYNabC4ogloesQM4H7v2J2/
+Content-Type: application/json
+
+{
+    "name": "Juan Actualizado",
+    "email": "nuevo@gmail.com",
+    "role": "admin",
+    "active": true
+}
+
+###
+
+### Cambiar contraseña
+PUT {{baseUrl}}/users/update/1UeoO2fYNabC4ogloesQM4H7v2J2/
+Content-Type: application/json
+
+{
+    "password": "NuevaPassword123"
+}
+
+###
+
+### Eliminar usuario
+DELETE {{baseUrl}}/users/delete/1UeoO2fYNabC4ogloesQM4H7v2J2/
+
+#####################################################
+### ACCESOS
+#####################################################
+
+### Registrar acceso
+POST {{baseUrl}}/access/register/
+Content-Type: application/json
+
+{
+    "uid": "1UeoO2fYNabC4ogloesQM4H7v2J2",
+    "door": "Principal",
+    "status": "granted"
+}
+
+###
+
+### Listar accesos
+GET {{baseUrl}}/access/
+
+#####################################################
+### ROLES
+#####################################################
+
+### Listar roles
+GET {{baseUrl}}/roles/
+
+#####################################################
+### DASHBOARD
+#####################################################
+
+### Estadísticas
+GET {{baseUrl}}/dashboard/stats/
+
+#####################################################
+### NOTIFICACIONES
+#####################################################
+
+### Listar notificaciones
+GET {{baseUrl}}/notifications/
+
+###
+
+### Marcar notificación como leída
+PUT {{baseUrl}}/notifications/read/1/

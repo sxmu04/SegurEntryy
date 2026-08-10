@@ -1,0 +1,75 @@
+
+<header class="header">
+
+    <!-- IZQUIERDA -->
+    <div class="header-left">
+
+        <button
+            class="menu-btn"
+            (click)="toggleSidebar()">
+
+            <i class="fas fa-bars"></i>
+
+        </button>
+
+        <div class="title">
+
+            <h2>{{ pageTitle }}</h2>
+
+            <span>Bienvenido a SegurEntry</span>
+
+        </div>
+
+    </div>
+
+    <!-- CENTRO -->
+
+    <div class="search-box">
+
+        <i class="fas fa-search"></i>
+
+        <input
+            type="text"
+            placeholder="Buscar..." />
+
+    </div>
+
+    <!-- DERECHA -->
+
+    <div class="header-right">
+
+        <button class="icon-btn">
+
+            <i class="fas fa-bell"></i>
+
+            <span class="badge">3</span>
+
+        </button>
+
+        <button class="icon-btn">
+
+            <i class="fas fa-envelope"></i>
+
+            <span class="badge">5</span>
+
+        </button>
+
+        <div class="profile">
+
+            <img
+                src="assets/images/default-user.png"
+                alt="Perfil">
+
+            <div class="user-info">
+
+                <strong>Juan Pérez</strong>
+
+                <span>SuperAdministrador</span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</header>

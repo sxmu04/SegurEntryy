@@ -1,0 +1,205 @@
+<div class="layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" [class.collapsed]="!menuOpen">
+
+        <div class="profile">
+            <div class="avatar">
+                <i class="fas fa-user-tie"></i>
+            </div>
+            <div *ngIf="menuOpen">
+                <h3>Instructor</h3>
+                <p>Control de Acceso</p>
+            </div>
+        </div>
+
+        <nav>
+            <button (click)="changeTab('dashboard')" [class.active]="activeTab==='dashboard'">
+                <i class="fas fa-chart-line"></i>
+                <span *ngIf="menuOpen">Dashboard</span>
+            </button>
+
+            <button (click)="changeTab('aprendices')" [class.active]="activeTab==='aprendices'">
+                <i class="fas fa-users"></i>
+                <span *ngIf="menuOpen">Aprendices</span>
+            </button>
+
+            <button (click)="changeTab('notificaciones')" [class.active]="activeTab==='notificaciones'">
+                <i class="fas fa-bell"></i>
+                <span *ngIf="menuOpen">Notificaciones</span>
+            </button>
+
+            <button (click)="changeTab('config')" [class.active]="activeTab==='config'">
+                <i class="fas fa-cog"></i>
+                <span *ngIf="menuOpen">Configuración</span>
+            </button>
+        </nav>
+
+        <!-- 🔥 LOGOUT -->
+        <div style="padding:15px;">
+            <button class="logout" (click)="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span *ngIf="menuOpen">Cerrar sesión</span>
+            </button>
+        </div>
+
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+
+        <!-- HEADER -->
+        <header>
+            <button class="menu-btn" (click)="toggleMenu()">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <div>
+                <h2>{{ activeTab | titlecase }}</h2>
+                <p class="header-subtitle">Panel del instructor</p>
+            </div>
+        </header>
+
+        <!-- DASHBOARD -->
+        <section *ngIf="activeTab==='dashboard'" class="dashboard">
+
+            <div class="stats">
+
+                <div class="card stat-card">
+                    <i class="fas fa-door-open"></i>
+                    <div>
+                        <h2>{{ stats.ingresos }}</h2>
+                        <p>Ingresos</p>
+                    </div>
+                </div>
+
+                <div class="card stat-card">
+                    <i class="fas fa-check-circle"></i>
+                    <div>
+                        <h2>{{ stats.permitidos }}</h2>
+                        <p>Permitidos</p>
+                    </div>
+                </div>
+
+                <div class="card stat-card">
+                    <i class="fas fa-times-circle"></i>
+                    <div>
+                        <h2>{{ stats.denegados }}</h2>
+                        <p>Denegados</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="card big">
+                <h3>Accesos recientes</h3>
+
+                <div class="access-log" *ngFor="let log of logs">
+                    <div>
+                        <strong>{{ log.name }}</strong>
+                        <p>{{ log.email }}</p>
+                    </div>
+
+                    <div>
+                        <span>{{ log.time }}</span>
+                        <span class="badge success">{{ log.result }}</span>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- APRENDICES -->
+        <section *ngIf="activeTab==='aprendices'" class="card">
+
+            <div class="table-header">
+
+                <div class="header-left">
+                    <h3>Aprendices</h3>
+                    <span class="badge-total">{{ filteredUsers.length }} usuarios</span>
+                </div>
+
+                <div class="table-actions">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text"
+                               placeholder="Buscar..."
+                               [(ngModel)]="searchTerm"
+                               (input)="filterUsers()" />
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="table-container">
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Usuario</th>
+                            <th>Email</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr *ngFor="let user of filteredUsers">
+
+                            <td class="user-cell">
+                                <div class="user-info">
+                                    <div class="avatar small">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <div>
+                                        <strong>{{ user.name }}</strong>
+                                        <small>ID: {{ user.id }}</small>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td>{{ user.email }}</td>
+
+                            <td>
+                                <span class="status-badge active">Activo</span>
+                            </td>
+
+                        </tr>
+                    </tbody>
+
+                </table>
+            </div>
+
+        </section>
+
+        <!-- NOTIFICACIONES -->
+        <section *ngIf="activeTab==='notificaciones'" class="card">
+
+            <h3>Notificaciones</h3>
+
+            <div class="notification" *ngFor="let n of notifications">
+                <p>{{ n }}</p>
+                <span>Hace unos minutos</span>
+            </div>
+
+        </section>
+
+        <!-- CONFIG -->
+        <section *ngIf="activeTab==='config'" class="card">
+
+            <h3>Configuración</h3>
+
+            <div class="config-item">
+                <label>Modo oscuro</label>
+                <input type="checkbox" />
+            </div>
+
+            <div class="config-item">
+                <label>Notificaciones</label>
+                <input type="checkbox" checked />
+            </div>
+
+        </section>
+
+    </main>
+
+</div>

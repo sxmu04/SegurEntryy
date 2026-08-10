@@ -1,0 +1,56 @@
+<div
+    class="stat-card"
+    [style.border-left-color]="color">
+
+    <div class="top">
+
+        <div
+            class="icon"
+            [style.background]="color">
+
+            <i
+                class="fas"
+                [ngClass]="icon">
+            </i>
+
+        </div>
+
+        <div
+            class="trend"
+            [class.positive]="trendPositive"
+            [class.negative]="!trendPositive">
+
+            <i
+                class="fas"
+                [ngClass]="trendPositive ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down'">
+            </i>
+
+            {{ trend }}
+
+        </div>
+
+    </div>
+
+    <div class="content">
+
+        <h2>
+
+            {{ value }}
+
+        </h2>
+
+        <h3>
+
+            {{ title }}
+
+        </h3>
+
+        <p>
+
+            {{ subtitle }}
+
+        </p>
+
+    </div>
+
+</div>

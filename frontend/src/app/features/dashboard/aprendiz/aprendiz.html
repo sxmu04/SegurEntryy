@@ -1,0 +1,211 @@
+<div class="layout">
+
+    <!-- ===================== SIDEBAR ===================== -->
+
+    <aside class="sidebar" [class.collapsed]="!menuOpen">
+
+        <!-- PERFIL -->
+        <div class="profile-card">
+            <div class="avatar">
+                <i class="fas fa-user"></i>
+            </div>
+
+            <h3 *ngIf="menuOpen">Aprendiz</h3>
+            <p *ngIf="menuOpen">Usuario del Sistema</p>
+        </div>
+
+        <!-- LOGO -->
+        <div class="logo">
+            <i class="fas fa-shield-alt"></i>
+            <span *ngIf="menuOpen">SegurEntry</span>
+        </div>
+
+        <!-- MENÚ DINÁMICO -->
+        <nav>
+            <button *ngFor="let item of menuItems" [class.active]="isActive(item.key)" (click)="setSection(item.key)">
+                <i class="fas" [ngClass]="item.icon"></i>
+
+                <span *ngIf="menuOpen">
+                    {{ item.label }}
+                </span>
+            </button>
+        </nav>
+
+        <!-- FOOTER -->
+        <div class="sidebar-bottom">
+            <button class="logout" (click)="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span *ngIf="menuOpen">Cerrar sesión</span>
+            </button>
+        </div>
+
+    </aside>
+
+    <!-- ===================== CONTENIDO ===================== -->
+
+    <main class="main">
+
+        <!-- HEADER -->
+        <header>
+            <button class="menu-btn" (click)="toggleMenu()">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <div>
+                <h2>Panel del Aprendiz</h2>
+                <p class="header-subtitle">
+                    Consulta de registros personales.
+                </p>
+            </div>
+        </header>
+
+        <!-- ===================== DASHBOARD ===================== -->
+        <ng-container *ngIf="activeSection === 'dashboard'">
+
+            <section class="stats full-width">
+
+                <div class="card">
+                    <h2>22</h2>
+                    <p>Ingresos este mes</p>
+                </div>
+
+                <div class="card">
+                    <h2>07:45</h2>
+                    <p>Último ingreso</p>
+                </div>
+
+                <div class="card">
+                    <h2>22</h2>
+                    <p>Accesos permitidos</p>
+                </div>
+
+                <div class="card">
+                    <h2>0</h2>
+                    <p>Accesos denegados</p>
+                </div>
+
+            </section>
+
+        </ng-container>
+
+        <!-- ===================== MIS ACCESOS ===================== -->
+        <ng-container *ngIf="activeSection === 'access'">
+
+            <section class="card list-card">
+
+                <div class="table-header">
+                    <div>
+                        <h3>Mis Registros de Acceso</h3>
+                        <p>Historial personal de ingresos y salidas.</p>
+                    </div>
+                </div>
+
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Hora</th>
+                                <th>Tipo</th>
+                                <th>Resultado</th>
+                                <th>Método</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            <tr>
+                                <td>25/06/2026</td>
+                                <td>07:45</td>
+                                <td>Ingreso</td>
+                                <td><span class="badge success">Permitido</span></td>
+                                <td>Huella</td>
+                            </tr>
+
+                            <tr>
+                                <td>25/06/2026</td>
+                                <td>12:03</td>
+                                <td>Salida</td>
+                                <td><span class="badge success">Permitido</span></td>
+                                <td>Huella</td>
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+        </ng-container>
+
+        <!-- ===================== NOTIFICACIONES ===================== -->
+        <ng-container *ngIf="activeSection === 'notifications'">
+
+            <section class="card">
+
+                <h3>Notificaciones</h3>
+
+                <div class="notification warning">
+                    ⚠️ Llegada tardía registrada
+                </div>
+
+                <div class="notification info">
+                    📢 Recordatorio de asistencia
+                </div>
+
+            </section>
+
+        </ng-container>
+
+        <ng-container *ngIf="activeSection === 'profile'">
+
+            <section class="card">
+
+                <h3>Mi Perfil</h3>
+
+                <div class="profile-form">
+
+                    <!-- DATOS NO EDITABLES -->
+                    <div class="readonly-group">
+                        <label>Nombre</label>
+                        <input type="text" [value]="form.name" disabled>
+                    </div>
+
+                    <div class="readonly-group">
+                        <label>Documento</label>
+                        <input type="text" [value]="form.document" disabled>
+                    </div>
+
+                    <!-- DATOS EDITABLES -->
+                    <div>
+                        <label>Correo</label>
+                        <input type="email" [(ngModel)]="form.email">
+                    </div>
+
+                    <div>
+                        <label>Teléfono</label>
+                        <input type="text" [(ngModel)]="form.phone">
+                    </div>
+
+                    <div>
+                        <label>Dirección</label>
+                        <input type="text" [(ngModel)]="form.address">
+                    </div>
+
+                    <button class="primary-btn" (click)="updateProfile()">
+                        Guardar cambios
+                    </button>
+
+                </div>
+
+            </section>
+
+        </ng-container>
+
+    </main>
+
+</div>

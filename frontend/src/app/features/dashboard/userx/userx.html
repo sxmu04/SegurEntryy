@@ -1,0 +1,110 @@
+<div class="dashboard-container">
+
+  <!-- HEADER -->
+  <header class="header">
+    <h1>Gestión de Usuarios</h1>
+    <p>Control de accesos SEGURENTRY</p>
+  </header>
+
+  <!-- STATS -->
+  <section class="stats">
+
+    <div class="card">
+      <h2>{{ totalUsers }}</h2>
+      <p>Total Usuarios</p>
+    </div>
+
+    <div class="card">
+      <h2>{{ totalAdmins }}</h2>
+      <p>Administradores</p>
+    </div>
+
+    <div class="card">
+      <h2>{{ totalTemp }}</h2>
+      <p>Accesos Temporales</p>
+    </div>
+
+    <div class="card">
+      <h2>{{ totalPermanent }}</h2>
+      <p>Acceso Permanente</p>
+    </div>
+
+  </section>
+
+  <!-- FORM -->
+  <section class="form-section">
+
+    <h2>Registrar Usuario</h2>
+
+    <div class="form-grid">
+
+      <input [(ngModel)]="newUser.name" placeholder="Nombre completo">
+
+      <input [(ngModel)]="newUser.document" placeholder="Documento">
+
+      <select [(ngModel)]="newUser.role">
+        <option>Admin</option>
+        <option>Instructor</option>
+        <option>Vigilante</option>
+        <option>Aprendiz</option>
+      </select>
+
+      <input type="time" [(ngModel)]="newUser.entry">
+      <input type="time" [(ngModel)]="newUser.exit">
+
+      <label>
+        <input type="checkbox" [(ngModel)]="newUser.tempAccess">
+        Acceso temporal
+      </label>
+
+    </div>
+
+    <button (click)="addUser()">Agregar Usuario</button>
+
+  </section>
+
+  <!-- TABLE -->
+  <section class="table-section">
+
+    <h2>Lista de Usuarios</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Documento</th>
+          <th>Rol</th>
+          <th>Entrada</th>
+          <th>Salida</th>
+          <th>Tipo</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let user of accesses; let i = index">
+
+          <td>{{ user.name }}</td>
+          <td>{{ user.document }}</td>
+          <td>{{ user.role }}</td>
+          <td>{{ user.entry }}</td>
+          <td>{{ user.exit }}</td>
+
+          <td>
+            <span [class.temp]="user.tempAccess" [class.perm]="!user.tempAccess">
+              {{ user.tempAccess ? 'Temporal' : 'Permanente' }}
+            </span>
+          </td>
+
+          <td>
+            <button (click)="deleteUser(i)">Eliminar</button>
+          </td>
+
+        </tr>
+      </tbody>
+
+    </table>
+
+  </section>
+
+</div>

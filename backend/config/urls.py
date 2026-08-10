@@ -1,0 +1,24 @@
+
+from django.contrib import admin
+from django.urls import path
+from django.urls import include
+from django.conf import settings
+from django.conf.urls.static import static
+
+
+urlpatterns = [
+    
+    path('admin/', admin.site.urls),
+
+    #Modulos
+    path('api/users/', include('api.users.urls')),
+    path('api/roles/', include('api.roles.urls')),
+    path('api/access/', include('api.access.urls')),
+    path('api/auth/', include('api.authentication.urls')),
+    path('api/invitations/', include('api.invitations.urls')),
+]
+
+urlpatterns += static(
+    settings.MEDIA_URL,
+    document_root=settings.MEDIA_ROOT
+)
