@@ -14,6 +14,7 @@
         </div>
 
         <nav>
+
             <button (click)="changeTab('dashboard')" [class.active]="activeTab==='dashboard'">
                 <i class="fas fa-chart-line"></i>
                 <span *ngIf="menuOpen">Dashboard</span>
@@ -33,7 +34,14 @@
                 <i class="fas fa-cog"></i>
                 <span *ngIf="menuOpen">Configuración</span>
             </button>
+
+            <button (click)="changeTab('profile')" [class.active]="activeTab==='profile'">
+                <i class="fas fa-user-circle"></i>
+                <span *ngIf="menuOpen">Mi Perfil</span>
+            </button>
+
         </nav>
+
 
         <!-- 🔥 LOGOUT -->
         <div style="padding:15px;">
@@ -44,6 +52,10 @@
         </div>
 
     </aside>
+
+
+
+
 
     <!-- MAIN -->
     <main class="main">
@@ -122,10 +134,8 @@
                 <div class="table-actions">
                     <div class="search-box">
                         <i class="fas fa-search"></i>
-                        <input type="text"
-                               placeholder="Buscar..."
-                               [(ngModel)]="searchTerm"
-                               (input)="filterUsers()" />
+                        <input type="text" placeholder="Buscar por nombre o documento..." [(ngModel)]="searchTerm"
+                            (input)="filterUsers()" />
                     </div>
                 </div>
 
@@ -147,20 +157,30 @@
 
                             <td class="user-cell">
                                 <div class="user-info">
+
                                     <div class="avatar small">
                                         <i class="fas fa-user"></i>
                                     </div>
+
                                     <div>
                                         <strong>{{ user.name }}</strong>
-                                        <small>ID: {{ user.id }}</small>
                                     </div>
+
                                 </div>
                             </td>
 
-                            <td>{{ user.email }}</td>
+                            <td>
+                                {{ user.document || 'Sin documento' }}
+                            </td>
 
                             <td>
-                                <span class="status-badge active">Activo</span>
+                                {{ user.email }}
+                            </td>
+
+                            <td>
+                                <span class="status-badge active">
+                                    Activo
+                                </span>
                             </td>
 
                         </tr>
@@ -179,6 +199,140 @@
             <div class="notification" *ngFor="let n of notifications">
                 <p>{{ n }}</p>
                 <span>Hace unos minutos</span>
+            </div>
+
+        </section>
+
+        <!-- ===================== PERFIL ===================== -->
+
+        <section *ngIf="activeTab==='profile'" class="card profile-section">
+
+            <div class="profile-header">
+
+                <!-- FOTO -->
+                <div class="profile-photo">
+
+                    <img [src]="profile.photo || 'assets/avatar.png'" alt="Foto de perfil">
+
+                    <label class="upload-btn">
+
+                        <i class="fas fa-camera"></i>
+
+                        Cambiar foto
+
+                        <input type="file" accept="image/*" (change)="uploadPhoto($event)" hidden>
+
+                    </label>
+
+                </div>
+
+
+                <!-- INFORMACIÓN -->
+                <div class="profile-info">
+
+                    <h2>
+                        {{ profile.name || 'Instructor' }}
+                    </h2>
+
+                    <span class="role-badge">
+
+                        {{ currentUser?.role || 'instructor' }}
+
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- ===================== FORMULARIO ===================== -->
+
+            <div class="profile-form">
+
+                <!-- NOMBRE -->
+                <div class="form-group">
+
+                    <label>Nombre</label>
+
+                    <input type="text" [(ngModel)]="profile.name" name="profileName">
+
+                </div>
+
+
+                <!-- DOCUMENTO -->
+                <div class="form-group">
+
+                    <label>Documento</label>
+
+                    <input type="text" [(ngModel)]="profile.document" name="profileDocument">
+
+                </div>
+
+
+                <!-- CORREO -->
+                <div class="form-group">
+
+                    <label>Correo electrónico</label>
+
+                    <input type="email" [(ngModel)]="profile.email" name="profileEmail">
+
+                </div>
+
+
+                <!-- TELÉFONO -->
+                <div class="form-group">
+
+                    <label>Teléfono</label>
+
+                    <input type="text" [(ngModel)]="profile.phone" name="profilePhone">
+
+                </div>
+
+
+                <!-- DIRECCIÓN -->
+                <div class="form-group">
+
+                    <label>Dirección</label>
+
+                    <input type="text" [(ngModel)]="profile.address" name="profileAddress">
+
+                </div>
+
+
+                <!-- ROL -->
+                <div class="form-group">
+
+                    <label>Rol</label>
+
+                    <input type="text" [value]="currentUser?.role || 'instructor'" readonly class="readonly-input">
+
+                </div>
+
+
+                <!-- UID -->
+                <div class="form-group">
+
+                    <label>Identificador</label>
+
+                    <input type="text" [value]="currentUser?.uid || currentUser?.id || ''" readonly
+                        class="readonly-input">
+
+                </div>
+
+
+                <!-- GUARDAR -->
+                <div class="profile-actions">
+
+                    <button class="primary-btn" (click)="updateProfile()">
+
+                        <i class="fas fa-save"></i>
+
+                        Guardar cambios
+
+                    </button>
+
+                </div>
+
             </div>
 
         </section>

@@ -116,9 +116,40 @@ export class SuperAdminComponent implements OnInit {
 
   admins: User[] = [];
   accessLogs: any[] = [];
-  roles: any[] = [];
   invitations: Invitation[] = [];
   notifications: any[] = [];
+  roles: any[] = [
+    {
+      name: 'Aprendiz',
+      description: 'Usuarios con rol de aprendiz',
+      users: 0
+    },
+    {
+      name: 'Administrador',
+      description: 'Administradores del sistema',
+      users: 0
+    },
+    {
+      name: 'Super Admin',
+      description: 'Administradores principales del sistema',
+      users: 0
+    },
+    {
+      name: 'Instructor',
+      description: 'Usuarios con rol de instructor',
+      users: 0
+    },
+    {
+      name: 'Vigilante',
+      description: 'Usuarios encargados de vigilancia',
+      users: 0
+    },
+    {
+      name: 'Usuario',
+      description: 'Usuarios generales del sistema',
+      users: 0
+    }
+  ];
 
   stats = {
     total_users: 0,
@@ -308,35 +339,119 @@ export class SuperAdminComponent implements OnInit {
   // ==========================
   syncData(): void {
 
+    // ==========================================
+    // ADMINISTRADORES
+    // ==========================================
+
     this.admins = this.accesses.filter(
-      u => u.role === 'administrador' ||
+      u =>
+        u.role === 'administrador' ||
         u.role === 'super-admin'
     );
+
+
+    // ==========================================
+    // ESTADÍSTICAS GENERALES
+    // ==========================================
 
     this.stats.total_users = this.accesses.length;
 
     this.stats.admins = this.admins.length;
 
     this.stats.aprendices =
-      this.accesses.filter(u => u.role === 'aprendiz').length;
+      this.accesses.filter(
+        u => u.role === 'aprendiz'
+      ).length;
 
     this.stats.instructores =
-      this.accesses.filter(u => u.role === 'instructor').length;
+      this.accesses.filter(
+        u => u.role === 'instructor'
+      ).length;
 
     this.stats.vigilantes =
-      this.accesses.filter(u => u.role === 'vigilante').length;
+      this.accesses.filter(
+        u => u.role === 'vigilante'
+      ).length;
 
     this.stats.superAdmins =
-      this.accesses.filter(u => u.role === 'super-admin').length;
+      this.accesses.filter(
+        u => u.role === 'super-admin'
+      ).length;
+
+
+    // ==========================================
+    // INVITACIONES
+    // ==========================================
 
     this.stats.invitations =
       this.invitations.length;
 
     this.stats.acceptedInvitations =
-      this.invitations.filter(i => i.used || i.accepted).length;
+      this.invitations.filter(
+        i => i.used || i.accepted
+      ).length;
 
     this.stats.pendingInvitations =
-      this.invitations.filter(i => !(i.used || i.accepted)).length;
+      this.invitations.filter(
+        i => !(i.used || i.accepted)
+      ).length;
+
+
+    // ==========================================
+    // ROLES
+    // ==========================================
+
+    this.roles = [
+
+      {
+        name: 'Aprendiz',
+        description: 'Usuarios con rol de aprendiz',
+        users: this.accesses.filter(
+          u => u.role?.toLowerCase() === 'aprendiz'
+        ).length
+      },
+
+      {
+        name: 'Administrador',
+        description: 'Administradores del sistema',
+        users: this.accesses.filter(
+          u => u.role?.toLowerCase() === 'administrador'
+        ).length
+      },
+
+      {
+        name: 'Super Admin',
+        description: 'Administradores principales del sistema',
+        users: this.accesses.filter(
+          u => u.role?.toLowerCase() === 'super-admin'
+        ).length
+      },
+
+      {
+        name: 'Instructor',
+        description: 'Usuarios con rol de instructor',
+        users: this.accesses.filter(
+          u => u.role?.toLowerCase() === 'instructor'
+        ).length
+      },
+
+      {
+        name: 'Vigilante',
+        description: 'Usuarios encargados de vigilancia',
+        users: this.accesses.filter(
+          u => u.role?.toLowerCase() === 'vigilante'
+        ).length
+      },
+
+      {
+        name: 'Usuario',
+        description: 'Usuarios generales del sistema',
+        users: this.accesses.filter(
+          u => u.role?.toLowerCase() === 'usuario'
+        ).length
+      }
+
+    ];
 
   }
 
@@ -657,11 +772,24 @@ export class SuperAdminComponent implements OnInit {
   }
   submitForm() { this.saveAccess(); }
 
-  logout(): void {
-    localStorage.clear();
-    this.router.navigate(['/login']);
-  }
+  logout() {
 
+    Swal.fire({
+      title: 'Cerrar sesión',
+      text: '¿Seguro que deseas salir?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Salir',
+      cancelButtonText: 'Cancelar'
+    }).then(result => {
+
+      if (result.isConfirmed) {
+        this.router.navigate(['/login']);
+      }
+
+    });
+
+  }
   loadInvitations(): void {
 
     this.dashboardService.getInvitations().subscribe({

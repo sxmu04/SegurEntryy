@@ -1079,6 +1079,437 @@ tbody tr:hover {
 
 
 /* =========================================================
+   PERFIL DEL INSTRUCTOR
+   ========================================================= */
+
+.profile-section {
+    width: 100%;
+
+    padding: 28px;
+
+    overflow: hidden;
+
+    animation: profileFadeIn 0.25s ease;
+}
+
+
+/* =========================================================
+   ANIMACIÓN
+   ========================================================= */
+
+@keyframes profileFadeIn {
+
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+}
+
+
+/* =========================================================
+   ENCABEZADO DEL PERFIL
+   ========================================================= */
+
+.profile-header {
+
+    display: flex;
+    align-items: center;
+
+    gap: 25px;
+
+    padding-bottom: 25px;
+
+    margin-bottom: 28px;
+
+    border-bottom: 1px solid var(--border);
+}
+
+
+/* =========================================================
+   FOTO
+   ========================================================= */
+
+.profile-photo {
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    gap: 10px;
+
+    flex-shrink: 0;
+}
+
+
+.profile-photo img {
+
+    width: 110px;
+    height: 110px;
+
+    object-fit: cover;
+
+    border-radius: 20px;
+
+    border: 2px solid var(--green-border);
+
+    background: var(--bg-card);
+
+    box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.25),
+        0 0 25px rgba(34, 197, 94, 0.05);
+}
+
+
+/* =========================================================
+   BOTÓN CAMBIAR FOTO
+   ========================================================= */
+
+.upload-btn {
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 7px;
+
+    min-height: 36px;
+
+    padding: 0 13px;
+
+    border-radius: 9px;
+
+    color: var(--text-secondary);
+
+    background: rgba(255, 255, 255, 0.035);
+
+    border: 1px solid var(--border);
+
+    cursor: pointer;
+
+    font-size: 11px;
+    font-weight: 600;
+
+    transition: 0.25s ease;
+}
+
+
+.upload-btn i {
+
+    color: var(--green);
+
+    font-size: 12px;
+
+}
+
+
+.upload-btn:hover {
+
+    color: var(--text-primary);
+
+    background: var(--green-soft);
+
+    border-color: var(--green-border);
+
+    transform: translateY(-1px);
+
+}
+
+
+/* =========================================================
+   INFORMACIÓN DEL PERFIL
+   ========================================================= */
+
+.profile-info {
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 10px;
+
+}
+
+
+.profile-info h2 {
+
+    margin: 0;
+
+    color: var(--text-primary);
+
+    font-size: 24px;
+
+    font-weight: 750;
+
+    letter-spacing: -0.4px;
+
+}
+
+
+.role-badge {
+
+    width: fit-content;
+
+    display: inline-flex;
+    align-items: center;
+
+    padding: 6px 11px;
+
+    border-radius: 999px;
+
+    color: var(--green);
+
+    background: var(--green-soft);
+
+    border: 1px solid var(--green-border);
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    text-transform: capitalize;
+
+}
+
+
+/* =========================================================
+   FORMULARIO
+   ========================================================= */
+
+.profile-section .profile-form {
+
+    display: grid;
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 20px;
+
+}
+
+
+/* =========================================================
+   GRUPO DEL FORMULARIO
+   ========================================================= */
+
+.profile-section .form-group {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 7px;
+
+    min-width: 0;
+
+}
+
+
+/* =========================================================
+   LABEL
+   ========================================================= */
+
+.profile-section .form-group label {
+
+    color: var(--text-secondary);
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+}
+
+
+/* =========================================================
+   INPUT
+   ========================================================= */
+
+.profile-section .form-group input {
+
+    width: 100%;
+
+    height: 44px;
+
+    padding: 0 13px;
+
+    color: var(--text-primary);
+
+    background: rgba(255, 255, 255, 0.035);
+
+    border: 1px solid var(--border);
+
+    border-radius: 10px;
+
+    outline: none;
+
+    transition:
+        border-color 0.25s ease,
+        background 0.25s ease,
+        box-shadow 0.25s ease;
+
+}
+
+
+.profile-section .form-group input::placeholder {
+
+    color: var(--text-muted);
+
+}
+
+
+.profile-section .form-group input:focus {
+
+    border-color: var(--green-border);
+
+    background: rgba(34, 197, 94, 0.035);
+
+    box-shadow:
+        0 0 0 3px rgba(34, 197, 94, 0.06);
+
+}
+
+
+/* =========================================================
+   CAMPOS DE SOLO LECTURA
+   ========================================================= */
+
+.profile-section .form-group .readonly-input {
+
+    color: var(--text-muted);
+
+    background: rgba(255, 255, 255, 0.02);
+
+    border-color: rgba(148, 163, 184, 0.08);
+
+    cursor: not-allowed;
+
+}
+
+
+.profile-section
+.form-group:has(.readonly-input)
+label::after {
+
+    content: " · Solo lectura";
+
+    color: var(--text-muted);
+
+    font-size: 9px;
+
+    font-weight: 500;
+
+}
+
+
+/* =========================================================
+   IDENTIFICADOR
+   ========================================================= */
+
+.profile-section
+.form-group:nth-child(7) {
+
+    grid-column: 1 / -1;
+
+}
+
+
+/* =========================================================
+   ACCIONES
+   ========================================================= */
+
+.profile-actions {
+
+    grid-column: 1 / -1;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: flex-start;
+
+    padding-top: 5px;
+
+}
+
+
+/* =========================================================
+   BOTÓN GUARDAR
+   ========================================================= */
+
+.profile-section .primary-btn {
+
+    min-height: 43px;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 8px;
+
+    padding: 0 20px;
+
+    border-radius: 10px;
+
+    color: #ffffff;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--green),
+            var(--green-dark)
+        );
+
+    border: 1px solid rgba(34, 197, 94, 0.35);
+
+    box-shadow:
+        0 8px 20px rgba(34, 197, 94, 0.14);
+
+    cursor: pointer;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease,
+        filter 0.25s ease;
+
+}
+
+
+.profile-section .primary-btn:hover {
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 12px 26px rgba(34, 197, 94, 0.22);
+
+    filter: brightness(1.05);
+
+}
+
+
+.profile-section .primary-btn:active {
+
+    transform: translateY(0);
+
+}
+
+
+.profile-section .primary-btn i {
+
+    font-size: 12px;
+
+}
+
+
+/* =========================================================
    SCROLLBAR
    ========================================================= */
 

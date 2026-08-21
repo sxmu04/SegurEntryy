@@ -126,26 +126,42 @@ export class Aprendiz {
 
         if (!me) return;
 
+        console.log('👤 MI PERFIL:', me);
+
         this.currentUser = me;
 
         this.profile = {
 
           name: me.name || '',
+
           email: me.email || '',
+
           phone: me.phone || '',
+
           address: me.address || '',
+
           document: me.document || '',
+
           photo: me.photo || 'assets/avatar.png'
 
         };
 
       },
 
-      error: err => console.error(err)
+      error: (err) => {
+
+        console.error(
+          '❌ ERROR CARGANDO PERFIL:',
+          err
+        );
+
+      }
 
     });
 
   }
+
+
 
   uploadPhoto(event: any): void {
 
@@ -169,9 +185,22 @@ export class Aprendiz {
 
   async updateProfile() {
 
-    if (!this.currentUser) return;
+    if (!this.currentUser) {
+
+      Swal.fire(
+        'Error',
+        'No se encontró el usuario actual.',
+        'error'
+      );
+
+      return;
+    }
 
     try {
+
+      // =========================
+      // SUBIR FOTO SI SE CAMBIÓ
+      // =========================
 
       if (this.selectedPhoto) {
 
@@ -183,61 +212,106 @@ export class Aprendiz {
           .toPromise();
 
         this.profile.photo =
-          "http://127.0.0.1:8000" + response.photo;
-
+          'http://127.0.0.1:8000' + response.photo;
       }
+
+
+      // =========================
+      // DATOS EDITABLES
+      // =========================
 
       const data = {
 
         name: this.profile.name,
+
         email: this.profile.email,
+
         phone: this.profile.phone,
+
         address: this.profile.address,
+
         document: this.profile.document,
+
         photo: this.profile.photo
 
+        // ❌ NO enviamos role
       };
 
-      this.dashboardService.updateUser(
-        this.currentUser.uid,
-        data
-      ).subscribe({
 
-        next: () => {
+      console.log('📤 ACTUALIZANDO PERFIL:', data);
 
-          Swal.fire(
-            "Correcto",
-            "Perfil actualizado",
-            "success"
-          );
+      console.log(
+        '🆔 UID:',
+        this.currentUser.uid
+      );
 
-          this.loadProfile();
 
-        },
+      // =========================
+      // ACTUALIZAR USUARIO
+      // =========================
 
-        error: (err) => {
+      this.dashboardService
+        .updateUser(
+          this.currentUser.uid,
+          data
+        )
+        .subscribe({
 
-          Swal.fire(
-            "Error",
-            err.error?.message || "No fue posible actualizar el perfil",
-            "error"
-          );
+          next: (response: any) => {
 
-        }
+            console.log(
+              '✅ PERFIL ACTUALIZADO:',
+              response
+            );
 
-      });
+            Swal.fire({
+              icon: 'success',
+              title: 'Perfil actualizado',
+              text: 'Tus datos fueron actualizados correctamente.',
+              timer: 1800,
+              showConfirmButton: false
+            });
+
+            this.selectedPhoto = null;
+
+            this.loadProfile();
+
+          },
+
+          error: (err: any) => {
+
+            console.error(
+              '❌ ERROR ACTUALIZANDO PERFIL:',
+              err
+            );
+
+            Swal.fire({
+              icon: 'error',
+              title: 'No se pudo actualizar',
+              text:
+                err?.error?.message ||
+                err?.error?.detail ||
+                'No fue posible actualizar tus datos.'
+            });
+
+          }
+
+        });
 
     }
 
-    catch (e) {
+    catch (error) {
 
-      console.error(e);
-
-      Swal.fire(
-        "Error",
-        "No fue posible subir la foto",
-        "error"
+      console.error(
+        '❌ ERROR SUBIENDO FOTO:',
+        error
       );
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No fue posible subir la foto.'
+      });
 
     }
 

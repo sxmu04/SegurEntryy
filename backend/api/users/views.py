@@ -218,3 +218,36 @@ class UploadProfilePhotoView(APIView):
             "photo": photo_url
 
         })
+
+    # ==========================================
+# COMPLETAR REGISTRO
+# ==========================================
+
+@csrf_exempt
+def complete_registration(request):
+
+    if request.method != "POST":
+
+        return JsonResponse({
+            "success": False,
+            "message": "Método no permitido"
+        }, status=405)
+
+    try:
+
+        data = json.loads(request.body)
+
+        user = UserService.complete_registration(data)
+
+        return JsonResponse({
+            "success": True,
+            "message": "Cuenta activada correctamente.",
+            "user": user
+        })
+
+    except Exception as e:
+
+        return JsonResponse({
+            "success": False,
+            "message": str(e)
+        }, status=400)

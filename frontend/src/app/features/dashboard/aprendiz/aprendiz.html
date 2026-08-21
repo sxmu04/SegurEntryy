@@ -163,42 +163,143 @@
 
         <ng-container *ngIf="activeSection === 'profile'">
 
-            <section class="card">
+            <section class="card profile-section">
 
-                <h3>Mi Perfil</h3>
+                <div class="profile-header">
+                    <div class="profile-photo">
+
+                        <img [src]="profile.photo || 'assets/avatar.png'" alt="Foto de perfil">
+
+                        <label class="upload-btn">
+                            <i class="fas fa-camera"></i>
+                            Cambiar foto
+
+                            <input type="file" accept="image/*" (change)="uploadPhoto($event)" hidden>
+                        </label>
+
+                    </div>
+
+                    <div class="profile-info">
+
+                        <h2>{{ profile.name || 'Aprendiz' }}</h2>
+
+                        <span class="role-badge">
+                            {{ currentUser?.role || 'aprendiz' }}
+                        </span>
+
+                    </div>
+                </div>
+
 
                 <div class="profile-form">
 
-                    <!-- DATOS NO EDITABLES -->
-                    <div class="readonly-group">
+                    <!-- ===================== -->
+                    <!-- NOMBRE -->
+                    <!-- ===================== -->
+
+                    <div class="form-group">
+
                         <label>Nombre</label>
-                        <input type="text" [value]="form.name" disabled>
+
+                        <input type="text" [(ngModel)]="profile.name" name="profileName">
+
                     </div>
 
-                    <div class="readonly-group">
+
+                    <!-- ===================== -->
+                    <!-- DOCUMENTO -->
+                    <!-- ===================== -->
+
+                    <div class="form-group">
+
                         <label>Documento</label>
-                        <input type="text" [value]="form.document" disabled>
+
+                        <input type="text" [(ngModel)]="profile.document" name="profileDocument">
+
                     </div>
 
-                    <!-- DATOS EDITABLES -->
-                    <div>
-                        <label>Correo</label>
-                        <input type="email" [(ngModel)]="form.email">
+
+                    <!-- ===================== -->
+                    <!-- CORREO -->
+                    <!-- ===================== -->
+
+                    <div class="form-group">
+
+                        <label>Correo electrónico</label>
+
+                        <input type="email" [(ngModel)]="profile.email" name="profileEmail">
+
                     </div>
 
-                    <div>
+
+                    <!-- ===================== -->
+                    <!-- TELÉFONO -->
+                    <!-- ===================== -->
+
+                    <div class="form-group">
+
                         <label>Teléfono</label>
-                        <input type="text" [(ngModel)]="form.phone">
+
+                        <input type="text" [(ngModel)]="profile.phone" name="profilePhone">
+
                     </div>
 
-                    <div>
+
+                    <!-- ===================== -->
+                    <!-- DIRECCIÓN -->
+                    <!-- ===================== -->
+
+                    <div class="form-group">
+
                         <label>Dirección</label>
-                        <input type="text" [(ngModel)]="form.address">
+
+                        <input type="text" [(ngModel)]="profile.address" name="profileAddress">
+
                     </div>
 
-                    <button class="primary-btn" (click)="updateProfile()">
-                        Guardar cambios
-                    </button>
+
+                    <!-- ===================== -->
+                    <!-- ROL -->
+                    <!-- ===================== -->
+
+                    <div class="form-group">
+
+                        <label>Rol</label>
+
+                        <input type="text" [value]="currentUser?.role || 'aprendiz'" readonly class="readonly-input">
+
+                    </div>
+
+
+                    <!-- ===================== -->
+                    <!-- UID -->
+                    <!-- ===================== -->
+
+                    <div class="form-group">
+
+                        <label>Identificador</label>
+
+                        <input type="text" [value]="currentUser?.uid || currentUser?.id || ''" readonly
+                            class="readonly-input">
+
+                    </div>
+
+
+                    <!-- ===================== -->
+                    <!-- BOTÓN -->
+                    <!-- ===================== -->
+
+                    <div class="profile-actions">
+
+                        <button class="primary-btn" (click)="updateProfile()">
+
+                            <i class="fas fa-save"></i>
+
+                            Guardar cambios
+
+                        </button>
+
+                    </div>
 
                 </div>
 

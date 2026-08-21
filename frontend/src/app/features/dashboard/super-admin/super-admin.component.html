@@ -446,24 +446,79 @@
             </ng-container>
 
             <ng-container *ngSwitchCase="'roles'">
-                <section class="card">
 
-                    <h3>Gestión de Roles</h3>
+                <section class="card roles-section">
+
+                    <div class="table-header">
+
+                        <div class="header-left">
+
+                            <div>
+                                <h3>Roles del Sistema</h3>
+
+                                <p class="section-description">
+                                    Roles disponibles y cantidad de usuarios asignados.
+                                </p>
+                            </div>
+
+                            <span class="badge-total">
+                                {{ roles.length }} roles
+                            </span>
+
+                        </div>
+
+                    </div>
+
 
                     <div class="roles-grid">
 
                         <div class="role-card" *ngFor="let role of roles">
-                            <h4>{{ role.name }}</h4>
-                            <p>{{ role.description }}</p>
 
-                            <span class="badge-total">
-                                {{ role.users }} usuarios
-                            </span>
+                            <div class="role-icon">
+
+                                <i class="fas" [ngClass]="{
+                            'fa-user-graduate': role.name === 'Aprendiz',
+                            'fa-user-shield': role.name === 'Administrador',
+                            'fa-crown': role.name === 'Super Admin',
+                            'fa-chalkboard-user': role.name === 'Instructor',
+                            'fa-user-lock': role.name === 'Vigilante',
+                            'fa-user': role.name === 'Usuario'
+                        }"></i>
+
+                            </div>
+
+
+                            <div class="role-info">
+
+                                <h4>
+                                    {{ role.name }}
+                                </h4>
+
+                                <p>
+                                    {{ role.description }}
+                                </p>
+
+                            </div>
+
+
+                            <div class="role-count">
+
+                                <strong>
+                                    {{ role.users }}
+                                </strong>
+
+                                <span>
+                                    {{ role.users === 1 ? 'usuario' : 'usuarios' }}
+                                </span>
+
+                            </div>
+
                         </div>
 
                     </div>
 
                 </section>
+
             </ng-container>
 
             <ng-container *ngSwitchCase="'invitations'">
