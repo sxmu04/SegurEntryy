@@ -1,130 +1,1275 @@
 <div class="layout">
 
-    <!-- SIDEBAR -->
+    <!-- =========================================================
+         SIDEBAR
+         ========================================================= -->
     <aside class="sidebar" [class.collapsed]="!menuOpen">
 
-        <div class="profile-card">
+        <!-- PERFIL DEL VIGILANTE -->
+        <div class="sidebar-profile">
+
             <div class="avatar">
-                <i class="fas fa-user-shield"></i>
+
+                <img *ngIf="profile.photo" [src]="profile.photo" alt="Foto de perfil">
+
+                <i *ngIf="!profile.photo" class="fas fa-user-shield"></i>
+
             </div>
 
-            <h3 *ngIf="menuOpen">Vigilante</h3>
-            <p *ngIf="menuOpen">Control de accesos</p>
+            <h3 *ngIf="menuOpen">
+                {{ profile.name || 'Vigilante' }}
+            </h3>
+
+            <p *ngIf="menuOpen">
+                Vigilante
+            </p>
+
+            <p *ngIf="menuOpen">
+                Control de accesos
+            </p>
+
         </div>
 
-        <div class="logo">
+
+        <!-- LOGO -->
+        <div class="sidebar-logo">
+
             <i class="fas fa-shield-alt"></i>
-            <span *ngIf="menuOpen">SegurEntry</span>
+
+            <span *ngIf="menuOpen">
+                SegurEntry
+            </span>
+
         </div>
 
+
+        <!-- NAVEGACIÓN -->
         <nav>
-            <button class="active">
+
+            <!-- ACCESOS -->
+            <button type="button" [class.active]="activeSection === 'accesses'" (click)="setSection('accesses')">
+
                 <i class="fas fa-door-open"></i>
-                <span *ngIf="menuOpen">Accesos</span>
+
+                <span *ngIf="menuOpen">
+                    Accesos
+                </span>
+
             </button>
+
+
+            <!-- USUARIOS TEMPORALES -->
+            <button type="button" [class.active]="activeSection === 'temporary'" (click)="setSection('temporary')">
+
+                <i class="fas fa-user-clock"></i>
+
+                <span *ngIf="menuOpen">
+                    Usuarios temporales
+                </span>
+
+            </button>
+
+
+            <!-- PERFIL -->
+            <button type="button" [class.active]="activeSection === 'profile'" (click)="setSection('profile')">
+
+                <i class="fas fa-user"></i>
+
+                <span *ngIf="menuOpen">
+                    Mi perfil
+                </span>
+
+            </button>
+
         </nav>
 
+
+        <!-- CERRAR SESIÓN -->
         <div class="sidebar-bottom">
-            <button class="logout" (click)="logout()">
+
+            <button type="button" class="logout" (click)="logout()">
+
                 <i class="fas fa-sign-out-alt"></i>
-                <span *ngIf="menuOpen">Cerrar sesión</span>
+
+                <span *ngIf="menuOpen">
+                    Cerrar sesión
+                </span>
+
             </button>
+
         </div>
 
     </aside>
 
-    <!-- MAIN -->
+
+    <!-- =========================================================
+         MAIN — VIGILANTE
+         ========================================================= -->
     <main class="main">
 
-        <!-- HEADER -->
+        <!-- =====================================================
+             HEADER
+             ===================================================== -->
         <header>
-            <button class="menu-btn" (click)="toggleMenu()">
+
+            <button type="button" class="menu-btn" (click)="toggleMenu()" title="Abrir/cerrar menú"
+                aria-label="Abrir o cerrar menú">
+
                 <i class="fas fa-bars"></i>
+
             </button>
 
-            <div>
-                <h2>Control de Accesos</h2>
-                <p class="header-subtitle">
-                    Monitoreo en tiempo real de ingresos y salidas
-                </p>
+
+            <div class="header-info">
+
+                <!-- DASHBOARD / ACCESOS -->
+                <div *ngIf="activeSection === 'accesses'">
+
+                    <h2>
+                        Control de Accesos
+                    </h2>
+
+                    <p class="header-subtitle">
+                        Monitoreo en tiempo real de ingresos y salidas
+                    </p>
+
+                </div>
+
+
+                <!-- USUARIOS TEMPORALES -->
+                <div *ngIf="activeSection === 'temporary'">
+
+                    <h2>
+                        Usuarios Temporales
+                    </h2>
+
+                    <p class="header-subtitle">
+                        Solicita accesos temporales de máximo 24 horas
+                    </p>
+
+                </div>
+
+
+                <!-- PERFIL -->
+                <div *ngIf="activeSection === 'profile'">
+
+                    <h2>
+                        Mi Perfil
+                    </h2>
+
+                    <p class="header-subtitle">
+                        Información y configuración de tu cuenta
+                    </p>
+
+                </div>
+
             </div>
+
         </header>
 
-        <!-- STATS -->
-        <section class="stats">
 
-            <div class="card stat-card">
-                <h2>{{ totalIngresos }}</h2>
-                <p>Ingresos Hoy</p>
+        <!-- =====================================================
+             DASHBOARD — ACCESOS
+             ===================================================== -->
+        <section *ngIf="activeSection === 'accesses'" class="accesses-section">
+
+            <!-- =================================================
+                 ESTADÍSTICAS
+                 ================================================= -->
+            <section class="stats">
+
+                <!-- INGRESOS -->
+                <div class="card stat-card">
+
+                    <div class="stat-icon">
+                        <i class="fas fa-right-to-bracket"></i>
+                    </div>
+
+                    <div>
+
+                        <h2>
+                            {{ totalIngresos }}
+                        </h2>
+
+                        <p>
+                            Ingresos Hoy
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- SALIDAS -->
+                <div class="card stat-card">
+
+                    <div class="stat-icon">
+                        <i class="fas fa-right-from-bracket"></i>
+                    </div>
+
+                    <div>
+
+                        <h2>
+                            {{ totalSalidas }}
+                        </h2>
+
+                        <p>
+                            Salidas Hoy
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- MOVIMIENTOS -->
+                <div class="card stat-card">
+
+                    <div class="stat-icon">
+                        <i class="fas fa-arrows-rotate"></i>
+                    </div>
+
+                    <div>
+
+                        <h2>
+                            {{ accesosHoy.length }}
+                        </h2>
+
+                        <p>
+                            Movimientos
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 ESTADO EN TIEMPO REAL
+                 ================================================= -->
+            <div class="realtime-status">
+
+                <span class="status-dot"></span>
+
+                <span>
+                    Sistema conectado
+                </span>
+
+                <small>
+                    Actualización en tiempo real
+                </small>
+
             </div>
 
-            <div class="card stat-card">
-                <h2>{{ totalSalidas }}</h2>
-                <p>Salidas Hoy</p>
-            </div>
 
-            <div class="card stat-card">
-                <h2>{{ accesosHoy.length }}</h2>
-                <p>Movimientos</p>
-            </div>
+            <!-- =================================================
+                 TABLA DE ACCESOS
+                 ================================================= -->
+            <section class="card list-card">
+
+                <!-- HEADER TABLA -->
+                <div class="table-header">
+
+                    <div>
+
+                        <h3>
+                            Registro de accesos
+                        </h3>
+
+                        <p>
+                            Todos los movimientos registrados en tiempo real
+                        </p>
+
+                    </div>
+
+
+                    <!-- BUSCADOR -->
+                    <div class="search-box">
+
+                        <i class="fas fa-search"></i>
+
+                        <input type="text" [(ngModel)]="search" placeholder="Buscar por nombre, documento o correo"
+                            aria-label="Buscar accesos">
+
+                    </div>
+
+                </div>
+
+
+                <!-- TABLA -->
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Usuario
+                                </th>
+
+                                <th>
+                                    Correo
+                                </th>
+
+                                <th>
+                                    Documento
+                                </th>
+
+                                <th>
+                                    Tipo
+                                </th>
+
+                                <th>
+                                    Fecha
+                                </th>
+
+                                <th>
+                                    Estado
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            <!-- REGISTROS -->
+                            <tr *ngFor="let a of filteredAccesses()">
+
+                                <!-- USUARIO -->
+                                <td>
+
+                                    <div class="user-cell">
+
+                                        <div class="user-mini-avatar">
+
+                                            <i class="fas fa-user"></i>
+
+                                        </div>
+
+                                        <div>
+
+                                            <strong>
+                                                {{ a.name || 'Usuario' }}
+                                            </strong>
+
+                                            <small>
+                                                {{ a.role || 'Usuario' }}
+                                            </small>
+
+                                        </div>
+
+                                    </div>
+
+                                </td>
+
+
+                                <!-- CORREO -->
+                                <td>
+                                    {{ a.email || 'No registrado' }}
+                                </td>
+
+
+                                <!-- DOCUMENTO -->
+                                <td>
+                                    {{ a.document || 'No registrado' }}
+                                </td>
+
+
+                                <!-- TIPO -->
+                                <td>
+
+                                    <span class="access-badge" [class.ingreso]="a.type === 'entrada'"
+                                        [class.salida]="a.type === 'salida'">
+
+                                        <i class="fas" [class.fa-right-to-bracket]="a.type === 'entrada'"
+                                            [class.fa-right-from-bracket]="a.type === 'salida'"></i>
+
+                                        {{
+                                        a.type === 'entrada'
+                                        ? 'Ingreso'
+                                        : a.type === 'salida'
+                                        ? 'Salida'
+                                        : 'Sin registro'
+                                        }}
+
+                                    </span>
+
+                                </td>
+
+
+                                <!-- FECHA -->
+                                <td>
+
+                                    {{
+                                    a.date
+                                    ? (a.date | date:'dd/MM/yyyy HH:mm')
+                                    : 'Sin fecha'
+                                    }}
+
+                                </td>
+
+
+                                <!-- ESTADO -->
+                                <td>
+
+                                    <span class="online-status">
+
+                                        <span class="status-dot"></span>
+
+                                        Registrado
+
+                                    </span>
+
+                                </td>
+
+                            </tr>
+
+
+                            <!-- SIN REGISTROS -->
+                            <tr *ngIf="filteredAccesses().length === 0">
+
+                                <td colspan="6" class="empty-state">
+
+                                    <div>
+
+                                        <i class="fas fa-door-closed"></i>
+
+                                        <h4>
+                                            No hay accesos registrados
+                                        </h4>
+
+                                        <p>
+                                            Los movimientos aparecerán aquí
+                                            automáticamente.
+                                        </p>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
 
         </section>
 
-        <!-- TABLA -->
-        <section class="card list-card">
 
-            <div class="table-header">
+        <!-- =====================================================
+             USUARIOS TEMPORALES
+             ===================================================== -->
+        <section *ngIf="activeSection === 'temporary'" class="temporary-section">
+
+            <!-- ENCABEZADO -->
+            <div class="section-top">
+
                 <div>
-                    <h3>Registro de accesos</h3>
-                    <p>Entradas y salidas en tiempo real</p>
+
+                    <h3>
+                        Solicitudes de acceso temporal
+                    </h3>
+
+                    <p>
+                        Los usuarios temporales requieren aprobación
+                        del administrador antes de ser creados.
+                    </p>
+
                 </div>
 
-                <div class="search-box">
-                    <i class="fas fa-search"></i>
-                    <input
-                        type="text"
-                        [(ngModel)]="search"
-                        placeholder="Buscar por nombre o correo">
-                </div>
+
+                <button type="button" class="primary-btn" (click)="openForm()">
+
+                    <i class="fas fa-user-clock"></i>
+
+                    Solicitar usuario temporal
+
+                </button>
+
             </div>
 
-            <div class="table-container">
 
-                <table>
+            <!-- INFORMACIÓN -->
+            <div class="info-banner">
 
-                    <thead>
-                        <tr>
-                            <th>Nombre</th>
-                            <th>Correo</th>
-                            <th>Tipo</th>
-                            <th>Fecha</th>
-                        </tr>
-                    </thead>
+                <div class="info-icon">
 
-                    <tbody>
+                    <i class="fas fa-shield-halved"></i>
 
-                        <tr *ngFor="let a of filteredAccesses()">
+                </div>
 
-                            <td>{{ a.name }}</td>
+                <div>
 
-                            <td>{{ a.email }}</td>
+                    <strong>
+                        Acceso temporal protegido
+                    </strong>
 
-                            <td>
-                                <span [class.ingreso]="a.type === 'entrada'"
-                                      [class.salida]="a.type === 'salida'">
+                    <p>
+                        Los usuarios temporales tendrán una duración
+                        máxima de 24 horas y solamente se crearán
+                        cuando un administrador apruebe la solicitud.
+                    </p>
 
-                                    {{ a.type === 'entrada' ? 'Ingreso' : 'Salida' }}
+                </div>
 
-                                </span>
-                            </td>
+            </div>
 
-                            <td>{{ a.date | date:'short' }}</td>
 
-                        </tr>
+            <!-- =================================================
+                 FORMULARIO
+                 ================================================= -->
+            <div class="card temporary-form" *ngIf="showForm">
 
-                    </tbody>
+                <div class="form-header">
 
-                </table>
+                    <div>
+
+                        <h3>
+                            Nueva solicitud
+                        </h3>
+
+                        <p>
+                            Datos del usuario que necesita acceso temporal
+                        </p>
+
+                    </div>
+
+
+                    <button type="button" class="close-btn" (click)="closeForm()" title="Cerrar formulario"
+                        aria-label="Cerrar formulario">
+
+                        <i class="fas fa-xmark"></i>
+
+                    </button>
+
+                </div>
+
+
+                <!-- FORMULARIO -->
+                <div class="form-grid">
+
+                    <!-- NOMBRE -->
+                    <div class="form-group">
+
+                        <label for="temporary-name">
+                            Nombre completo
+                        </label>
+
+                        <input id="temporary-name" type="text" [(ngModel)]="form.name"
+                            placeholder="Nombre del visitante">
+
+                    </div>
+
+
+                    <!-- CORREO -->
+                    <div class="form-group">
+
+                        <label for="temporary-email">
+                            Correo electrónico
+                        </label>
+
+                        <input id="temporary-email" type="email" [(ngModel)]="form.email"
+                            placeholder="correo@ejemplo.com">
+
+                    </div>
+
+
+                    <!-- DOCUMENTO -->
+                    <div class="form-group">
+
+                        <label for="temporary-document">
+                            Documento
+                        </label>
+
+                        <input id="temporary-document" type="text" [(ngModel)]="form.document"
+                            placeholder="Número de documento">
+
+                    </div>
+
+                    <!-- MOTIVO -->
+                    <div class="form-group form-group-full">
+
+                        <label for="temporary-reason">
+                            Motivo del acceso temporal
+                        </label>
+
+                        <textarea id="temporary-reason" [(ngModel)]="form.reason"
+                            placeholder="Explica por qué se solicita el acceso temporal..." rows="4" maxlength="500">
+                        </textarea>
+
+                        <small>
+                            Indica claramente el motivo por el cual esta persona necesita ingresar.
+                        </small>
+
+                    </div>
+
+
+                    <!-- DURACIÓN -->
+                    <div class="form-group">
+
+                        <label for="temporary-duration">
+                            Duración del acceso
+                        </label>
+
+                        <select id="temporary-duration" [(ngModel)]="form.expirationDate">
+
+                            <option value="">
+                                Seleccionar duración
+                            </option>
+
+                            <option value="1">
+                                1 hora
+                            </option>
+
+                            <option value="2">
+                                2 horas
+                            </option>
+
+                            <option value="4">
+                                4 horas
+                            </option>
+
+                            <option value="8">
+                                8 horas
+                            </option>
+
+                            <option value="12">
+                                12 horas
+                            </option>
+
+                            <option value="24">
+                                24 horas
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+
+                <!-- AVISO -->
+                <div class="approval-warning">
+
+                    <i class="fas fa-circle-info"></i>
+
+                    <div>
+
+                        <strong>
+                            Esta solicitud necesita aprobación
+                        </strong>
+
+                        <p>
+                            Al enviar la solicitud, el administrador
+                            recibirá una notificación. El usuario
+                            temporal no será creado hasta que sea aprobado.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- BOTONES -->
+                <div class="form-actions">
+
+                    <button type="button" class="secondary-btn" (click)="closeForm()">
+
+                        Cancelar
+
+                    </button>
+
+
+                    <button type="button" class="primary-btn" (click)="saveAccess()">
+
+                        <i class="fas fa-paper-plane"></i>
+
+                        Enviar solicitud
+
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+     LISTA DE SOLICITUDES
+     ================================================= -->
+            <section class="card list-card">
+
+                <!-- HEADER -->
+                <div class="table-header">
+
+                    <div>
+
+                        <h3>
+                            Solicitudes
+                        </h3>
+
+                        <p>
+                            Historial de solicitudes de acceso temporal
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- FILTROS -->
+                <div class="request-filters">
+
+                    <button type="button" [class.active]="requestFilter === 'todas'" (click)="requestFilter = 'todas'">
+
+                        Todas
+
+                        <span>
+                            {{ temporaryRequests.length }}
+                        </span>
+
+                    </button>
+
+
+                    <button type="button" [class.active]="requestFilter === 'pendiente'"
+                        (click)="requestFilter = 'pendiente'">
+
+                        Pendientes
+
+                        <span>
+                            {{ getRequestCount('pendiente') }}
+                        </span>
+
+                    </button>
+
+
+                    <button type="button" [class.active]="requestFilter === 'aprobada'"
+                        (click)="requestFilter = 'aprobada'">
+
+                        Aprobadas
+
+                        <span>
+                            {{ getRequestCount('aprobada') }}
+                        </span>
+
+                    </button>
+
+
+                    <button type="button" [class.active]="requestFilter === 'rechazada'"
+                        (click)="requestFilter = 'rechazada'">
+
+                        Rechazadas
+
+                        <span>
+                            {{ getRequestCount('rechazada') }}
+                        </span>
+
+                    </button>
+
+                </div>
+
+
+                <!-- TABLA -->
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Usuario
+                                </th>
+
+                                <th>
+                                    Documento
+                                </th>
+
+                                <th>
+                                    Motivo
+                                </th>
+
+                                <th>
+                                    Duración
+                                </th>
+
+                                <th>
+                                    Fecha
+                                </th>
+
+                                <th>
+                                    Estado
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            <!-- SOLICITUDES -->
+                            <tr *ngFor="let request of filteredTemporaryRequests()">
+
+                                <!-- USUARIO -->
+                                <td>
+
+                                    <div class="user-cell">
+
+                                        <div class="user-mini-avatar">
+
+                                            <i class="fas fa-user-clock"></i>
+
+                                        </div>
+
+                                        <div>
+
+                                            <strong>
+                                                {{ request.name || 'Usuario temporal' }}
+                                            </strong>
+
+                                            <small>
+                                                {{ request.email || 'Sin correo' }}
+                                            </small>
+
+                                        </div>
+
+                                    </div>
+
+                                </td>
+
+
+                                <!-- DOCUMENTO -->
+                                <td>
+                                    {{ request.document || '—' }}
+                                </td>
+
+
+                                <!-- MOTIVO -->
+                                <td>
+
+                                    <div class="request-reason">
+
+                                        <strong>
+                                            {{ request.reason || 'Sin motivo registrado' }}
+                                        </strong>
+
+                                    </div>
+
+                                    <!-- MOTIVO RECHAZO -->
+                                    <small class="rejection-reason" *ngIf="
+                                request.status === 'rechazada' &&
+                                request.rejection_reason
+                            ">
+
+                                        <i class="fas fa-circle-exclamation"></i>
+
+                                        {{ request.rejection_reason }}
+
+                                    </small>
+
+                                </td>
+
+
+                                <!-- DURACIÓN -->
+                                <td>
+
+                                    <span class="temporary-badge">
+
+                                        <i class="fas fa-clock"></i>
+
+                                        {{ request.durationHours || 0 }} horas
+
+                                    </span>
+
+                                </td>
+
+
+                                <!-- FECHA -->
+                                <td>
+
+                                    {{
+                                    request.created_at
+                                    ? (request.created_at | date:'dd/MM/yyyy HH:mm')
+                                    : 'Sin fecha'
+                                    }}
+
+                                </td>
+
+
+                                <!-- ESTADO -->
+                                <td>
+
+                                    <!-- PENDIENTE -->
+                                    <span *ngIf="request.status === 'pendiente'" class="pending-badge">
+
+                                        <i class="fas fa-hourglass-half"></i>
+
+                                        Pendiente
+
+                                    </span>
+
+
+                                    <!-- APROBADA -->
+                                    <span *ngIf="request.status === 'aprobada'" class="approved-badge">
+
+                                        <i class="fas fa-circle-check"></i>
+
+                                        Aprobada
+
+                                    </span>
+
+
+                                    <!-- RECHAZADA -->
+                                    <span *ngIf="request.status === 'rechazada'" class="rejected-badge">
+
+                                        <i class="fas fa-circle-xmark"></i>
+
+                                        Rechazada
+
+                                    </span>
+
+
+                                    <!-- ESTADO DESCONOCIDO -->
+                                    <span *ngIf="
+                                request.status !== 'pendiente' &&
+                                request.status !== 'aprobada' &&
+                                request.status !== 'rechazada'
+                            " class="pending-badge">
+
+                                        <i class="fas fa-circle-question"></i>
+
+                                        {{ request.status || 'Sin estado' }}
+
+                                    </span>
+
+                                </td>
+
+                            </tr>
+
+
+                            <!-- CARGANDO -->
+                            <tr *ngIf="loadingRequests">
+
+                                <td colspan="6" class="empty-state">
+
+                                    <div>
+
+                                        <i class="fas fa-spinner fa-spin"></i>
+
+                                        <h4>
+                                            Cargando solicitudes...
+                                        </h4>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+
+                            <!-- SIN SOLICITUDES -->
+                            <tr *ngIf="
+                        !loadingRequests &&
+                        filteredTemporaryRequests().length === 0
+                    ">
+
+                                <td colspan="6" class="empty-state">
+
+                                    <div>
+
+                                        <i class="fas fa-envelope-open"></i>
+
+                                        <h4>
+                                            No hay solicitudes
+                                        </h4>
+
+                                        <p>
+                                            No existen solicitudes
+                                            {{
+                                            requestFilter !== 'todas'
+                                            ? requestFilter
+                                            : ''
+                                            }}
+                                            para mostrar.
+                                        </p>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+        </section>
+
+
+        <!-- =====================================================
+     PERFIL DEL VIGILANTE
+     ===================================================== -->
+        <section *ngIf="activeSection === 'profile'" class="profile-section">
+
+            <!-- ENCABEZADO -->
+            <div class="profile-page-header">
+
+                <h2>
+                    Mi perfil
+                </h2>
+
+                <p>
+                    Administra la información de tu cuenta.
+                </p>
+
+            </div>
+
+
+            <!-- =================================================
+         FOTO DE PERFIL
+         ================================================= -->
+            <div class="card profile-photo-card">
+
+                <div class="profile-photo-wrapper">
+
+                    <div class="profile-photo">
+
+                        <img [src]="profile.photo || 'assets/avatar.png'" alt="Foto de perfil">
+
+                    </div>
+
+                </div>
+
+
+                <div class="profile-photo-info">
+
+                    <h3>
+                        Foto de perfil
+                    </h3>
+
+                    <p>
+                        JPG, PNG o WEBP. Máximo 5 MB.
+                    </p>
+
+
+                    <label class="change-photo-btn" title="Cambiar fotografía">
+
+                        <i class="fas fa-camera"></i>
+
+                        Cambiar fotografía
+
+                        <input type="file" accept="image/jpeg,image/png,image/webp" hidden
+                            (change)="uploadPhoto($event)">
+
+                    </label>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+         INFORMACIÓN DE LA CUENTA
+         ================================================= -->
+            <div class="card profile-information-card">
+
+                <div class="profile-form-grid">
+
+
+                    <!-- =========================================
+                 NOMBRE
+                 ========================================= -->
+                    <div class="form-group">
+
+                        <label for="profile-name">
+                            Nombre
+                        </label>
+                        <div class="locked-input">
+
+                            <input id="profile-name" type="text" [(ngModel)]="profile.name" placeholder="Nombre completo" readonly>
+
+                            <i class="fas fa-lock"></i>
+
+                        </div>
+                        <small>
+                            El nombre no puede modificarse.
+                        </small>
+                       
+                    </div>
+                    
+
+
+                    <!-- =========================================
+                 CORREO
+                 ========================================= -->
+                    <div class="form-group">
+
+                        <label for="profile-email">
+                            Correo electrónico
+                        </label>
+
+                        <input id="profile-email" type="email" [(ngModel)]="profile.email"
+                            placeholder="Correo electrónico">
+
+                    </div>
+
+
+                    <!-- =========================================
+                 TELÉFONO
+                 ========================================= -->
+                    <div class="form-group">
+
+                        <label for="profile-phone">
+                            Teléfono
+                        </label>
+
+                        <input id="profile-phone" type="text" [(ngModel)]="profile.phone"
+                            placeholder="Número de teléfono">
+
+                    </div>
+
+
+                    <!-- =========================================
+                 DIRECCIÓN
+                 ========================================= -->
+                    <div class="form-group">
+
+                        <label for="profile-address">
+                            Dirección
+                        </label>
+
+                        <input id="profile-address" type="text" [(ngModel)]="profile.address" placeholder="Dirección">
+
+                    </div>
+
+
+                    <!-- =========================================
+                 DOCUMENTO
+                 ========================================= -->
+                    <div class="form-group">
+
+                        <label for="profile-document">
+                            Documento
+                        </label>
+
+                        <div class="locked-input">
+
+                            <input id="profile-document" type="text" [value]="profile.document || 'No registrado'"
+                                readonly>
+
+                            <i class="fas fa-lock"></i>
+
+                        </div>
+
+                        <small>
+                            El documento no puede modificarse.
+                        </small>
+
+                    </div>
+
+
+                    <!-- =========================================
+                 ROL
+                 ========================================= -->
+                    <div class="form-group">
+
+                        <label for="profile-role">
+                            Rol
+                        </label>
+
+                        <div class="locked-input">
+
+                            <input id="profile-role" type="text" [value]="currentUser?.role || 'vigilante'" readonly>
+
+                            <i class="fas fa-lock"></i>
+
+                        </div>
+
+                        <small>
+                            El rol no puede modificarse desde el perfil.
+                        </small>
+
+                    </div>
+
+
+                    <!-- =========================================
+                 ID USUARIO
+                 ========================================= -->
+                    <div class="form-group">
+
+                        <label for="profile-user-id">
+                            ID de usuario
+                        </label>
+
+                        <div class="locked-input">
+
+                            <input id="profile-user-id" type="text"
+                                [value]="currentUser?.uid || currentUser?.id || 'No disponible'" readonly>
+
+                            <i class="fas fa-lock"></i>
+
+                        </div>
+
+                        <small>
+                            El ID de usuario es permanente.
+                        </small>
+
+                    </div>
+
+
+                    <!-- =========================================
+                 ESTADO
+                 ========================================= -->
+                    <div class="form-group">
+
+                        <label>
+                            Estado de cuenta
+                        </label>
+
+                        <div class="account-status">
+
+                            <span class="status-dot"></span>
+
+                            <span>
+                                Activo
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+         ACCIONES
+         ================================================= -->
+            <div class="profile-actions">
+
+                <button type="button" class="primary-btn profile-save-btn" (click)="updateProfile()">
+
+                    <i class="fas fa-save"></i>
+
+                    Guardar cambios
+
+                </button>
 
             </div>
 

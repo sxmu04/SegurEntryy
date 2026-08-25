@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs/internal/Observable';
 
 @Injectable({
   providedIn: 'root'
@@ -8,7 +9,7 @@ export class ApiService {
 
   private API_URL = 'http://127.0.0.1:8000/api';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   // ===========================
   // AUTH
@@ -132,6 +133,91 @@ export class ApiService {
     return this.http.post(
       `${this.API_URL}/access/register/`,
       data
+    );
+
+  }
+
+  completeRegistration(data: any): Observable<any> {
+    return this.http.post<any>(
+      `${this.API_URL}/users/complete-registration/`,
+      data
+    );
+  }
+
+  // ===========================
+  // NOTIFICACIONES
+  // ===========================
+
+  getNotifications(uid: string) {
+
+    return this.http.get(
+      `${this.API_URL}/notifications/${uid}/`
+    );
+
+  }
+
+  getUnreadNotifications(uid: string) {
+
+    return this.http.get(
+      `${this.API_URL}/notifications/${uid}/unread/`
+    );
+
+  }
+
+  markNotificationAsRead(
+    uid: string,
+    notificationId: string
+  ) {
+
+    return this.http.patch(
+      `${this.API_URL}/notifications/${uid}/${notificationId}/read/`,
+      {}
+    );
+
+  }
+
+  markAllNotificationsAsRead(uid: string) {
+
+    return this.http.patch(
+      `${this.API_URL}/notifications/${uid}/read-all/`,
+      {}
+    );
+
+  }
+
+  deleteNotification(
+    uid: string,
+    notificationId: string
+  ) {
+
+    return this.http.delete(
+      `${this.API_URL}/notifications/${uid}/${notificationId}/`
+    );
+
+  }
+
+  getTemporaryUserRequest(requestId: string) {
+
+    return this.http.get(
+      `${this.API_URL}/temporary-users/requests/${requestId}/`
+    );
+
+  }
+
+  approveTemporaryUser(requestId: string) {
+
+    return this.http.post(
+      `${this.API_URL}/temporary-users/requests/${requestId}/approve/`,
+      {}
+    );
+
+  }
+
+  rejectTemporaryUser(requestId: string) {
+
+    return this.http.post(
+      `${this.API_URL}/temporary-users/requests/${requestId}/reject/`,
+      {}
     );
 
   }

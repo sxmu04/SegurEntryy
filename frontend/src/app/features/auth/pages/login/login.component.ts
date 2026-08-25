@@ -35,6 +35,7 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     const theme = localStorage.getItem("theme");
+
     if (theme === "dark") {
       document.body.classList.add("dark");
     }
@@ -63,6 +64,7 @@ export class LoginComponent implements OnInit {
         title: 'Campos incompletos',
         text: 'Por favor llena todos los campos'
       });
+
       return false;
     }
 
@@ -74,180 +76,24 @@ export class LoginComponent implements OnInit {
         title: 'Correo inválido',
         text: 'Ingresa un correo válido'
       });
+
       return false;
     }
 
     return true;
   }
-  
 
-async login() {
+  async login() {
 
-  if (!this.validateForm()) return;
+    if (!this.validateForm()) return;
 
-  this.loading = true;
-
-  Swal.fire({
-    title: 'Verificando...',
-    text: 'Accediendo al sistema',
-    allowOutsideClick: false,
-    didOpen: () => {
-      Swal.showLoading();
-    }
-  });
-
-  try {
-
-    // 🔐 1. LOGIN FIREBASE
-    const userCredential = await this.auth.login(
-      this.email,
-      this.password
-    );
-
-    const user = userCredential.user;
-
-    if (!user) {
-      throw new Error("No se encontró el usuario en Firebase");
-    }
-
-    await user.getIdToken();
-
-    // 🌐 2. BACKEND (ROL)
-    this.apiService.login(user.email!).subscribe({
-
-      next: (response: any) => {
-
-        console.log("RESPUESTA BACKEND:", response);
-
-        localStorage.setItem("token", response.access);
-        localStorage.setItem("user", JSON.stringify(response.user));
-
-        Swal.close();
-
-        const role = response.user.role;
-
-        Swal.fire({
-          icon: "success",
-          title: "Bienvenido",
-          text: "Inicio de sesión exitoso",
-          timer: 1500,
-          showConfirmButton: false
-        }).then(() => {
-
-          console.log("ROL:", role);
-
-          switch (role) {
-
-            case 'super-admin':
-              this.router.navigate(['/dashboard/super-admin']);
-              break;
-
-            case 'administrador':
-              this.router.navigate(['/dashboard/administrador']);
-              break;
-
-            case 'instructor':
-              this.router.navigate(['/dashboard/instructor']);
-              break;
-
-            case 'vigilante':
-              this.router.navigate(['/dashboard/vigilante']);
-              break;
-
-            case 'aprendiz':
-              this.router.navigate(['/dashboard/aprendiz']);
-              break;
-
-            case 'visitante':
-              this.router.navigate(['/dashboard/visitante']);
-              break;
-
-            case 'userx':
-              this.router.navigate(['/dashboard/userx']);
-              break;
-
-            default:
-              Swal.fire({
-                icon: 'error',
-                title: 'Rol inválido',
-                text: 'Su cuenta no tiene un rol asignado.'
-              });
-
-              this.auth.logout();
-          }
-
-        });
-
-      },
-
-      // ❌ ERROR DEL BACKEND
-      error: (err) => {
-
-        console.error("ERROR BACKEND:", err);
-
-        Swal.fire({
-          icon: 'error',
-          title: 'Error del servidor',
-          text: err.error?.message || 'No se pudo obtener el rol del usuario'
-        });
-
-        this.loading = false;
-      }
-
-    });
-
-  } catch (error: any) {
-
-    console.error("ERROR FIREBASE COMPLETO:", error);
-
-    let mensaje = '';
-
-    switch (error.code) {
-
-      case 'auth/invalid-email':
-        mensaje = 'El correo no tiene formato válido';
-        break;
-
-      case 'auth/user-not-found':
-        mensaje = 'El usuario NO existe en Firebase Authentication';
-        break;
-
-      case 'auth/wrong-password':
-        mensaje = 'La contraseña es incorrecta';
-        break;
-
-      case 'auth/invalid-credential':
-        mensaje = 'Credenciales inválidas (usuario no registrado o datos incorrectos)';
-        break;
-
-      case 'auth/too-many-requests':
-        mensaje = 'Demasiados intentos fallidos. Intenta más tarde';
-        break;
-
-      default:
-        mensaje = error.message || 'Error desconocido';
-        break;
-    }
+    this.loading = true;
 
     Swal.fire({
-      icon: 'error',
-      title: 'Error al iniciar sesión',
-      html: `
-        <b>${mensaje}</b><br><br>
-        <small>Código: ${error.code || 'N/A'}</small>
-      `
-    });
-
-    this.loading = false;
-  }
-}
-
-  async loginWithGoogle() {
-
-    Swal.fire({
-      title: 'Conectando con Google...',
-      text: 'Por favor espera',
+      title: 'Verificando...',
+      text: 'Accediendo al sistema',
       allowOutsideClick: false,
+      allowEscapeKey: false,
       didOpen: () => {
         Swal.showLoading();
       }
@@ -255,139 +101,280 @@ async login() {
 
     try {
 
-      const result = await this.auth.loginWithGoogle();
+      // ==========================================
+      // FIREBASE EMAIL + PASSWORD
+      // ==========================================
 
-      const email = result.user.email!;
+      const userCredential = await this.auth.login(
+        this.email.trim(),
+        this.password
+      );
 
-      this.apiService.checkProvider(email)
-        .subscribe(async (response: any) => {
+      const user = userCredential.user;
 
-          if (
-            response.exists &&
-            response.provider === "password"
-          ) {
+      if (!user) {
+        throw new Error(
+          'No se encontró el usuario en Firebase'
+        );
+      }
 
-            await this.auth.logout();
+      console.log('🔥 Firebase UID:', user.uid);
+      console.log('📧 Firebase EMAIL:', user.email);
+
+      // ==========================================
+      // OBTENER TOKEN
+      // ==========================================
+
+      await user.getIdToken(true);
+
+      // ==========================================
+      // BACKEND DJANGO
+      // ==========================================
+
+      this.apiService.login(user.email!).subscribe({
+
+        next: (response: any) => {
+
+          console.log('✅ RESPUESTA BACKEND:', response);
+
+          const user = response?.user;
+          const role = user?.role;
+
+          const validRoles = [
+            'super-admin',
+            'administrador',
+            'instructor',
+            'vigilante',
+            'aprendiz',
+            'visitante',
+            'userx'
+          ];
+
+          if (!user || !role || !validRoles.includes(role)) {
+
+            console.error('❌ USUARIO SIN ROL VÁLIDO:', user);
+
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+
+            this.auth.logout();
+
+            Swal.close();
+
+            this.loading = false;
 
             Swal.fire({
-              icon: "warning",
-              title: "Correo registrado",
-              text: "Este correo ya fue registrado con correo y contraseña."
+              icon: 'error',
+              title: 'Acceso no autorizado',
+              text: 'Su cuenta no tiene un rol válido asignado. Contacte al administrador.',
+              confirmButtonText: 'Entendido',
+              allowOutsideClick: false,
+              allowEscapeKey: false
+            }).then(() => {
+              this.router.navigate(['/login']);
             });
 
             return;
           }
 
-          // continuar enviando el token a Django
+          localStorage.setItem(
+            'token',
+            response.access
+          );
 
-        });
+          localStorage.setItem(
+            'user',
+            JSON.stringify(user)
+          );
 
-      // Verificar cómo está registrado ese correo
-      const methods = await this.auth.getSignInMethods(email);
+          Swal.close();
 
-      console.log(methods);
+          Swal.fire({
+            icon: 'success',
+            title: 'Bienvenido',
+            text: 'Inicio de sesión exitoso',
+            timer: 1500,
+            showConfirmButton: false,
+            allowOutsideClick: false
+          }).then(() => {
 
-      console.log("Métodos de autenticación:", methods);
+            switch (role) {
 
-      // Si el correo SOLO tiene password, bloquear Google
-      if (
-        methods.includes("password") &&
-        !methods.includes("google.com")
-      ) {
+              case 'super-admin':
+                this.router.navigate(['/dashboard/super-admin']);
+                break;
 
-        await this.auth.logout();
+              case 'administrador':
+                this.router.navigate(['/dashboard/administrador']);
+                break;
 
-        Swal.fire({
-          icon: 'warning',
-          title: 'Correo registrado',
-          text: 'Este correo ya fue registrado con correo y contraseña. Inicia sesión con tu contraseña.'
-        });
+              case 'instructor':
+                this.router.navigate(['/dashboard/instructor']);
+                break;
 
-        return;
-      }
+              case 'vigilante':
+                this.router.navigate(['/dashboard/vigilante']);
+                break;
 
-      // Obtener el ID Token
-      const idToken = await result.user.getIdToken();
+              case 'aprendiz':
+                this.router.navigate(['/dashboard/aprendiz']);
+                break;
 
-      console.log("TOKEN:", idToken);
-      console.log("LONGITUD:", idToken.length);
-      console.log("SEGMENTOS:", idToken.split(".").length);
+              case 'visitante':
+                this.router.navigate(['/dashboard/visitante']);
+                break;
 
-      this.apiService.googleLogin(idToken)
-        .subscribe({
+              case 'userx':
+                this.router.navigate(['/dashboard/userx']);
+                break;
 
-          next: (response: any) => {
+              default:
+                this.auth.logout();
+                localStorage.clear();
 
-            Swal.fire({
-              icon: 'success',
-              title: 'Bienvenido',
-              text: 'Inicio de sesión exitoso',
-              timer: 1500,
-              showConfirmButton: false
-            });
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Acceso no autorizado',
+                  text: 'Su cuenta no tiene un rol válido asignado.'
+                });
 
-            console.log("DJANGO:", response);
+                this.router.navigate(['/login']);
+                break;
+            }
+          });
+        },
 
-            this.router.navigate(
-              ['/dashboard/super-admin'],
-              { replaceUrl: true }
-            );
+        error: async (err) => {
 
-          },
+          console.error('❌ ERROR BACKEND:', err);
 
-          error: async (error) => {
+          // ==========================================
+          // 🚫 CUENTA INACTIVA
+          // ==========================================
 
-            console.error("STATUS:", error.status);
-            console.error("BODY:", error.error);
-            console.error("HEADERS:", error.headers);
+          if (
+            err.status === 403 &&
+            err.error?.code === 'USER_INACTIVE'
+          ) {
 
+            console.log('🚫 CUENTA INACTIVA');
+
+            // MUY IMPORTANTE:
+            // eliminar cualquier sesión local
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+
+            // cerrar Firebase
             await this.auth.logout();
 
-            Swal.fire({
-              icon: 'error',
-              title: 'Error Google Login',
-              text: error?.error?.message || 'Error al autenticar con Google'
+            this.loading = false;
+
+            await Swal.fire({
+              icon: 'warning',
+              title: 'Cuenta desactivada',
+              text:
+                err.error?.message ||
+                'Tu usuario ha sido desactivado. Contacta al administrador para solicitar su activación.',
+              confirmButtonText: 'Entendido',
+              allowOutsideClick: false,
+              allowEscapeKey: false
             });
 
+            // Forzar regreso al login
+            await this.router.navigate(['/login']);
+
+            return;
           }
 
-        });
+          // ==========================================
+          // OTROS ERRORES
+          // ==========================================
+
+          Swal.close();
+
+          this.loading = false;
+
+          Swal.fire({
+            icon: 'error',
+            title: 'Error del servidor',
+            text:
+              err.error?.message ||
+              err.error?.detail ||
+              'No se pudo obtener la información del usuario.'
+          });
+        }
+
+      });
 
     } catch (error: any) {
 
-      console.error(error);
+      console.error(
+        '❌ ERROR FIREBASE:',
+        error
+      );
+
+      let mensaje = '';
+
+      switch (error.code) {
+
+        case 'auth/invalid-email':
+
+          mensaje =
+            'El correo no tiene formato válido';
+
+          break;
+
+        case 'auth/user-not-found':
+
+          mensaje =
+            'El usuario no existe en Firebase Authentication';
+
+          break;
+
+        case 'auth/wrong-password':
+
+          mensaje =
+            'La contraseña es incorrecta';
+
+          break;
+
+        case 'auth/invalid-credential':
+
+          mensaje =
+            'Credenciales inválidas. Verifica tu correo y contraseña.';
+
+          break;
+
+        case 'auth/too-many-requests':
+
+          mensaje =
+            'Demasiados intentos fallidos. Intenta más tarde.';
+
+          break;
+
+        default:
+
+          mensaje =
+            error.message ||
+            'Error desconocido';
+
+          break;
+      }
+
+      Swal.close();
+
+      this.loading = false;
 
       Swal.fire({
+
         icon: 'error',
-        title: 'Error',
-        text: error?.message || 'No fue posible iniciar sesión con Google'
+
+        title: 'Error al iniciar sesión',
+
+        text: mensaje
+
       });
 
     }
-
   }
-
-  handleError(error: any) {
-
-    let message = "Error al iniciar sesión";
-
-    switch (error.code) {
-      case 'auth/user-not-found':
-        message = "Usuario no registrado";
-        break;
-      case 'auth/wrong-password':
-        message = "Contraseña incorrecta";
-        break;
-      case 'auth/invalid-email':
-        message = "Correo inválido";
-        break;
-    }
-
-    Swal.fire({
-      icon: 'error',
-      title: 'Error',
-      text: message
-    });
-  }
-
 }

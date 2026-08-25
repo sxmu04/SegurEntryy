@@ -7,6 +7,7 @@ import { ApiService } from '../../../core/services/api.service';
 import { DashboardService } from '../../../core/services/dashboard.service';
 import { AuthService } from '../../../core/services/auth.service';
 
+
 interface Access {
   uid?: string;
   id?: string;
@@ -43,11 +44,14 @@ export class AdminComponent implements OnInit {
   selectedPhoto: File | null = null;
 
   profile = {
+    uid: '',
     name: '',
     email: '',
     phone: '',
     address: '',
     document: '',
+    role: '',
+    status: '',
     photo: 'assets/avatar.png'
   };
 
@@ -71,23 +75,48 @@ export class AdminComponent implements OnInit {
     return this.accesses.filter(a => a.tempAccess).length;
   }
 
+  /*
+  =========================================================
+  INICIO
+  =========================================================
+  */
+
   ngOnInit(): void {
     this.loadUsers();
     this.loadProfile();
   }
 
+  /*
+  =========================================================
+  USUARIOS
+  =========================================================
+  */
+
   loadUsers(): void {
+
     this.apiService.listUsers().subscribe({
+
       next: (resp: any) => {
+
         if (resp.success) {
           this.accesses = resp.users;
         }
+
       },
+
       error: (err) => {
         console.error(err);
       }
+
     });
+
   }
+
+  /*
+  =========================================================
+  MENU
+  =========================================================
+  */
 
   toggleMenu(): void {
     this.menuOpen = !this.menuOpen;
@@ -96,6 +125,12 @@ export class AdminComponent implements OnInit {
   goTo(route: string): void {
     this.activeRoute = route;
   }
+
+  /*
+  =========================================================
+  CREAR USUARIO
+  =========================================================
+  */
 
   openForm(): void {
     this.resetForm();
@@ -134,13 +169,36 @@ export class AdminComponent implements OnInit {
       return;
     }
 
+    const currentUser = this.authService.getUser();
+
+    if (!currentUser?.uid) {
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Sesión no válida',
+        text: 'No fue posible identificar al administrador actual.'
+      });
+
+      return;
+    }
+
     const data = {
+
       name: this.form.name,
+
       email: this.form.email,
+
       document: this.form.document,
+
       role: this.form.role,
+
       tempAccess: this.form.tempAccess,
-      expirationDate: this.form.expirationDate || null
+
+      expirationDate:
+        this.form.expirationDate || null,
+
+      created_by: currentUser.uid
+
     };
 
     this.apiService.createUser(data).subscribe({
@@ -164,7 +222,9 @@ export class AdminComponent implements OnInit {
         Swal.fire({
           icon: 'error',
           title: 'Error',
-          text: err.error?.message || 'No fue posible crear el usuario.'
+          text:
+            err.error?.message ||
+            'No fue posible crear el usuario.'
         });
 
       }
@@ -172,6 +232,12 @@ export class AdminComponent implements OnInit {
     });
 
   }
+
+  /*
+  =========================================================
+  EDITAR USUARIO
+  =========================================================
+  */
 
   editAccess(access: Access): void {
 
@@ -182,6 +248,12 @@ export class AdminComponent implements OnInit {
     });
 
   }
+
+  /*
+  =========================================================
+  ELIMINAR USUARIO
+  =========================================================
+  */
 
   deleteAccess(uid: string): void {
 
@@ -215,7 +287,9 @@ export class AdminComponent implements OnInit {
           Swal.fire({
             icon: 'error',
             title: 'Error',
-            text: err.error?.message || 'No fue posible eliminar el usuario.'
+            text:
+              err.error?.message ||
+              'No fue posible eliminar el usuario.'
           });
 
         }
@@ -225,6 +299,12 @@ export class AdminComponent implements OnInit {
     });
 
   }
+
+  /*
+  =========================================================
+  PERFIL DEL ADMINISTRADOR
+  =========================================================
+  */
 
   loadProfile(): void {
 
@@ -236,131 +316,425 @@ export class AdminComponent implements OnInit {
 
         const firebaseUser = this.authService.getUser();
 
-        if (!firebaseUser) return;
+        if (!firebaseUser) {
+          return;
+        }
+
+        /*
+        -----------------------------------------------------
+        BUSCAR USUARIO ACTUAL
+        -----------------------------------------------------
+        */
 
         const me = users.find(
-          (u: any) => u.email === firebaseUser.email
+          (u: any) =>
+            u.uid === firebaseUser.uid ||
+            u.email === firebaseUser.email
         );
 
-        if (!me) return;
+        if (!me) {
+
+          console.warn(
+            'No se encontró el usuario administrador actual.'
+          );
+
+          return;
+        }
+
+        /*
+        -----------------------------------------------------
+        GUARDAR USUARIO ACTUAL
+        -----------------------------------------------------
+        */
 
         this.currentUser = me;
 
+        /*
+        -----------------------------------------------------
+        CARGAR DATOS DEL PERFIL
+        -----------------------------------------------------
+        */
+
         this.profile = {
 
-          name: me.name || '',
-          email: me.email || '',
-          phone: me.phone || '',
-          address: me.address || '',
-          document: me.document || '',
-          photo: me.photo || 'assets/avatar.png'
+          uid:
+            me.uid ||
+            me.id ||
+            firebaseUser.uid ||
+            '',
+
+          name:
+            me.name ||
+            '',
+
+          email:
+            me.email ||
+            firebaseUser.email ||
+            '',
+
+          phone:
+            me.phone ||
+            '',
+
+          address:
+            me.address ||
+            '',
+
+          document:
+            me.document ||
+            '',
+
+          role:
+            me.role ||
+            'Administrador',
+
+          status:
+            me.status ??
+            (me.active === false ? 'Inactivo' : 'Activo'),
+
+          photo:
+            me.photo ||
+            'assets/avatar.png'
 
         };
 
       },
 
       error: (err) => {
-        console.error(err);
+
+        console.error(
+          'Error cargando perfil:',
+          err
+        );
+
       }
 
     });
 
   }
 
+  /*
+  =========================================================
+  NOMBRE PARA EL SIDEBAR
+  =========================================================
+  */
+
+  getProfileName(): string {
+
+    if (this.profile.name) {
+      return this.profile.name;
+    }
+
+    return 'Administrador';
+
+  }
+
+  /*
+  =========================================================
+  CARGO PARA EL SIDEBAR
+  =========================================================
+  */
+
+  getProfileRole(): string {
+
+    if (this.profile.role) {
+      return this.profile.role;
+    }
+
+    return 'Administrador';
+
+  }
+
+  /*
+  =========================================================
+  ESTADO
+  =========================================================
+  */
+
+  isProfileActive(): boolean {
+
+    const status =
+      String(this.profile.status || '')
+        .trim()
+        .toLowerCase();
+
+    return (
+      status === 'activo' ||
+      status === 'active' ||
+      status === 'true' ||
+      status === '1'
+    );
+
+  }
+
+  /*
+  =========================================================
+  FOTO
+  =========================================================
+  */
+
   uploadPhoto(event: any): void {
 
-    const file = event.target.files[0];
+    const file =
+      event.target?.files?.[0];
 
-    if (!file) return;
+    if (!file) {
+      return;
+    }
+
+    /*
+    -----------------------------------------------------
+    VALIDAR TIPO
+    -----------------------------------------------------
+    */
+
+    if (!file.type.startsWith('image/')) {
+
+      Swal.fire({
+        icon: 'warning',
+        title: 'Archivo no válido',
+        text: 'Seleccione una imagen válida.'
+      });
+
+      event.target.value = '';
+
+      return;
+    }
+
+    /*
+    -----------------------------------------------------
+    VALIDAR TAMAÑO
+    -----------------------------------------------------
+    */
+
+    const maxSize =
+      5 * 1024 * 1024;
+
+    if (file.size > maxSize) {
+
+      Swal.fire({
+        icon: 'warning',
+        title: 'Imagen demasiado grande',
+        text: 'La imagen no puede superar los 5 MB.'
+      });
+
+      event.target.value = '';
+
+      return;
+    }
 
     this.selectedPhoto = file;
 
-    const reader = new FileReader();
+    /*
+    -----------------------------------------------------
+    PREVISUALIZACIÓN
+    -----------------------------------------------------
+    */
+
+    const reader =
+      new FileReader();
 
     reader.onload = () => {
-      this.profile.photo = reader.result as string;
+
+      this.profile.photo =
+        reader.result as string;
+
     };
 
     reader.readAsDataURL(file);
 
   }
 
-  async updateProfile() {
+  /*
+  =========================================================
+  ACTUALIZAR PERFIL
+  =========================================================
+  */
 
-    if (!this.currentUser) return;
+  async updateProfile(): Promise<void> {
+
+    if (!this.currentUser) {
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Sesión no válida',
+        text: 'No se encontró el usuario actual.'
+      });
+
+      return;
+    }
+
+    if (!this.profile.name.trim()) {
+
+      Swal.fire({
+        icon: 'warning',
+        title: 'Nombre requerido',
+        text: 'El nombre no puede estar vacío.'
+      });
+
+      return;
+    }
+
+    if (!this.profile.email.trim()) {
+
+      Swal.fire({
+        icon: 'warning',
+        title: 'Correo requerido',
+        text: 'El correo no puede estar vacío.'
+      });
+
+      return;
+    }
 
     try {
 
+      /*
+      =====================================================
+      SUBIR FOTO
+      =====================================================
+      */
+
       if (this.selectedPhoto) {
 
-        const response: any = await this.dashboardService
-          .uploadProfilePhoto(
-            this.currentUser.uid,
-            this.selectedPhoto
-          )
-          .toPromise();
+        const response: any =
+          await this.dashboardService
+            .uploadProfilePhoto(
+              this.currentUser.uid,
+              this.selectedPhoto
+            )
+            .toPromise();
 
-        this.profile.photo =
-          "http://127.0.0.1:8000" + response.photo;
+        if (response?.photo) {
 
-      }
-
-      const data = {
-
-        name: this.profile.name,
-        email: this.profile.email,
-        phone: this.profile.phone,
-        address: this.profile.address,
-        document: this.profile.document,
-        photo: this.profile.photo
-
-      };
-
-      this.dashboardService.updateUser(
-        this.currentUser.uid,
-        data
-      ).subscribe({
-
-        next: () => {
-
-          Swal.fire(
-            "Correcto",
-            "Perfil actualizado",
-            "success"
-          );
-
-          this.loadUsers();
-          this.loadProfile();
-
-        },
-
-        error: (err) => {
-
-          Swal.fire(
-            "Error",
-            err.error?.message || "No fue posible actualizar el perfil",
-            "error"
-          );
+          this.profile.photo =
+            response.photo.startsWith('http')
+              ? response.photo
+              : 'http://127.0.0.1:8000' +
+                response.photo;
 
         }
 
+      }
+
+      /*
+      =====================================================
+      DATOS EDITABLES
+      =====================================================
+      */
+
+      const data = {
+
+        name:
+          this.profile.name.trim(),
+
+        email:
+          this.profile.email.trim(),
+
+        phone:
+          this.profile.phone.trim(),
+
+        address:
+          this.profile.address.trim(),
+
+        /*
+        El documento puede permanecer en la petición,
+        pero NO se modifica desde la interfaz.
+        */
+
+        document:
+          this.profile.document,
+
+        photo:
+          this.profile.photo
+
+      };
+
+      /*
+      =====================================================
+      ACTUALIZAR EN BACKEND
+      =====================================================
+      */
+
+      this.dashboardService
+        .updateUser(
+          this.currentUser.uid,
+          data
+        )
+        .subscribe({
+
+          next: () => {
+
+            Swal.fire({
+              icon: 'success',
+              title: 'Perfil actualizado',
+              text: 'Los datos se actualizaron correctamente.',
+              timer: 1800,
+              showConfirmButton: false
+            });
+
+            /*
+            -------------------------------------------------
+            LIMPIAR FOTO SELECCIONADA
+            -------------------------------------------------
+            */
+
+            this.selectedPhoto = null;
+
+            /*
+            -------------------------------------------------
+            RECARGAR DATOS
+            -------------------------------------------------
+            */
+
+            this.loadUsers();
+
+            this.loadProfile();
+
+          },
+
+          error: (err) => {
+
+            console.error(
+              'Error actualizando perfil:',
+              err
+            );
+
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text:
+                err.error?.message ||
+                'No fue posible actualizar el perfil.'
+            });
+
+          }
+
+        });
+
+    }
+
+    catch (error) {
+
+      console.error(
+        'Error subiendo foto:',
+        error
+      );
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No fue posible subir la foto.'
       });
 
     }
 
-    catch (e) {
-
-      console.error(e);
-
-      Swal.fire(
-        "Error",
-        "No fue posible subir la foto",
-        "error"
-      );
-
-    }
-
   }
+
+  /*
+  =========================================================
+  CERRAR SESIÓN
+  =========================================================
+  */
 
   logout(): void {
 
@@ -373,7 +747,11 @@ export class AdminComponent implements OnInit {
     }).then(result => {
 
       if (result.isConfirmed) {
-        this.router.navigate(['/login']);
+
+        this.router.navigate([
+          '/login'
+        ]);
+
       }
 
     });

@@ -2,12 +2,12 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 
-from .services.invitation_service import InvitationService
-from mail_service.email_service import send_invitation_email
+from api.users.services.user_service import UserService
 
-from config.firebase_config import db
-import traceback
 
+# ==========================================================
+# CREAR INVITACIÓN
+# ==========================================================
 
 class CreateInvitationView(APIView):
 
@@ -28,28 +28,42 @@ class CreateInvitationView(APIView):
 
         try:
 
-            invitation = InvitationService.create_invitation(
-                email=email,
-                role=role
-            )
-
-            send_invitation_email(
-                email,
-                invitation["code"]
-            )
+            invitation = UserService.create_superadmin_user({
+                "name": request.data.get("name", ""),
+                "email": email,
+                "role": role,
+                "document": request.data.get("document", ""),
+                "phone": request.data.get("phone", ""),
+                "address": request.data.get("address", ""),
+                "photo": request.data.get("photo", "")
+            })
 
             return Response({
+
                 "success": True,
-                "message": "Invitación enviada correctamente cambie la contraseña apenas haga el registro para poder acceder a la página.",
-                "code": invitation["code"]
+
+                "message":
+                    "Invitación creada y enviada correctamente.",
+
+                "invitation":
+                    invitation.get("invitation", invitation)
+
             })
 
         except Exception as e:
 
             return Response({
+
                 "success": False,
+
                 "message": str(e)
+
             }, status=500)
+
+
+# ==========================================================
+# VALIDAR INVITACIÓN
+# ==========================================================
 
 class ValidateInvitationView(APIView):
 
@@ -64,40 +78,117 @@ class ValidateInvitationView(APIView):
         if not email:
 
             return Response({
+
                 "success": False,
-                "message": "Debe enviar un correo."
+
+                "message":
+                    "Debe enviar un correo."
+
             }, status=400)
 
         if not code:
 
             return Response({
+
                 "success": False,
-                "message": "Debe enviar un código."
+
+                "message":
+                    "Debe enviar un código."
+
             }, status=400)
 
-        invitation = InvitationService.validate_code(code)
+        try:
 
-        if not invitation:
+            invitation = (
+                UserService.get_invitation(code)
+            )
+
+            if invitation.get(
+                "used",
+                False
+            ):
+
+                return Response({
+
+                    "success": False,
+
+                    "message":
+                        "Esta invitación ya fue utilizada."
+
+                }, status=400)
+
+            if invitation.get(
+                "cancelled",
+                False
+            ):
+
+                return Response({
+
+                    "success": False,
+
+                    "message":
+                        "Esta invitación fue cancelada."
+
+                }, status=400)
+
+            if (
+                invitation.get("email", "")
+                .strip()
+                .lower()
+                != email.strip().lower()
+            ):
+
+                return Response({
+
+                    "success": False,
+
+                    "message":
+                        "El correo no coincide con la invitación."
+
+                }, status=400)
 
             return Response({
-                "success": False,
-                "message": "Código inválido o expirado."
-            }, status=400)
 
-        if invitation["email"].lower() != email.lower():
+                "success": True,
+
+                "message":
+                    "Invitación válida.",
+
+                "email":
+                    invitation.get(
+                        "email",
+                        ""
+                    ),
+
+                "role":
+                    invitation.get(
+                        "role",
+                        ""
+                    ),
+
+                "name":
+                    invitation.get(
+                        "name",
+                        ""
+                    )
+
+            })
+
+        except Exception as e:
 
             return Response({
+
                 "success": False,
-                "message": "El correo no coincide con la invitación."
+
+                "message": str(e)
+
             }, status=400)
 
-        return Response({
-            "success": True,
-            "message": "Invitación válida.",
-            "email": invitation["email"],
-            "role": invitation["role"]
-        })
-    
+
+# ==========================================================
+# LISTAR INVITACIONES
+# ==========================================================
+
 class ListInvitationsView(APIView):
 
     authentication_classes = []
@@ -107,28 +198,197 @@ class ListInvitationsView(APIView):
 
         try:
 
-            invitations = []
-
-            docs = db.collection("invitations").stream()
-
-            for doc in docs:
-
-                invitation = doc.to_dict()
-                invitation["id"] = doc.id
-
-                invitations.append(invitation)
+            invitations = (
+                UserService.get_all_invitations()
+            )
 
             return Response({
+
                 "success": True,
-                "invitations": invitations
+
+                "invitations":
+                    invitations
+
             })
 
         except Exception as e:
 
             return Response({
+
                 "success": False,
+
                 "message": str(e)
+
             }, status=500)
+
+
+# ==========================================================
+# OBTENER UNA INVITACIÓN
+# ==========================================================
+
+class GetInvitationView(APIView):
+
+    authentication_classes = []
+    permission_classes = [AllowAny]
+
+    def get(self, request, invitation_id):
+
+        try:
+
+            invitation = (
+                UserService.get_invitation(
+                    invitation_id
+                )
+            )
+
+            return Response({
+
+                "success": True,
+
+                "invitation":
+                    invitation
+
+            })
+
+        except Exception as e:
+
+            return Response({
+
+                "success": False,
+
+                "message": str(e)
+
+            }, status=404)
+
+
+# ==========================================================
+# MODIFICAR INVITACIÓN
+# ==========================================================
+
+class UpdateInvitationView(APIView):
+
+    authentication_classes = []
+    permission_classes = [AllowAny]
+
+    def put(self, request, invitation_id):
+
+        try:
+
+            invitation = (
+                UserService.update_invitation(
+
+                    invitation_id,
+
+                    request.data
+
+                )
+            )
+
+            return Response({
+
+                "success": True,
+
+                "message":
+                    "Invitación actualizada correctamente.",
+
+                "invitation":
+                    invitation
+
+            })
+
+        except Exception as e:
+
+            return Response({
+
+                "success": False,
+
+                "message": str(e)
+
+            }, status=400)
+
+
+# ==========================================================
+# REENVIAR INVITACIÓN
+# ==========================================================
+
+class ResendInvitationView(APIView):
+
+    authentication_classes = []
+    permission_classes = [AllowAny]
+
+    def post(self, request, invitation_id):
+
+        try:
+
+            invitation = (
+                UserService.resend_invitation(
+                    invitation_id
+                )
+            )
+
+            return Response({
+
+                "success": True,
+
+                "message":
+                    "Invitación reenviada correctamente.",
+
+                "invitation":
+                    invitation
+
+            })
+
+        except Exception as e:
+
+            return Response({
+
+                "success": False,
+
+                "message": str(e)
+
+            }, status=400)
+
+
+# ==========================================================
+# CANCELAR INVITACIÓN
+# ==========================================================
+
+class CancelInvitationView(APIView):
+
+    authentication_classes = []
+    permission_classes = [AllowAny]
+
+    def patch(self, request, invitation_id):
+
+        try:
+
+            UserService.cancel_invitation(
+                invitation_id
+            )
+
+            return Response({
+
+                "success": True,
+
+                "message":
+                    "Invitación cancelada correctamente."
+
+            })
+
+        except Exception as e:
+
+            return Response({
+
+                "success": False,
+
+                "message": str(e)
+
+            }, status=400)
+
+
+# ==========================================================
+# ELIMINAR INVITACIÓN
+# ==========================================================
 
 class DeleteInvitationView(APIView):
 
@@ -137,10 +397,27 @@ class DeleteInvitationView(APIView):
 
     def delete(self, request, invitation_id):
 
-        db.collection("invitations").document(
-            invitation_id
-        ).delete()
+        try:
 
-        return Response({
-            "success": True
-        })
+            UserService.delete_invitation(
+                invitation_id
+            )
+
+            return Response({
+
+                "success": True,
+
+                "message":
+                    "Invitación eliminada correctamente."
+
+            })
+
+        except Exception as e:
+
+            return Response({
+
+                "success": False,
+
+                "message": str(e)
+
+            }, status=400)

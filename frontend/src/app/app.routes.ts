@@ -1,14 +1,21 @@
 import { Routes } from '@angular/router';
+
 import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
 
+  // =========================================================
+  // INICIO
+  // =========================================================
   {
     path: '',
     redirectTo: 'home',
     pathMatch: 'full'
   },
 
+  // =========================================================
+  // HOME
+  // =========================================================
   {
     path: 'home',
     loadComponent: () =>
@@ -16,6 +23,9 @@ export const routes: Routes = [
         .then(m => m.Home)
   },
 
+  // =========================================================
+  // LOGIN
+  // =========================================================
   {
     path: 'login',
     loadComponent: () =>
@@ -23,6 +33,20 @@ export const routes: Routes = [
         .then(m => m.LoginComponent)
   },
 
+  // =========================================================
+  // CONFIGURACIÓN INICIAL
+  // CREACIÓN DEL SUPERADMIN
+  // =========================================================
+  {
+    path: 'setup-superadmin',
+    loadComponent: () =>
+      import('./pages/setup-superadmin/setup-superadmin')
+        .then(m => m.SetupSuperadmin)
+  },
+
+  // =========================================================
+  // REGISTRO NORMAL
+  // =========================================================
   {
     path: 'register',
     loadComponent: () =>
@@ -30,6 +54,9 @@ export const routes: Routes = [
         .then(m => m.RegisterComponent)
   },
 
+  // =========================================================
+  // RECUPERAR CONTRASEÑA
+  // =========================================================
   {
     path: 'forgot-password',
     loadComponent: () =>
@@ -37,7 +64,9 @@ export const routes: Routes = [
         .then(m => m.ForgotPasswordComponent)
   },
 
-  // 🔥 DASHBOARD DIRECTO
+  // =========================================================
+  // DASHBOARD SUPERADMIN
+  // =========================================================
   {
     path: 'dashboard/super-admin',
     canActivate: [authGuard],
@@ -46,7 +75,9 @@ export const routes: Routes = [
         .then(m => m.SuperAdminComponent)
   },
 
-
+  // =========================================================
+  // DASHBOARD ADMINISTRADOR
+  // =========================================================
   {
     path: 'dashboard/administrador',
     canActivate: [authGuard],
@@ -55,6 +86,9 @@ export const routes: Routes = [
         .then(m => m.AdminComponent)
   },
 
+  // =========================================================
+  // DASHBOARD INSTRUCTOR
+  // =========================================================
   {
     path: 'dashboard/instructor',
     canActivate: [authGuard],
@@ -63,6 +97,9 @@ export const routes: Routes = [
         .then(m => m.InstructorComponent)
   },
 
+  // =========================================================
+  // DASHBOARD VIGILANTE
+  // =========================================================
   {
     path: 'dashboard/vigilante',
     canActivate: [authGuard],
@@ -71,6 +108,9 @@ export const routes: Routes = [
         .then(m => m.VigilanteComponent)
   },
 
+  // =========================================================
+  // DASHBOARD APRENDIZ
+  // =========================================================
   {
     path: 'dashboard/aprendiz',
     canActivate: [authGuard],
@@ -79,11 +119,15 @@ export const routes: Routes = [
         .then(m => m.Aprendiz)
   },
 
+  // =========================================================
+  // DASHBOARD USUARIO
+  // =========================================================
   {
     path: 'dashboard/user',
     canActivate: [authGuard],
     loadComponent: () =>
       import('./features/dashboard/userx/userx')
         .then(m => m.UserxComponent)
-  },
+  }
+
 ];

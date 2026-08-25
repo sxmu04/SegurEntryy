@@ -10,11 +10,10 @@ class UserService:
 
         user_data = {
             "id": doc_ref.id,
-            "nombre": data.get("nombre"),
             "apellido": data.get("apellido"),
             "correo": data.get("correo"),
             "rol": data.get("rol"),
-            "estado": "pendiente",
+            "estado": "activo",
             "fecha_creacion": datetime.now(),
         }
 

@@ -23,6 +23,7 @@ interface User {
   id: string;
   name: string;
   email: string;
+  document?: string;
   role?: string;
 }
 
@@ -114,11 +115,11 @@ export class InstructorComponent implements OnInit {
           .map(u => ({
             id: u.id,
 
-            // soporta name o nombre
             name: u.name || u.nombre || 'Sin nombre',
 
-            // soporta email o correo
             email: u.email || u.correo || 'Sin correo',
+
+            document: u.document || u.documento || '',
 
             role: u.role || u.rol || ''
           }))
@@ -146,14 +147,25 @@ export class InstructorComponent implements OnInit {
   // 🔍 FILTRO USUARIOS
   // =========================
   filterUsers() {
-    const term = this.searchTerm.toLowerCase();
+
+    const term = this.searchTerm
+      .trim()
+      .toLowerCase();
 
     this.filteredUsers = this.users.filter(user =>
-      (user.name || '').toLowerCase().includes(term) ||
-      (user.email || '').toLowerCase().includes(term)
+
+      (user.name || '')
+        .toLowerCase()
+        .includes(term)
+
+      ||
+
+      (user.document || '')
+        .toLowerCase()
+        .includes(term)
+
     );
   }
-
   // =========================
   // LOGS
   // =========================
@@ -285,9 +297,22 @@ export class InstructorComponent implements OnInit {
 
   async updateProfile() {
 
-    if (!this.currentUser) return;
+    if (!this.currentUser) {
+
+      Swal.fire(
+        'Error',
+        'No se encontró el usuario actual.',
+        'error'
+      );
+
+      return;
+    }
 
     try {
+
+      // =========================
+      // SUBIR FOTO
+      // =========================
 
       if (this.selectedPhoto) {
 
@@ -299,61 +324,127 @@ export class InstructorComponent implements OnInit {
           .toPromise();
 
         this.profile.photo =
-          "http://127.0.0.1:8000" + response.photo;
+          'http://127.0.0.1:8000' + response.photo;
 
       }
+
+
+      // =========================
+      // DATOS EDITABLES
+      // =========================
 
       const data = {
 
         name: this.profile.name,
+
         email: this.profile.email,
+
         phone: this.profile.phone,
+
         address: this.profile.address,
+
         document: this.profile.document,
+
         photo: this.profile.photo
 
+        // IMPORTANTE:
+        // NO enviamos role
+        // NO enviamos uid
+        // NO enviamos active
       };
 
-      this.dashboardService.updateUser(
-        this.currentUser.uid,
+
+      console.log(
+        '📤 ACTUALIZANDO PERFIL INSTRUCTOR:',
         data
-      ).subscribe({
+      );
 
-        next: () => {
+      console.log(
+        '🆔 UID:',
+        this.currentUser.uid
+      );
 
-          Swal.fire(
-            "Correcto",
-            "Perfil actualizado",
-            "success"
-          );
 
-          this.loadProfile();
+      // =========================
+      // ACTUALIZAR
+      // =========================
 
-        },
+      this.dashboardService
+        .updateUser(
+          this.currentUser.uid,
+          data
+        )
+        .subscribe({
 
-        error: (err) => {
+          next: (response: any) => {
 
-          Swal.fire(
-            "Error",
-            err.error?.message || "No fue posible actualizar el perfil",
-            "error"
-          );
+            console.log(
+              '✅ PERFIL ACTUALIZADO:',
+              response
+            );
 
-        }
+            Swal.fire({
 
-      });
+              icon: 'success',
+
+              title: 'Perfil actualizado',
+
+              text: 'Tus datos fueron actualizados correctamente.',
+
+              timer: 1800,
+
+              showConfirmButton: false
+
+            });
+
+            this.selectedPhoto = null;
+
+            this.loadProfile();
+
+          },
+
+          error: (err: any) => {
+
+            console.error(
+              '❌ ERROR ACTUALIZANDO PERFIL:',
+              err
+            );
+
+            Swal.fire({
+
+              icon: 'error',
+
+              title: 'No se pudo actualizar',
+
+              text:
+                err?.error?.message ||
+                err?.error?.detail ||
+                'No fue posible actualizar tus datos.'
+
+            });
+
+          }
+
+        });
 
     }
 
-    catch (e) {
+    catch (error) {
 
-      console.error(e);
-
-      Swal.fire(
-        "Error",
-        "No fue posible subir la foto",
-        "error"
+      console.error(
+        '❌ ERROR SUBIENDO FOTO:',
+        error
       );
+
+      Swal.fire({
+
+        icon: 'error',
+
+        title: 'Error',
+
+        text: 'No fue posible subir la foto.'
+
+      });
 
     }
 

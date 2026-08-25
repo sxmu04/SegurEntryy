@@ -138,155 +138,212 @@
    PERFIL DEL SIDEBAR
    ========================================================= */
 
-.sidebar .profile-card {
+.profile-card {
     width: 100%;
-
+    padding: 22px 15px 20px;
     display: flex;
+    flex-direction: column;
     align-items: center;
-
-    gap: 12px;
-
-    padding: 13px 10px;
-
-    margin-bottom: 20px;
-
-    background:
-        rgba(255, 255, 255, 0.025);
-
-    border: 1px solid var(--border-light);
-
-    border-radius: var(--radius-md);
-
-    transition:
-        background var(--transition),
-        border-color var(--transition);
-}
-
-.sidebar .profile-card:hover {
-    background: var(--green-soft);
-
-    border-color: var(--border-green);
-}
-
-.avatar-wrapper {
-    position: relative;
-
-    flex: 0 0 auto;
-
-    width: 43px;
-    height: 43px;
-}
-
-.sidebar-avatar {
-    width: 43px;
-    height: 43px;
-
-    display: block;
-
-    object-fit: cover;
-
-    border-radius: 50%;
-
-    border: 2px solid rgba(34, 197, 94, 0.5);
-
-    background: var(--card);
-}
-
-.online-dot {
-    position: absolute;
-
-    right: -1px;
-    bottom: 1px;
-
-    width: 11px;
-    height: 11px;
-
-    border-radius: 50%;
-
-    background: var(--green);
-
-    border: 2px solid var(--bg-sidebar);
-
-    box-shadow:
-        0 0 10px rgba(34, 197, 94, 0.65);
-}
-
-.profile-info {
-    min-width: 0;
-
-    overflow: hidden;
-}
-
-.profile-info h3 {
-    margin: 0 0 3px;
-
-    color: var(--white);
-
-    font-size: 0.84rem;
-    font-weight: 700;
-
-    white-space: nowrap;
-
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.profile-info p {
-    margin: 0 0 7px;
-
-    color: var(--text-muted);
-
-    font-size: 0.68rem;
-
-    white-space: nowrap;
-
-    overflow: hidden;
-    text-overflow: ellipsis;
+    text-align: center;
+    box-sizing: border-box;
 }
 
 /* =========================================================
-   LOGO SIDEBAR
+   AVATAR
    ========================================================= */
 
-.sidebar .logo {
-    display: flex;
-    align-items: center;
+.profile-card .avatar {
+    width: 82px;
+    height: 82px;
+    min-width: 82px;
+    min-height: 82px;
 
-    gap: 11px;
-
-    margin: 5px 8px 25px;
-
-    color: var(--white);
-
-    font-size: 1rem;
-    font-weight: 800;
-
-    white-space: nowrap;
-}
-
-.sidebar .logo i {
-    width: 38px;
-    height: 38px;
+    border-radius: 50%;
+    overflow: hidden;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    flex: 0 0 38px;
-
-    color: white;
-
-    background:
-        linear-gradient(
-            135deg,
-            var(--green),
-            var(--green-dark)
-        );
-
-    border-radius: 11px;
+    background: #111827;
+    border: 3px solid #22c55e;
 
     box-shadow:
-        0 8px 20px rgba(34, 197, 94, 0.18);
+        0 0 0 4px rgba(34, 197, 94, 0.10),
+        0 8px 20px rgba(0, 0, 0, 0.30);
+
+    margin-bottom: 12px;
+
+    position: relative;
+}
+
+/* FOTO */
+
+.profile-card .avatar img {
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    object-fit: cover;
+    object-position: center;
+
+    border-radius: 50%;
+}
+
+/* ICONO CUANDO NO HAY FOTO */
+
+.profile-card .avatar i {
+    font-size: 32px;
+    color: #94a3b8;
+}
+
+/* =========================================================
+   NOMBRE
+   ========================================================= */
+
+.profile-card h3 {
+    width: 100%;
+
+    margin: 2px 0 5px;
+
+    color: #f8fafc;
+
+    font-size: 16px;
+    font-weight: 700;
+
+    line-height: 1.3;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* =========================================================
+   ROL
+   ========================================================= */
+
+.profile-card .profile-role {
+    width: 100%;
+
+    margin: 0 0 9px;
+
+    color: #94a3b8;
+
+    font-size: 13px;
+    font-weight: 500;
+
+    line-height: 1.3;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* =========================================================
+   ESTADO
+   ========================================================= */
+
+.profile-card .profile-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 7px;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    color: #22c55e;
+}
+
+/* PUNTO DE ESTADO */
+
+.profile-card .status-dot {
+    width: 8px;
+    height: 8px;
+
+    min-width: 8px;
+    min-height: 8px;
+
+    border-radius: 50%;
+
+    background: #22c55e;
+
+    box-shadow:
+        0 0 0 3px rgba(34, 197, 94, 0.12);
+}
+
+/* INACTIVO */
+
+.profile-card .status-dot.inactive {
+    background: #ef4444;
+
+    box-shadow:
+        0 0 0 3px rgba(239, 68, 68, 0.12);
+}
+
+.profile-card .profile-status:has(.status-dot.inactive) {
+    color: #ef4444;
+}
+
+
+/* =========================================================
+   SIDEBAR COLAPSADO
+   ========================================================= */
+
+.sidebar.collapsed .profile-card {
+    padding: 18px 8px;
+}
+
+.sidebar.collapsed .profile-card .avatar {
+    width: 48px;
+    height: 48px;
+
+    min-width: 48px;
+    min-height: 48px;
+
+    margin-bottom: 0;
+
+    border-width: 2px;
+}
+
+.sidebar.collapsed .profile-card .avatar i {
+    font-size: 20px;
+}
+
+
+/* =========================================================
+   LOGO
+   ========================================================= */
+
+.sidebar .logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 10px;
+
+    padding: 12px 15px;
+
+    color: #f8fafc;
+
+    font-weight: 700;
+}
+
+.sidebar .logo i {
+    color: #22c55e;
+    font-size: 22px;
+}
+
+
+/* =========================================================
+   SEPARACIÓN ENTRE PERFIL Y MENÚ
+   ========================================================= */
+
+.profile-card {
+    border-bottom: 1px solid rgba(148, 163, 184, 0.10);
+    margin-bottom: 8px;
 }
 
 /* =========================================================
@@ -1341,40 +1398,124 @@
 }
 
 /* =========================================================
-   PERFIL PRINCIPAL
+   SEGURENTRY — PERFIL SUPER ADMIN
    ========================================================= */
 
 .main .profile-card {
+    position: relative;
+
+    width: 100%;
+
     padding: 0;
 
     overflow: hidden;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(15, 23, 42, 0.98),
+            rgba(7, 17, 31, 0.98)
+        );
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius-xl);
+
+    box-shadow:
+        0 20px 55px rgba(0, 0, 0, 0.22);
 }
+
+/* Línea superior decorativa */
+
+.main .profile-card::before {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: 0;
+    right: 0;
+
+    height: 3px;
+
+    background:
+        linear-gradient(
+            90deg,
+            var(--green),
+            #22c55e,
+            var(--orange)
+        );
+
+    z-index: 2;
+}
+
+/* =========================================================
+   ESTRUCTURA DEL PERFIL
+   ========================================================= */
 
 .profile-layout {
     display: grid;
 
-    grid-template-columns: 270px minmax(0, 1fr);
+    grid-template-columns: 285px minmax(0, 1fr);
+
+    min-height: 430px;
 }
 
 /* =========================================================
-   PROFILE SIDEBAR
+   PANEL IZQUIERDO DEL PERFIL
    ========================================================= */
 
 .profile-sidebar {
-    padding: 35px 25px;
+    position: relative;
+
+    padding: 42px 28px;
 
     display: flex;
     justify-content: center;
+    align-items: flex-start;
 
     background:
+        radial-gradient(
+            circle at 50% 20%,
+            rgba(34, 197, 94, 0.10),
+            transparent 55%
+        ),
         linear-gradient(
             180deg,
-            rgba(34, 197, 94, 0.06),
-            rgba(15, 23, 42, 0.25)
+            rgba(34, 197, 94, 0.055),
+            rgba(15, 23, 42, 0.30)
         );
 
     border-right: 1px solid var(--border);
 }
+
+/* Línea decorativa lateral */
+
+.profile-sidebar::after {
+    content: "";
+
+    position: absolute;
+
+    top: 40px;
+    right: 0;
+
+    width: 2px;
+    height: 80px;
+
+    background:
+        linear-gradient(
+            180deg,
+            transparent,
+            var(--green),
+            transparent
+        );
+
+    opacity: 0.7;
+}
+
+/* =========================================================
+   CONTENEDOR DE FOTO
+   ========================================================= */
 
 .photo-upload {
     width: 100%;
@@ -1386,62 +1527,161 @@
     text-align: center;
 }
 
-.photo-upload .avatar {
-    width: 110px;
-    height: 110px;
+/* =========================================================
+   FOTO SUPER ADMIN
+   ========================================================= */
 
-    margin-bottom: 17px;
+.photo-upload .avatar {
+    position: relative;
+
+    width: 125px;
+    height: 125px;
+
+    margin-bottom: 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    overflow: hidden;
 
     object-fit: cover;
 
+    color: var(--green);
+
+    background:
+        linear-gradient(
+            145deg,
+            #111e32,
+            #07111f
+        );
+
+    border: 3px solid rgba(34, 197, 94, 0.55);
+
     border-radius: 50%;
 
-    border: 3px solid rgba(34, 197, 94, 0.4);
+    font-size: 2.2rem;
 
-    background: var(--card);
+    box-shadow:
+        0 0 0 6px rgba(34, 197, 94, 0.06),
+        0 15px 35px rgba(0, 0, 0, 0.30);
 
-    font-size: 2rem;
+    transition:
+        transform var(--transition),
+        border-color var(--transition),
+        box-shadow var(--transition);
 }
 
+.photo-upload .avatar:hover {
+    transform: scale(1.04);
+
+    border-color: var(--green);
+
+    box-shadow:
+        0 0 0 7px rgba(34, 197, 94, 0.08),
+        0 18px 40px rgba(0, 0, 0, 0.35);
+}
+
+/* =========================================================
+   ESTADO ONLINE DEL PERFIL
+   ========================================================= */
+
+.photo-upload .avatar::after {
+    content: "";
+
+    position: absolute;
+
+    right: 6px;
+    bottom: 7px;
+
+    width: 17px;
+    height: 17px;
+
+    background: var(--green);
+
+    border: 3px solid #07111f;
+
+    border-radius: 50%;
+
+    box-shadow:
+        0 0 12px rgba(34, 197, 94, 0.75);
+}
+
+/* =========================================================
+   NOMBRE
+   ========================================================= */
+
 .photo-upload h3 {
-    margin: 0 0 5px;
+    width: 100%;
+
+    margin: 0 0 7px;
 
     color: var(--white);
 
-    font-size: 1rem;
+    font-size: 1.05rem;
+    font-weight: 800;
 
-    max-width: 220px;
+    letter-spacing: -0.02em;
 
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
+/* =========================================================
+   ROL
+   ========================================================= */
+
 .photo-upload .role {
-    margin: 0 0 12px;
+    margin: 0 0 13px;
 
     color: var(--text-muted);
 
     font-size: 0.72rem;
+    font-weight: 600;
 }
 
+/* =========================================================
+   BADGE SUPER ADMIN
+   ========================================================= */
+
+.photo-upload .role::before {
+    content: "●";
+
+    margin-right: 6px;
+
+    color: var(--green);
+
+    font-size: 0.55rem;
+}
+
+/* =========================================================
+   BOTÓN CAMBIAR FOTO
+   ========================================================= */
+
 .upload-btn {
-    margin-top: 17px;
+    min-height: 39px;
+
+    margin-top: 12px;
 
     display: inline-flex;
     align-items: center;
+    justify-content: center;
 
-    gap: 7px;
+    gap: 8px;
 
-    padding: 9px 13px;
+    padding: 0 14px;
 
     color: var(--text-secondary);
 
-    background: rgba(255, 255, 255, 0.035);
+    background:
+        rgba(255, 255, 255, 0.035);
 
     border: 1px solid var(--border);
 
-    border-radius: 9px;
+    border-radius: 10px;
+
+    font-family: inherit;
 
     font-size: 0.68rem;
     font-weight: 700;
@@ -1450,107 +1690,353 @@
 
     transition:
         color var(--transition),
+        background var(--transition),
         border-color var(--transition),
-        background var(--transition);
+        transform var(--transition);
+}
+
+.upload-btn i {
+    color: var(--green);
+
+    font-size: 0.72rem;
 }
 
 .upload-btn:hover {
-    color: var(--green);
+    color: var(--white);
 
     background: var(--green-soft);
 
     border-color: var(--border-green);
+
+    transform: translateY(-2px);
 }
 
 /* =========================================================
-   PROFILE CONTENT
+   SEGURENTRY — PERFIL SUPER ADMIN
    ========================================================= */
 
-.profile-content {
-    padding: 35px;
+.profile-section {
+    width: 100%;
+    padding: 30px;
+    box-sizing: border-box;
 }
 
-.profile-content > h2 {
-    margin: 0 0 25px;
+/* =========================
+   CABECERA DEL PERFIL
+   ========================= */
 
-    color: var(--white);
-
-    font-size: 1.3rem;
-    font-weight: 800;
-}
-
-.profile-grid {
-    display: grid;
-
-    grid-template-columns: repeat(2, 1fr);
-
-    gap: 18px;
-}
-
-.form-group {
+.profile-header {
     display: flex;
-    flex-direction: column;
-
-    gap: 7px;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.12);
 }
 
-.form-group.full-width {
-    grid-column: 1 / -1;
-}
-
-.form-group label {
-    color: var(--text-secondary);
-
-    font-size: 0.68rem;
+.profile-header h3 {
+    margin: 0 0 7px 0;
+    color: #f8fafc;
+    font-size: 24px;
     font-weight: 700;
 }
 
-.form-group input,
-.form-group select {
+.profile-header p {
+    margin: 0;
+    color: #94a3b8;
+    font-size: 14px;
+}
+
+/* =========================
+   FOTO DE PERFIL
+   ========================= */
+
+.profile-photo-container {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    padding: 24px;
+    margin-bottom: 30px;
+
+    background: linear-gradient(
+        135deg,
+        rgba(15, 23, 42, 0.95),
+        rgba(10, 25, 43, 0.95)
+    );
+
+    border: 1px solid rgba(148, 163, 184, 0.12);
+    border-radius: 16px;
+}
+
+.profile-photo {
+    width: 115px;
+    height: 115px;
+    min-width: 115px;
+
+    border-radius: 50%;
+    overflow: hidden;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #0f172a;
+
+    border: 3px solid rgba(34, 197, 94, 0.45);
+
+    box-shadow:
+        0 0 0 5px rgba(34, 197, 94, 0.06),
+        0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.profile-photo img {
     width: 100%;
-    height: 43px;
+    height: 100%;
+    object-fit: cover;
+}
 
-    padding: 0 12px;
+.profile-photo i {
+    font-size: 48px;
+    color: #64748b;
+}
 
-    color: var(--text);
+/* =========================
+   INFORMACIÓN FOTO
+   ========================= */
 
-    background:
-        rgba(255, 255, 255, 0.035);
+.photo-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
 
-    border: 1px solid var(--border);
+.photo-info h4 {
+    margin: 0 0 6px 0;
+    color: #f8fafc;
+    font-size: 17px;
+    font-weight: 600;
+}
+
+.photo-info p {
+    margin: 0 0 15px 0;
+    color: #94a3b8;
+    font-size: 13px;
+}
+
+/* BOTÓN CAMBIAR FOTO */
+
+.photo-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+
+    padding: 10px 16px;
 
     border-radius: 9px;
 
-    outline: none;
+    background: rgba(34, 197, 94, 0.12);
+    border: 1px solid rgba(34, 197, 94, 0.35);
 
-    font-family: inherit;
+    color: #4ade80;
 
-    font-size: 0.74rem;
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
 
     transition:
-        border-color var(--transition),
-        background var(--transition),
-        box-shadow var(--transition);
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease;
 }
 
-.form-group input:focus,
-.form-group select:focus {
-    background: var(--green-soft);
+.photo-btn:hover {
+    background: rgba(34, 197, 94, 0.20);
+    border-color: rgba(34, 197, 94, 0.55);
+    transform: translateY(-1px);
+}
 
-    border-color: var(--border-green);
+.photo-btn i {
+    font-size: 14px;
+}
+
+/* =========================
+   FORMULARIO
+   ========================= */
+
+.profile-form {
+    display: grid;
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 22px;
+
+    padding: 25px;
+
+    background: rgba(15, 23, 42, 0.72);
+
+    border: 1px solid rgba(148, 163, 184, 0.10);
+
+    border-radius: 16px;
+}
+
+/* =========================
+   CAMPOS
+   ========================= */
+
+.profile-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.profile-field label {
+    color: #cbd5e1;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.profile-field input {
+    width: 100%;
+    height: 44px;
+
+    padding: 0 13px;
+
+    box-sizing: border-box;
+
+    background: #07111f;
+
+    border: 1px solid rgba(148, 163, 184, 0.16);
+
+    border-radius: 9px;
+
+    color: #f8fafc;
+
+    font-family: inherit;
+    font-size: 14px;
+
+    outline: none;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+.profile-field input::placeholder {
+    color: #64748b;
+}
+
+.profile-field input:focus {
+    border-color: rgba(34, 197, 94, 0.55);
+
+    background: #0a1627;
 
     box-shadow:
-        0 0 0 3px rgba(34, 197, 94, 0.06);
+        0 0 0 3px rgba(34, 197, 94, 0.08);
 }
 
-.form-group input[readonly] {
-    color: var(--text-muted);
+/* =========================
+   CAMPOS PROTEGIDOS
+   ========================= */
+
+.protected-field {
+    position: relative;
+    width: 100%;
+}
+
+.protected-field input {
+    padding-right: 45px;
+
+    color: #94a3b8;
+
+    background: #0a1422;
 
     cursor: not-allowed;
-
-    background:
-        rgba(255, 255, 255, 0.018);
 }
+
+.protected-field input:focus {
+    border-color: rgba(148, 163, 184, 0.16);
+
+    box-shadow: none;
+}
+
+.protected-field i {
+    position: absolute;
+
+    right: 14px;
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    color: #64748b;
+
+    font-size: 13px;
+}
+
+.profile-field small {
+    color: #64748b;
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+/* =========================
+   ESTADO
+   ========================= */
+
+.profile-status-large {
+    height: 44px;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 0 13px;
+
+    box-sizing: border-box;
+
+    background: #07111f;
+
+    border: 1px solid rgba(148, 163, 184, 0.16);
+
+    border-radius: 9px;
+}
+
+.profile-status-large strong {
+    color: #4ade80;
+    font-size: 14px;
+}
+
+/* PUNTO DE ESTADO */
+
+.profile-status-large .status-dot {
+    width: 9px;
+    height: 9px;
+
+    border-radius: 50%;
+
+    background: #22c55e;
+
+    box-shadow:
+        0 0 0 4px rgba(34, 197, 94, 0.10),
+        0 0 10px rgba(34, 197, 94, 0.35);
+}
+
+.profile-status-large .status-dot.inactive {
+    background: #ef4444;
+
+    box-shadow:
+        0 0 0 4px rgba(239, 68, 68, 0.10),
+        0 0 10px rgba(239, 68, 68, 0.30);
+}
+
+.profile-status-large .status-dot.inactive + strong {
+    color: #f87171;
+}
+
+/* =========================
+   ACCIONES
+   ========================= */
 
 .profile-actions {
     display: flex;
@@ -1558,9 +2044,101 @@
 
     margin-top: 25px;
 
-    padding-top: 20px;
+    padding-top: 22px;
 
-    border-top: 1px solid var(--border-light);
+    border-top: 1px solid rgba(148, 163, 184, 0.10);
+}
+
+.profile-actions .primary-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+
+    min-width: 170px;
+
+    height: 44px;
+
+    padding: 0 20px;
+
+    border: none;
+    border-radius: 9px;
+
+    background: linear-gradient(
+        135deg,
+        #16a34a,
+        #22c55e
+    );
+
+    color: #ffffff;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 8px 20px rgba(34, 197, 94, 0.16);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        filter 0.2s ease;
+}
+
+.profile-actions .primary-btn:hover {
+    transform: translateY(-2px);
+
+    filter: brightness(1.08);
+
+    box-shadow:
+        0 12px 25px rgba(34, 197, 94, 0.22);
+}
+
+.profile-actions .primary-btn:active {
+    transform: translateY(0);
+}
+
+/* =========================
+   RESPONSIVE
+   ========================= */
+
+@media (max-width: 900px) {
+
+    .profile-form {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+@media (max-width: 600px) {
+
+    .profile-section {
+        padding: 18px;
+    }
+
+    .profile-photo-container {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .photo-info {
+        align-items: center;
+    }
+
+    .profile-form {
+        padding: 18px;
+    }
+
+    .profile-actions {
+        justify-content: stretch;
+    }
+
+    .profile-actions .primary-btn {
+        width: 100%;
+    }
+
 }
 
 /* =========================================================
@@ -1677,6 +2255,126 @@
     color: var(--text-muted);
 
     font-size: 0.62rem;
+}
+
+/* =========================================================
+   ACCIONES DE SOLICITUD TEMPORAL
+   ========================================================= */
+
+.temporary-request-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+}
+
+.temporary-request-actions button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 38px;
+    padding: 9px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition:
+        background-color 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        opacity 0.2s ease;
+}
+
+.temporary-request-actions button i {
+    font-size: 12px;
+}
+
+/* Aprobar */
+
+.temporary-request-actions .primary-btn {
+    background: #198754;
+    color: #fff;
+}
+
+.temporary-request-actions .primary-btn:hover {
+    background: #157347;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(25, 135, 84, 0.22);
+}
+
+.temporary-request-actions .primary-btn:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+/* Rechazar */
+
+.temporary-request-actions .danger-btn {
+    background: #dc3545;
+    color: #fff;
+}
+
+.temporary-request-actions .danger-btn:hover {
+    background: #bb2d3b;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(220, 53, 69, 0.22);
+}
+
+.temporary-request-actions .danger-btn:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+/* Estado deshabilitado */
+
+.temporary-request-actions button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.notification-item {
+    position: relative;
+}
+
+.notification-content {
+    min-width: 0;
+}
+
+.notification-content strong {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.notification-content p {
+    margin-bottom: 6px;
+}
+
+.notification-content small {
+    display: block;
+    margin-top: 4px;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+    .temporary-request-actions {
+        width: 100%;
+        gap: 8px;
+    }
+
+    .temporary-request-actions button {
+        flex: 1;
+        min-width: 120px;
+    }
 }
 
 /* =========================================================

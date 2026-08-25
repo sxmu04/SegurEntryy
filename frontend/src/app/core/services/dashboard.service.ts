@@ -9,7 +9,7 @@ export class DashboardService {
 
   private apiUrl = 'http://127.0.0.1:8000/api';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   // =====================================
   // DASHBOARD
@@ -157,6 +157,48 @@ export class DashboardService {
     return this.http.post<any>(
       `${this.apiUrl}/users/upload-photo/`,
       formData
+    );
+  }
+
+  //==========================================================
+  // VIGILANTE USUARIOS TEMPORALES
+  //==========================================================
+  createTemporaryRequest(data: any): Observable<any> {
+    return this.http.post<any>(
+      `${this.apiUrl}/temporary-requests/`,
+      data
+    );
+  }
+
+  getTemporaryRequests(): Observable<any> {
+    return this.http.get<any>(
+      `${this.apiUrl}/temporary-requests/`
+    );
+  }
+
+  approveTemporaryRequest(
+    requestId: string,
+    reviewerUid: string
+  ): Observable<any> {
+    return this.http.patch<any>(
+      `${this.apiUrl}/temporary-requests/${requestId}/approve/`,
+      {
+        reviewer_uid: reviewerUid
+      }
+    );
+  }
+
+  rejectTemporaryRequest(
+    requestId: string,
+    reviewerUid: string,
+    reason: string
+  ): Observable<any> {
+    return this.http.patch<any>(
+      `${this.apiUrl}/temporary-requests/${requestId}/reject/`,
+      {
+        reviewer_uid: reviewerUid,
+        reason
+      }
     );
   }
 }
