@@ -9,23 +9,32 @@
 
             <div class="profile-card">
 
-                <div class="avatar-wrapper">
+                <div class="avatar">
 
-                    <img [src]="profile.photo || 'assets/avatar.png'" class="sidebar-avatar" alt="Foto de perfil">
+                    <img *ngIf="profile.photo" [src]="getProfilePhoto()" alt="Foto de perfil">
 
-                    <span class="online-dot"></span>
+                    <i *ngIf="!profile.photo" class="fas fa-user">
+                    </i>
 
                 </div>
 
-                <div class="profile-info" *ngIf="menuOpen">
+                <h3 *ngIf="menuOpen">
+                    {{ getProfileName() }}
+                </h3>
 
-                    <h3>{{ profile.name || 'Usuario' }}</h3>
+                <p *ngIf="menuOpen" class="profile-role">
 
-                    <p>{{ profile.email }}</p>
+                    {{ getProfileRole() }}
 
-                    <span class="role-badge">
-                        <i class="fas fa-shield-alt"></i>
-                        {{ currentUser?.role }}
+                </p>
+
+                <div *ngIf="menuOpen" class="profile-status">
+
+                    <span class="status-dot" [class.inactive]="!isProfileActive()">
+                    </span>
+
+                    <span>
+                        {{ isProfileActive() ? 'Activo' : 'Inactivo' }}
                     </span>
 
                 </div>
@@ -47,8 +56,10 @@
                         {{ item.label }}
                     </span>
 
-                    <span class="badge" *ngIf="menuOpen && item.key === 'notifications' && stats.denied_access > 0">
-                        {{ stats.denied_access }}
+                    <span class="badge" *ngIf="menuOpen && item.key === 'notifications' && unreadNotifications > 0">
+
+                        {{ unreadNotifications }}
+
                     </span>
                 </button>
             </nav>
@@ -271,103 +282,184 @@
 
             </ng-container>
 
-            <!-- ================= PERFIL ================= -->
+            <!-- =====================================================
+     PERFIL
+     ===================================================== -->
+
             <ng-container *ngSwitchCase="'profile'">
 
-                <section class="card profile-card">
+                <section class="card profile-section">
 
-                    <div class="profile-layout">
+                    <div class="profile-header">
 
-                        <!-- ========= COLUMNA IZQUIERDA ========= -->
-                        <div class="profile-sidebar">
+                        <div>
+                            <h3>Mi perfil</h3>
 
-                            <div class="photo-upload">
+                            <p>
+                                Administra la información de tu cuenta.
+                            </p>
+                        </div>
 
-                                <img [src]="currentUser?.photo || 'assets/avatar.png'" class="avatar">
+                    </div>
 
-                                <h3>{{ profile.name }}</h3>
+                    <div class="profile-photo-container">
 
-                                <p class="role">
-                                    {{ currentUser?.role }}
-                                </p>
+                        <div class="profile-photo">
 
-                                <span class="status-badge" [class.active]="currentUser?.active">
+                            <img *ngIf="profile.photo" [src]="profile.photo" alt="Foto de perfil">
 
-                                    {{ currentUser?.active ? 'Activo' : 'Inactivo' }}
+                            <i *ngIf="!profile.photo" class="fas fa-user"></i>
 
-                                </span>
+                        </div>
 
-                                <label class="upload-btn">
+                        <div class="photo-info">
 
-                                    <i class="fas fa-camera"></i>
+                            <h4>Foto de perfil</h4>
 
-                                    Cambiar foto
+                            <p>
+                                JPG, PNG o WEBP. Máximo 5 MB.
+                            </p>
 
-                                    <input type="file" accept="image/*" (change)="uploadPhoto($event)" hidden>
+                            <label for="superAdminProfilePhoto" class="photo-btn">
 
-                                </label>
+                                <i class="fas fa-camera"></i>
+
+                                Cambiar fotografía
+
+                            </label>
+
+                            <input id="superAdminProfilePhoto" type="file" accept="image/png,image/jpeg,image/webp"
+                                (change)="uploadPhoto($event)" hidden>
+
+                        </div>
+
+                    </div>
+
+                    <div class="profile-form">
+
+                        <div class="profile-field">
+
+                            <label>Nombre</label>
+
+                            <div class="protected-field">
+
+                                <input type="text" [value]="profile.name" readonly>
+
+                                <i class="fas fa-lock" title="Campo protegido"></i>
+
+                            </div>
+
+                            <small>
+                                El nombre no puede modificarse desde el perfil.
+                            </small>
+
+                        </div>
+
+                        <div class="profile-field">
+
+                            <label>Correo electrónico</label>
+
+                            <input type="email" [(ngModel)]="profile.email" placeholder="Correo electrónico">
+
+                        </div>
+
+                        <div class="profile-field">
+
+                            <label>Teléfono</label>
+
+                            <input type="text" [(ngModel)]="profile.phone" placeholder="Número de teléfono">
+
+                        </div>
+
+                        <div class="profile-field">
+
+                            <label>Dirección</label>
+
+                            <input type="text" [(ngModel)]="profile.address" placeholder="Dirección">
+
+                        </div>
+
+                        <div class="profile-field">
+
+                            <label>Documento</label>
+
+                            <div class="protected-field">
+
+                                <input type="text" [value]="profile.document" readonly>
+
+                                <i class="fas fa-lock" title="Campo protegido"></i>
+
+                            </div>
+
+                            <small>
+                                El documento no puede modificarse desde el perfil.
+                            </small>
+
+                        </div>
+
+                        <div class="profile-field">
+
+                            <label>Rol</label>
+
+                            <div class="protected-field">
+
+                                <input type="text" [value]="getProfileRole()" readonly>
+
+                                <i class="fas fa-lock" title="Campo protegido"></i>
+
+                            </div>
+
+                            <small>
+                                El rol no puede modificarse desde el perfil.
+                            </small>
+
+                        </div>
+
+                        <div class="profile-field">
+
+                            <label>ID de usuario</label>
+
+                            <div class="protected-field">
+
+                                <input type="text" [value]="profile.uid" readonly>
+
+                                <i class="fas fa-lock" title="Campo protegido"></i>
+
+                            </div>
+
+                            <small>
+                                El ID del usuario es permanente.
+                            </small>
+
+                        </div>
+
+                        <div class="profile-field">
+
+                            <label>Estado de cuenta</label>
+
+                            <div class="profile-status-large">
+
+                                <span class="status-dot" [class.inactive]="!isProfileActive()"></span>
+
+                                <strong>
+                                    {{ isProfileActive() ? 'Activo' : 'Inactivo' }}
+                                </strong>
 
                             </div>
 
                         </div>
 
-                        <!-- ========= COLUMNA DERECHA ========= -->
-                        <div class="profile-content">
+                    </div>
 
-                            <h2>Mi Perfil</h2>
+                    <div class="profile-actions">
 
-                            <div class="profile-grid">
+                        <button class="primary-btn" (click)="updateProfile()">
 
-                                <div class="form-group">
-                                    <label>Nombre</label>
-                                    <input type="text" [(ngModel)]="profile.name">
-                                </div>
+                            <i class="fas fa-save"></i>
 
-                                <div class="form-group">
-                                    <label>Correo</label>
-                                    <input type="email" [(ngModel)]="profile.email">
-                                </div>
+                            Guardar cambios
 
-                                <div class="form-group">
-                                    <label>Documento</label>
-                                    <input type="text" [(ngModel)]="profile.document">
-                                </div>
-
-                                <div class="form-group">
-                                    <label>Teléfono</label>
-                                    <input type="text" [(ngModel)]="profile.phone">
-                                </div>
-
-                                <div class="form-group full-width">
-                                    <label>Dirección</label>
-                                    <input type="text" [(ngModel)]="profile.address">
-                                </div>
-
-                                <div class="form-group">
-                                    <label>Rol</label>
-                                    <input [value]="currentUser?.role" readonly>
-                                </div>
-
-                                <div class="form-group">
-                                    <label>UID</label>
-                                    <input [value]="currentUser?.uid" readonly>
-                                </div>
-
-                            </div>
-
-                            <div class="profile-actions">
-
-                                <button class="primary-btn" (click)="updateProfile()">
-
-                                    <i class="fas fa-save"></i>
-
-                                    Guardar cambios
-
-                                </button>
-
-                            </div>
-
-                        </div>
+                        </button>
 
                     </div>
 
@@ -638,23 +730,125 @@
             </ng-container>
 
             <ng-container *ngSwitchCase="'notifications'">
+
                 <section class="card">
 
-                    <h3>Notificaciones</h3>
+                    <div class="table-header">
+
+                        <div class="header-left">
+
+                            <div>
+                                <h3>Notificaciones</h3>
+
+                                <p class="section-description">
+                                    Actividad importante del sistema.
+                                </p>
+                            </div>
+
+                            <span class="badge-total" *ngIf="unreadNotifications > 0">
+
+                                {{ unreadNotifications }} sin leer
+
+                            </span>
+
+                        </div>
+
+                        <div>
+
+                            <button class="secondary-btn" *ngIf="unreadNotifications > 0"
+                                (click)="markAllNotificationsAsRead()">
+
+                                <i class="fas fa-check-double"></i>
+
+                                Marcar todas como leídas
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
 
                     <div class="notification-list">
 
-                        <div class="notification-item" *ngFor="let n of notifications">
-                            <i class="fas fa-bell"></i>
-                            <div>
-                                <p>{{ n.message }}</p>
-                                <small>{{ n.time }}</small>
+                        <!-- SIN NOTIFICACIONES -->
+
+                        <div class="empty-state" *ngIf="notifications.length === 0">
+
+                            <i class="fas fa-bell-slash"></i>
+
+                            <p>
+                                No tienes notificaciones.
+                            </p>
+
+                        </div>
+
+
+                        <!-- NOTIFICACIONES -->
+
+                        <div class="notification-item" *ngFor="let n of notifications" [class.unread]="!n.read"
+                            (click)="markNotificationAsRead(n)">
+
+                            <div class="notification-icon">
+
+                                <i class="fas" [ngClass]="getNotificationIcon(n)">
+                                </i>
+
                             </div>
+
+                            <div class="notification-content">
+
+                                <strong>
+                                    {{ n.title || 'Notificación' }}
+                                </strong>
+
+                                <p>
+                                    {{ n.message }}
+                                </p>
+
+                                <small>
+                                    {{ formatNotificationDate(n) }}
+                                </small>
+
+                                <!-- SOLICITUD TEMPORAL -->
+
+                                <div class="temporary-request-actions" *ngIf="
+                                        n.type === 'temporary_request' &&
+                                        n.data?.request_id
+                                    " (click)="$event.stopPropagation()">
+
+                                    <button type="button" class="primary-btn" (click)="approveTemporaryRequest(n)">
+
+                                        <i class="fas fa-check"></i>
+
+                                        Aprobar
+
+                                    </button>
+
+                                    <button type="button" class="danger-btn" (click)="rejectTemporaryRequest(n)">
+
+                                        <i class="fas fa-xmark"></i>
+
+                                        Rechazar
+
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                            <div class="notification-status" *ngIf="!n.read">
+
+                                <span></span>
+
+                            </div>
+
                         </div>
 
                     </div>
 
                 </section>
+
             </ng-container>
 
             <ng-container *ngSwitchCase="'settings'">

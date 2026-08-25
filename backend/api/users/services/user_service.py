@@ -4,6 +4,8 @@ from config.firebase_config import db
 from datetime import datetime, timedelta
 from uuid import uuid4
 
+from api.notifications.services.notification_service import NotificationService
+
 
 class UserService:
 
@@ -567,31 +569,31 @@ class UserService:
                 subject="Invitación a SegurEntry",
 
                 message=f"""
-Hola {name},
+                        Hola {name},
 
-Has sido invitado a formar parte de SegurEntry.
+                        Has sido invitado a formar parte de SegurEntry.
 
-Tu rol asignado es:
+                        Tu rol asignado es:
 
-{role.upper()}
+                        {role.upper()}
 
-Para completar tu registro debes ingresar al sistema y utilizar el siguiente código de invitación:
+                        Para completar tu registro debes ingresar al sistema y utilizar el siguiente código de invitación:
 
-CÓDIGO DE INVITACIÓN:
+                        CÓDIGO DE INVITACIÓN:
 
-{invitation_code}
+                        {invitation_code}
 
-Utiliza este código en el formulario "Crear cuenta".
+                        Utiliza este código en el formulario "Crear cuenta".
 
-Importante:
+                        Importante:
 
-- El código solamente puede utilizarse una vez.
-- El código tiene una vigencia de 30 minutos.
-- Debes registrarte utilizando este mismo correo electrónico.
-- Durante el registro podrás establecer tu propia contraseña.
+                        - El código solamente puede utilizarse una vez.
+                        - El código tiene una vigencia de 30 minutos.
+                        - Debes registrarte utilizando este mismo correo electrónico.
+                        - Durante el registro podrás establecer tu propia contraseña.
 
-Equipo SegurEntry.
-""",
+                        Equipo SegurEntry.
+                        """,
 
                 from_email=settings.EMAIL_HOST_USER,
 
@@ -647,6 +649,41 @@ Equipo SegurEntry.
                 sent_at
 
         })
+
+        # ==========================================================
+        # CREAR NOTIFICACIÓN
+        # ==========================================================
+
+        NotificationService.create_notification(
+
+            uid=uid,
+
+            title="Nueva invitación creada",
+
+            message=(
+                f"Se creó una invitación para {name} "
+                f"con el rol {role.upper()}."
+            ),
+
+            notification_type="invitation_created",
+
+            data={
+
+                "invitation_code":
+                    invitation_code,
+
+                "email":
+                    email,
+
+                "role":
+                    role,
+
+                "uid":
+                    uid
+
+            }
+
+        )
 
         # ==========================================
         # RESPUESTA

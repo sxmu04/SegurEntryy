@@ -8,6 +8,8 @@ import {
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
+import { AuthService } from '../../core/services/auth.service';
+
 @Component({
   selector: 'app-home',
   standalone: true,
@@ -24,10 +26,15 @@ export class Home implements OnInit, AfterViewInit {
   currentYear = new Date().getFullYear();
 
   constructor(
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {}
 
-  ngOnInit(): void {
+  // =========================================================
+  // INICIO
+  // =========================================================
+
+  async ngOnInit(): Promise<void> {
 
     const theme = localStorage.getItem('theme');
 
@@ -39,7 +46,47 @@ export class Home implements OnInit, AfterViewInit {
 
     }
 
+    // =======================================================
+    // COMPROBAR CONFIGURACIÓN INICIAL DE SEGURENTRY
+    // =======================================================
+
+    try {
+
+      const initialized =
+        await this.authService.isSystemInitialized();
+
+      // -----------------------------------------------------
+      // SI NO EXISTE SUPERADMIN
+      // -----------------------------------------------------
+
+      if (!initialized) {
+
+        await this.router.navigate([
+          '/setup-superadmin'
+        ]);
+
+      }
+
+    } catch (error) {
+
+      console.error(
+        'Error verificando la configuración inicial de SegurEntry:',
+        error
+      );
+
+      // -----------------------------------------------------
+      // IMPORTANTE:
+      // Si Firestore presenta un error temporal,
+      // no bloqueamos el Home.
+      // -----------------------------------------------------
+
+    }
+
   }
+
+  // =========================================================
+  // AFTER VIEW INIT
+  // =========================================================
 
   ngAfterViewInit(): void {
 
@@ -47,9 +94,9 @@ export class Home implements OnInit, AfterViewInit {
 
   }
 
-  /*====================================================
-      NAVBAR
-  ====================================================*/
+  // =========================================================
+  // NAVBAR
+  // =========================================================
 
   @HostListener('window:scroll')
 
@@ -59,9 +106,9 @@ export class Home implements OnInit, AfterViewInit {
 
   }
 
-  /*====================================================
-      NAVEGACIÓN
-  ====================================================*/
+  // =========================================================
+  // NAVEGACIÓN
+  // =========================================================
 
   login(): void {
 
@@ -75,13 +122,14 @@ export class Home implements OnInit, AfterViewInit {
 
   }
 
-  /*====================================================
-      SCROLL SUAVE
-  ====================================================*/
+  // =========================================================
+  // SCROLL SUAVE
+  // =========================================================
 
   scrollTo(section: string): void {
 
-    const element = document.getElementById(section);
+    const element =
+      document.getElementById(section);
 
     if (!element) return;
 
@@ -95,9 +143,9 @@ export class Home implements OnInit, AfterViewInit {
 
   }
 
-  /*====================================================
-      MODO OSCURO
-  ====================================================*/
+  // =========================================================
+  // MODO OSCURO
+  // =========================================================
 
   toggleTheme(): void {
 
@@ -107,53 +155,59 @@ export class Home implements OnInit, AfterViewInit {
 
       document.body.classList.add('dark-mode');
 
-      localStorage.setItem('theme', 'dark');
+      localStorage.setItem(
+        'theme',
+        'dark'
+      );
 
     } else {
 
       document.body.classList.remove('dark-mode');
 
-      localStorage.setItem('theme', 'light');
+      localStorage.setItem(
+        'theme',
+        'light'
+      );
 
     }
 
   }
 
-  /*====================================================
-      ANIMACIONES
-  ====================================================*/
+  // =========================================================
+  // ANIMACIONES
+  // =========================================================
 
   private initializeAnimations(): void {
 
-    const observer = new IntersectionObserver(
+    const observer =
+      new IntersectionObserver(
 
-      (entries) => {
+        (entries) => {
 
-        entries.forEach(entry => {
+          entries.forEach(entry => {
 
-          if (entry.isIntersecting) {
+            if (entry.isIntersecting) {
 
-            entry.target.classList.add('show');
+              entry.target.classList.add(
+                'show'
+              );
 
-          }
+            }
 
-        });
+          });
 
-      },
+        },
 
-      {
+        {
+          threshold: 0.15
+        }
 
-        threshold: 0.15
+      );
 
-      }
-
-    );
-
-    const elements = document.querySelectorAll(
-
-      '.fade-up, .fade-left, .fade-right, .zoom'
-
-    );
+    const elements =
+      document.querySelectorAll(
+        '.fade-up, .fade-left, .fade-right, .zoom'
+      );
 
     elements.forEach(element => {
 

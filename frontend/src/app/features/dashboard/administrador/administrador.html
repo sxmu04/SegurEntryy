@@ -1,19 +1,77 @@
 <!-- ====================== SIDEBAR ====================== -->
-<aside class="sidebar" [class.collapsed]="!menuOpen">
+
+<aside
+    class="sidebar"
+    [class.collapsed]="!menuOpen">
 
     <div class="profile-card">
+
+        <!-- FOTO DE PERFIL -->
+
         <div class="avatar">
-            <i class="fas fa-user"></i>
+
+            <img
+                *ngIf="profile.photo"
+                [src]="profile.photo"
+                alt="Foto de perfil">
+
+            <i
+                *ngIf="!profile.photo"
+                class="fas fa-user">
+            </i>
+
         </div>
 
-        <h3 *ngIf="menuOpen">Administrador</h3>
-        <p *ngIf="menuOpen">Gestión del Centro</p>
+        <!-- NOMBRE -->
+
+        <h3 *ngIf="menuOpen">
+            {{ getProfileName() }}
+        </h3>
+
+        <!-- CARGO -->
+
+        <p
+            *ngIf="menuOpen"
+            class="profile-role">
+
+            {{ getProfileRole() }}
+
+        </p>
+
+        <!-- ESTADO -->
+
+        <div
+            *ngIf="menuOpen"
+            class="profile-status">
+
+            <span
+                class="status-dot"
+                [class.inactive]="!isProfileActive()">
+            </span>
+
+            <span>
+                {{ isProfileActive() ? 'Activo' : 'Inactivo' }}
+            </span>
+
+        </div>
+
     </div>
 
+
+    <!-- ====================== LOGO ====================== -->
+
     <div class="logo">
+
         <i class="fas fa-shield-alt"></i>
-        <span *ngIf="menuOpen">SegurEntry</span>
+
+        <span *ngIf="menuOpen">
+            SegurEntry
+        </span>
+
     </div>
+
+
+    <!-- ====================== NAV ====================== -->
 
     <nav>
 
@@ -29,6 +87,7 @@
 
         </button>
 
+
         <button
             [class.active]="activeRoute === 'usuarios'"
             (click)="goTo('usuarios')">
@@ -40,6 +99,7 @@
             </span>
 
         </button>
+
 
         <button
             [class.active]="activeRoute === 'reportes'"
@@ -53,6 +113,7 @@
 
         </button>
 
+
         <button
             [class.active]="activeRoute === 'notificaciones'"
             (click)="goTo('notificaciones')">
@@ -65,6 +126,7 @@
 
         </button>
 
+
         <button
             [class.active]="activeRoute === 'perfil'"
             (click)="goTo('perfil')">
@@ -76,6 +138,7 @@
             </span>
 
         </button>
+
 
         <button
             [class.active]="activeRoute === 'configuracion'"
@@ -90,6 +153,9 @@
         </button>
 
     </nav>
+
+
+    <!-- ====================== LOGOUT ====================== -->
 
     <div class="sidebar-bottom">
 
@@ -109,9 +175,12 @@
 
 </aside>
 
+
 <!-- ====================== MAIN ====================== -->
 
 <main class="main">
+
+    <!-- ====================== HEADER ====================== -->
 
     <header>
 
@@ -123,9 +192,12 @@
 
         </button>
 
+
         <div>
 
-            <h2>{{ activeRoute | titlecase }}</h2>
+            <h2>
+                {{ activeRoute | titlecase }}
+            </h2>
 
             <p class="header-subtitle">
                 Panel administrativo
@@ -135,34 +207,49 @@
 
     </header>
 
-    <!-- ================= DASHBOARD ================= -->
+
+    <!-- =====================================================
+         DASHBOARD
+         ===================================================== -->
 
     <section
-        *ngIf="activeRoute==='dashboard'"
+        *ngIf="activeRoute === 'dashboard'"
         class="section stats">
 
         <div class="card stat-card">
 
-            <h2>{{ accesses.length }}</h2>
+            <h2>
+                {{ accesses.length }}
+            </h2>
 
-            <p>Usuarios registrados</p>
+            <p>
+                Usuarios registrados
+            </p>
 
         </div>
 
+
         <div class="card stat-card">
 
-            <h2>{{ totalTemporales }}</h2>
+            <h2>
+                {{ totalTemporales }}
+            </h2>
 
-            <p>Accesos temporales</p>
+            <p>
+                Accesos temporales
+            </p>
 
         </div>
 
     </section>
 
-    <!-- ================= USUARIOS ================= -->
+
+    <!-- =====================================================
+         USUARIOS
+         ===================================================== -->
 
     <section
-        *ngIf="activeRoute==='usuarios'"
+        *ngIf="activeRoute === 'usuarios'"
         class="card">
 
         <button
@@ -175,37 +262,58 @@
 
         </button>
 
+
         <table>
 
             <thead>
 
                 <tr>
 
-                    <th>Nombre</th>
+                    <th>
+                        Nombre
+                    </th>
 
-                    <th>Correo</th>
+                    <th>
+                        Correo
+                    </th>
 
-                    <th>Documento</th>
+                    <th>
+                        Documento
+                    </th>
 
-                    <th>Rol</th>
+                    <th>
+                        Rol
+                    </th>
 
-                    <th>Acciones</th>
+                    <th>
+                        Acciones
+                    </th>
 
                 </tr>
 
             </thead>
 
+
             <tbody>
 
-                <tr *ngFor="let a of accesses">
+                <tr
+                    *ngFor="let a of accesses">
 
-                    <td>{{ a.name }}</td>
+                    <td>
+                        {{ a.name }}
+                    </td>
 
-                    <td>{{ a.email }}</td>
+                    <td>
+                        {{ a.email }}
+                    </td>
 
-                    <td>{{ a.document || '-' }}</td>
+                    <td>
+                        {{ a.document || '-' }}
+                    </td>
 
-                    <td>{{ a.role }}</td>
+                    <td>
+                        {{ a.role }}
+                    </td>
 
                     <td>
 
@@ -227,13 +335,18 @@
 
     </section>
 
-    <!-- ================= REPORTES ================= -->
+
+    <!-- =====================================================
+         REPORTES
+         ===================================================== -->
 
     <section
-        *ngIf="activeRoute==='reportes'"
+        *ngIf="activeRoute === 'reportes'"
         class="card">
 
-        <h3>Reportes</h3>
+        <h3>
+            Reportes
+        </h3>
 
         <p>
             Próximamente estadísticas del sistema.
@@ -241,47 +354,322 @@
 
     </section>
 
-    <!-- ================= NOTIFICACIONES ================= -->
+
+    <!-- =====================================================
+         NOTIFICACIONES
+         ===================================================== -->
 
     <section
-        *ngIf="activeRoute==='notificaciones'"
+        *ngIf="activeRoute === 'notificaciones'"
         class="card">
 
-        <h3>Notificaciones</h3>
+        <h3>
+            Notificaciones
+        </h3>
 
-        <p>No existen notificaciones.</p>
+        <p>
+            No existen notificaciones.
+        </p>
 
     </section>
 
-    <!-- ================= PERFIL ================= -->
+
+    <!-- =====================================================
+         PERFIL
+         ===================================================== -->
 
     <section
-        *ngIf="activeRoute==='perfil'"
-        class="card">
+        *ngIf="activeRoute === 'perfil'"
+        class="card profile-section">
 
-        <h3>Perfil</h3>
+        <div class="profile-header">
 
-        <input
-            type="text"
-            placeholder="Nombre del administrador">
+            <div>
+
+                <h3>
+                    Mi perfil
+                </h3>
+
+                <p>
+                    Administra la información de tu cuenta.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- ====================== FOTO ====================== -->
+
+        <div class="profile-photo-container">
+
+            <div class="profile-photo">
+
+                <img
+                    [src]="profile.photo"
+                    alt="Foto de perfil">
+
+            </div>
+
+
+            <div class="photo-info">
+
+                <h4>
+                    Foto de perfil
+                </h4>
+
+                <p>
+                    JPG, PNG o WEBP. Máximo 5 MB.
+                </p>
+
+
+                <label
+                    for="profilePhoto"
+                    class="photo-btn">
+
+                    <i class="fas fa-camera"></i>
+
+                    Cambiar fotografía
+
+                </label>
+
+
+                <input
+                    id="profilePhoto"
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp"
+                    (change)="uploadPhoto($event)"
+                    hidden>
+
+            </div>
+
+        </div>
+
+
+        <!-- ====================== DATOS ====================== -->
+
+        <div class="profile-form">
+
+            <!-- NOMBRE -->
+
+            <div class="profile-field">
+
+                <label>
+                    Nombre
+                </label>
+
+                <input
+                    type="text"
+                    [(ngModel)]="profile.name"
+                    placeholder="Nombre completo">
+
+            </div>
+
+
+            <!-- CORREO -->
+
+            <div class="profile-field">
+
+                <label>
+                    Correo electrónico
+                </label>
+
+                <input
+                    type="email"
+                    [(ngModel)]="profile.email"
+                    placeholder="Correo electrónico">
+
+            </div>
+
+
+            <!-- TELÉFONO -->
+
+            <div class="profile-field">
+
+                <label>
+                    Teléfono
+                </label>
+
+                <input
+                    type="text"
+                    [(ngModel)]="profile.phone"
+                    placeholder="Número de teléfono">
+
+            </div>
+
+
+            <!-- DIRECCIÓN -->
+
+            <div class="profile-field">
+
+                <label>
+                    Dirección
+                </label>
+
+                <input
+                    type="text"
+                    [(ngModel)]="profile.address"
+                    placeholder="Dirección">
+
+            </div>
+
+
+            <!-- DOCUMENTO -->
+
+            <div class="profile-field">
+
+                <label>
+                    Documento
+                </label>
+
+                <div class="protected-field">
+
+                    <input
+                        type="text"
+                        [value]="profile.document"
+                        readonly>
+
+                    <i
+                        class="fas fa-lock"
+                        title="Campo protegido">
+                    </i>
+
+                </div>
+
+                <small>
+                    El documento no puede modificarse.
+                </small>
+
+            </div>
+
+
+            <!-- ROL -->
+
+            <div class="profile-field">
+
+                <label>
+                    Rol
+                </label>
+
+                <div class="protected-field">
+
+                    <input
+                        type="text"
+                        [value]="profile.role"
+                        readonly>
+
+                    <i
+                        class="fas fa-lock"
+                        title="Campo protegido">
+                    </i>
+
+                </div>
+
+                <small>
+                    El rol no puede modificarse desde el perfil.
+                </small>
+
+            </div>
+
+
+            <!-- ID -->
+
+            <div class="profile-field">
+
+                <label>
+                    ID de usuario
+                </label>
+
+                <div class="protected-field">
+
+                    <input
+                        type="text"
+                        [value]="profile.uid"
+                        readonly>
+
+                    <i
+                        class="fas fa-lock"
+                        title="Campo protegido">
+                    </i>
+
+                </div>
+
+                <small>
+                    El ID del usuario es permanente.
+                </small>
+
+            </div>
+
+
+            <!-- ESTADO -->
+
+            <div class="profile-field">
+
+                <label>
+                    Estado de cuenta
+                </label>
+
+                <div class="profile-status-large">
+
+                    <span
+                        class="status-dot"
+                        [class.inactive]="!isProfileActive()">
+                    </span>
+
+                    <strong>
+                        {{ isProfileActive() ? 'Activo' : 'Inactivo' }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ====================== GUARDAR ====================== -->
+
+        <div class="profile-actions">
+
+            <button
+                class="primary-btn"
+                (click)="updateProfile()">
+
+                <i class="fas fa-save"></i>
+
+                Guardar cambios
+
+            </button>
+
+        </div>
 
     </section>
 
-    <!-- ================= CONFIG ================= -->
+
+    <!-- =====================================================
+         CONFIGURACIÓN
+         ===================================================== -->
 
     <section
-        *ngIf="activeRoute==='configuracion'"
+        *ngIf="activeRoute === 'configuracion'"
         class="card">
 
-        <h3>Configuración</h3>
+        <h3>
+            Configuración
+        </h3>
 
-        <p>Opciones del sistema.</p>
+        <p>
+            Opciones del sistema.
+        </p>
 
     </section>
 
 </main>
 
-<!-- ================= MODAL ================= -->
+
+<!-- =========================================================
+     MODAL CREAR USUARIO
+     ========================================================= -->
 
 <div
     class="modal-backdrop"
@@ -289,21 +677,28 @@
 
     <div class="modal">
 
-        <h2>Registrar nuevo usuario</h2>
+        <h2>
+            Registrar nuevo usuario
+        </h2>
+
 
         <input
             [(ngModel)]="form.name"
             placeholder="Nombre completo">
 
+
         <input
             [(ngModel)]="form.email"
             placeholder="Correo electrónico">
+
 
         <input
             [(ngModel)]="form.document"
             placeholder="Documento">
 
-        <select [(ngModel)]="form.role">
+
+        <select
+            [(ngModel)]="form.role">
 
             <option value="">
                 Seleccione un rol
@@ -319,12 +714,20 @@
 
         </select>
 
-        <button (click)="saveAccess()">
+
+        <button
+            (click)="saveAccess()">
+
             Guardar usuario
+
         </button>
 
-        <button (click)="closeForm()">
+
+        <button
+            (click)="closeForm()">
+
             Cancelar
+
         </button>
 
     </div>

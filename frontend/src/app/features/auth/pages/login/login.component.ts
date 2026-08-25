@@ -135,14 +135,47 @@ export class LoginComponent implements OnInit {
 
         next: (response: any) => {
 
-          console.log(
-            '✅ RESPUESTA BACKEND:',
-            response
-          );
+          console.log('✅ RESPUESTA BACKEND:', response);
 
-          // ==========================================
-          // GUARDAR SESIÓN
-          // ==========================================
+          const user = response?.user;
+          const role = user?.role;
+
+          const validRoles = [
+            'super-admin',
+            'administrador',
+            'instructor',
+            'vigilante',
+            'aprendiz',
+            'visitante',
+            'userx'
+          ];
+
+          if (!user || !role || !validRoles.includes(role)) {
+
+            console.error('❌ USUARIO SIN ROL VÁLIDO:', user);
+
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+
+            this.auth.logout();
+
+            Swal.close();
+
+            this.loading = false;
+
+            Swal.fire({
+              icon: 'error',
+              title: 'Acceso no autorizado',
+              text: 'Su cuenta no tiene un rol válido asignado. Contacte al administrador.',
+              confirmButtonText: 'Entendido',
+              allowOutsideClick: false,
+              allowEscapeKey: false
+            }).then(() => {
+              this.router.navigate(['/login']);
+            });
+
+            return;
+          }
 
           localStorage.setItem(
             'token',
@@ -151,16 +184,10 @@ export class LoginComponent implements OnInit {
 
           localStorage.setItem(
             'user',
-            JSON.stringify(response.user)
+            JSON.stringify(user)
           );
 
           Swal.close();
-
-          const role = response.user.role;
-
-          // ==========================================
-          // LOGIN CORRECTO
-          // ==========================================
 
           Swal.fire({
             icon: 'success',
@@ -174,78 +201,47 @@ export class LoginComponent implements OnInit {
             switch (role) {
 
               case 'super-admin':
-
-                this.router.navigate([
-                  '/dashboard/super-admin'
-                ]);
-
+                this.router.navigate(['/dashboard/super-admin']);
                 break;
 
               case 'administrador':
-
-                this.router.navigate([
-                  '/dashboard/administrador'
-                ]);
-
+                this.router.navigate(['/dashboard/administrador']);
                 break;
 
               case 'instructor':
-
-                this.router.navigate([
-                  '/dashboard/instructor'
-                ]);
-
+                this.router.navigate(['/dashboard/instructor']);
                 break;
 
               case 'vigilante':
-
-                this.router.navigate([
-                  '/dashboard/vigilante'
-                ]);
-
+                this.router.navigate(['/dashboard/vigilante']);
                 break;
 
               case 'aprendiz':
-
-                this.router.navigate([
-                  '/dashboard/aprendiz'
-                ]);
-
+                this.router.navigate(['/dashboard/aprendiz']);
                 break;
 
               case 'visitante':
-
-                this.router.navigate([
-                  '/dashboard/visitante'
-                ]);
-
+                this.router.navigate(['/dashboard/visitante']);
                 break;
 
               case 'userx':
-
-                this.router.navigate([
-                  '/dashboard/userx'
-                ]);
-
+                this.router.navigate(['/dashboard/userx']);
                 break;
 
               default:
-
                 this.auth.logout();
-
                 localStorage.clear();
 
                 Swal.fire({
                   icon: 'error',
-                  title: 'Rol inválido',
-                  text: 'Su cuenta no tiene un rol asignado.'
+                  title: 'Acceso no autorizado',
+                  text: 'Su cuenta no tiene un rol válido asignado.'
                 });
 
+                this.router.navigate(['/login']);
                 break;
             }
-
           });
-
         },
 
         error: async (err) => {

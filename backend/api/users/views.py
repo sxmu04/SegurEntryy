@@ -13,6 +13,7 @@ from config.firebase_config import db
 import json
 
 from .services.user_service import UserService
+from api.notifications.services.notification_service import NotificationService
 
 
 # ==========================================
@@ -34,6 +35,31 @@ def create_user(request):
 
         user = UserService.create_superadmin_user(data)
 
+        # ==========================================
+        # CREAR NOTIFICACIÓN
+        # ==========================================
+
+        NotificationService.create_notification(
+
+            uid=user.get("uid"),
+
+            title="Nuevo usuario creado",
+
+            message=(
+                f"El usuario {user.get('name', '')} "
+                f"fue creado correctamente."
+            ),
+
+            notification_type="user_created",
+
+            data={
+                "user_uid": user.get("uid"),
+                "email": user.get("email"),
+                "role": user.get("role")
+            }
+
+        )
+
         return JsonResponse({
             "success": True,
             "message": "Usuario creado correctamente",
@@ -46,7 +72,6 @@ def create_user(request):
             "success": False,
             "message": str(e)
         }, status=400)
-
 
 # ==========================================
 # LISTAR USUARIOS

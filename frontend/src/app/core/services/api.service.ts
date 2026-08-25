@@ -145,41 +145,81 @@ export class ApiService {
   }
 
   // ===========================
-// NOTIFICACIONES
-// ===========================
+  // NOTIFICACIONES
+  // ===========================
 
-getNotifications(uid: string) {
+  getNotifications(uid: string) {
 
-  return this.http.get(
-    `${this.API_URL}/notifications/${uid}/`
-  );
+    return this.http.get(
+      `${this.API_URL}/notifications/${uid}/`
+    );
 
-}
+  }
 
-getUnreadNotifications(uid: string) {
+  getUnreadNotifications(uid: string) {
 
-  return this.http.get(
-    `${this.API_URL}/notifications/${uid}/unread/`
-  );
+    return this.http.get(
+      `${this.API_URL}/notifications/${uid}/unread/`
+    );
 
-}
+  }
 
-markNotificationAsRead(notificationId: string) {
+  markNotificationAsRead(
+    uid: string,
+    notificationId: string
+  ) {
 
-  return this.http.put(
-    `${this.API_URL}/notifications/${notificationId}/read/`,
-    {}
-  );
+    return this.http.patch(
+      `${this.API_URL}/notifications/${uid}/${notificationId}/read/`,
+      {}
+    );
 
-}
+  }
 
-markAllNotificationsAsRead(uid: string) {
+  markAllNotificationsAsRead(uid: string) {
 
-  return this.http.put(
-    `${this.API_URL}/notifications/${uid}/read-all/`,
-    {}
-  );
+    return this.http.patch(
+      `${this.API_URL}/notifications/${uid}/read-all/`,
+      {}
+    );
 
-}
+  }
+
+  deleteNotification(
+    uid: string,
+    notificationId: string
+  ) {
+
+    return this.http.delete(
+      `${this.API_URL}/notifications/${uid}/${notificationId}/`
+    );
+
+  }
+
+  getTemporaryUserRequest(requestId: string) {
+
+    return this.http.get(
+      `${this.API_URL}/temporary-users/requests/${requestId}/`
+    );
+
+  }
+
+  approveTemporaryUser(requestId: string) {
+
+    return this.http.post(
+      `${this.API_URL}/temporary-users/requests/${requestId}/approve/`,
+      {}
+    );
+
+  }
+
+  rejectTemporaryUser(requestId: string) {
+
+    return this.http.post(
+      `${this.API_URL}/temporary-users/requests/${requestId}/reject/`,
+      {}
+    );
+
+  }
 
 }

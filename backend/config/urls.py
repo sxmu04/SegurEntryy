@@ -1,4 +1,3 @@
-
 from django.contrib import admin
 from django.urls import path
 from django.urls import include
@@ -16,6 +15,9 @@ urlpatterns = [
     path('api/access/', include('api.access.urls')),
     path('api/auth/', include('api.authentication.urls')),
     path('api/invitations/', include('api.invitations.urls')),
+    path("api/notifications/", include("api.notifications.urls")),
+    path("api/temporary-requests/",include("api.temporary_requests.urls"),
+),
 ]
 
 urlpatterns += static(
