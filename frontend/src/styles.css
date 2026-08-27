@@ -1,0 +1,43 @@
+/* =========================================================
+   SEGURENTRY — BASE RESPONSIVE GLOBAL
+   Reglas deliberadamente no invasivas: no reemplazan los
+   estilos propios de cada dashboard.
+   ========================================================= */
+*, *::before, *::after { box-sizing: border-box; }
+html { width: 100%; min-height: 100%; -webkit-text-size-adjust: 100%; }
+body { margin: 0; min-width: 280px; min-height: 100vh; overflow-x: hidden; }
+img, svg, video, canvas { max-width: 100%; height: auto; }
+button, input, select, textarea { font: inherit; }
+button, a { -webkit-tap-highlight-color: transparent; }
+table { max-width: 100%; }
+
+/* Evita que textos o datos largos rompan tarjetas en móvil. */
+p, h1, h2, h3, h4, h5, h6, td, th, label, span { overflow-wrap: anywhere; }
+
+/* Accesibilidad: mantiene foco visible para teclado. */
+:focus-visible { outline: 3px solid rgba(0, 132, 61, .35); outline-offset: 2px; }
+
+/* Pantallas táctiles: objetivos de interacción cómodos sin alterar botones compactos. */
+@media (pointer: coarse) {
+  button, input, select, textarea { min-height: 42px; }
+}
+
+/* Móviles muy pequeños. */
+@media (max-width: 360px) {
+  body { min-width: 0; }
+}
+
+/* Televisores/monitores grandes: conserva legibilidad sin escalar interfaces de forma extrema. */
+@media (min-width: 1920px) {
+  html { font-size: 17px; }
+}
+
+/* Respeta usuarios que solicitan menos animación. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
