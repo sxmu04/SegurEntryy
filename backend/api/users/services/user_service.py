@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from uuid import uuid4
 
 from api.notifications.services.notification_service import NotificationService
+from api.audit.services.audit_service import AuditService
 
 
 class UserService:
@@ -215,6 +216,11 @@ class UserService:
 
             "role": role,
 
+            "document_type": invitation.get(
+                "document_type",
+                ""
+            ),
+
             "document": invitation.get(
                 "document",
                 ""
@@ -263,6 +269,11 @@ class UserService:
                 "email": email,
 
                 "role": role,
+
+                "document_type": invitation.get(
+                    "document_type",
+                    ""
+                ),
 
                 "document": invitation.get(
                     "document",
@@ -343,6 +354,18 @@ class UserService:
             ""
         ).strip().lower()
 
+        document_type = (
+            data.get(
+                "document_type",
+                data.get(
+                    "documentType",
+                    ""
+                )
+            )
+            .strip()
+            .upper()
+        )
+
         document = data.get(
             "document",
             ""
@@ -383,6 +406,33 @@ class UserService:
 
             raise Exception(
                 "El rol es obligatorio."
+            )
+
+        if document_type not in [
+            "CC",
+            "TI"
+        ]:
+
+            raise Exception(
+                "El tipo de documento debe ser CC o TI."
+            )
+
+        if not document:
+
+            raise Exception(
+                "El número de documento es obligatorio."
+            )
+
+        if not document.isdigit():
+
+            raise Exception(
+                "El número de documento debe contener únicamente números."
+            )
+
+        if len(document) < 6 or len(document) > 15:
+
+            raise Exception(
+                "El número de documento debe tener entre 6 y 15 dígitos."
             )
 
         roles_validos = [
@@ -496,6 +546,8 @@ class UserService:
             "email": email,
 
             "role": role,
+
+            "document_type": document_type,
 
             "document": document,
 
@@ -713,6 +765,12 @@ class UserService:
                 "role":
                     role,
 
+                "document_type":
+                    document_type,
+
+                "document":
+                    document,
+
                 "used":
                     False,
 
@@ -790,11 +848,28 @@ class UserService:
             .document(uid)
         )
 
-        if not user_ref.get().exists:
+        current_doc = (
+            user_ref.get()
+        )
+
+        if not current_doc.exists:
 
             raise Exception(
                 "Usuario no encontrado."
             )
+
+        # ==========================================================
+        # GUARDAR DATOS ANTERIORES PARA AUDITORÍA
+        # ==========================================================
+
+        before = (
+            current_doc.to_dict()
+            or {}
+        )
+
+        # ==========================================================
+        # ACTUALIZAR FIREBASE AUTH
+        # ==========================================================
 
         auth_data = {}
 
@@ -825,6 +900,10 @@ class UserService:
                 **auth_data
             )
 
+        # ==========================================================
+        # DATOS PARA FIRESTORE
+        # ==========================================================
+
         firestore_data = {}
 
         if "name" in data:
@@ -852,16 +931,80 @@ class UserService:
                 uid,
 
                 {
-                    "role": data["role"]
+                    "role":
+                        data["role"]
                 }
 
             )
 
+        # ==========================================================
+        # TIPO DE DOCUMENTO
+        # ==========================================================
+
+        if (
+            "document_type" in data or
+            "documentType" in data
+        ):
+
+            document_type = (
+                data.get(
+                    "document_type",
+                    data.get(
+                        "documentType",
+                        ""
+                    )
+                )
+                .strip()
+                .upper()
+            )
+
+            if document_type not in [
+                "CC",
+                "TI"
+            ]:
+
+                raise Exception(
+                    "El tipo de documento debe ser CC o TI."
+                )
+
+            firestore_data[
+                "document_type"
+            ] = document_type
+
+        # ==========================================================
+        # NÚMERO DE DOCUMENTO
+        # ==========================================================
+
         if "document" in data:
 
-            firestore_data["document"] = (
+            document = str(
                 data["document"]
-            )
+            ).strip()
+
+            if not document:
+
+                raise Exception(
+                    "El número de documento es obligatorio."
+                )
+
+            if not document.isdigit():
+
+                raise Exception(
+                    "El número de documento debe contener únicamente números."
+                )
+
+            if (
+                len(document) < 6 or
+                len(document) > 15
+            ):
+
+                raise Exception(
+                    "El número de documento debe tener entre 6 y 15 dígitos."
+                )
+
+            firestore_data[
+                "document"
+            ] = document
 
         if "phone" in data:
 
@@ -887,17 +1030,100 @@ class UserService:
                 data["active"]
             )
 
+        # ==========================================================
+        # GUARDAR CAMBIOS
+        # ==========================================================
+
         if firestore_data:
 
             user_ref.update(
                 firestore_data
             )
 
-        return (
+        # ==========================================================
+        # OBTENER DATOS NUEVOS
+        # ==========================================================
+
+        after = (
             user_ref
             .get()
             .to_dict()
+            or {}
         )
+
+        # ==========================================================
+        # DETECTAR CAMBIOS
+        # ==========================================================
+
+        changes = {}
+
+        tracked_fields = [
+            "name",
+            "email",
+            "role",
+            "document_type",
+            "document",
+            "phone",
+            "address",
+            "active"
+        ]
+
+        for field in tracked_fields:
+
+            old_value = (
+                before.get(field)
+            )
+
+            new_value = (
+                after.get(field)
+            )
+
+            if old_value != new_value:
+
+                changes[field] = {
+                    "before":
+                        old_value,
+
+                    "after":
+                        new_value
+                }
+
+        # ==========================================================
+        # REGISTRAR AUDITORÍA
+        # ==========================================================
+
+        if changes:
+
+            AuditService.create_log(
+
+                action=
+                    "user_updated",
+
+                category=
+                    "users",
+
+                actor_uid=
+                    data.get(
+                        "actor_uid",
+                        ""
+                    ),
+
+                target_uid=
+                    uid,
+
+                description=
+                    "Actualizó los datos del usuario.",
+
+                changes=
+                    changes
+
+            )
+
+        # ==========================================================
+        # RESPUESTA
+        # ==========================================================
+
+        return after
 
     # ==========================================================
     # ELIMINAR USUARIO
@@ -955,9 +1181,6 @@ class UserService:
 
             "address":
                 data.get("address"),
-
-            "document":
-                data.get("document"),
 
             "photo":
                 data.get("photo")
@@ -1265,6 +1488,12 @@ class UserService:
                         ""
                     ),
 
+                "document_type":
+                    invitation.get(
+                        "document_type",
+                        ""
+                    ),
+
                 "document":
                     invitation.get(
                         "document",
@@ -1319,6 +1548,12 @@ class UserService:
                 "role":
                     invitation.get(
                         "role",
+                        ""
+                    ),
+
+                "document_type":
+                    invitation.get(
+                        "document_type",
                         ""
                     ),
 
@@ -1405,6 +1640,18 @@ class UserService:
             "role":
                 invitation.get(
                     "role",
+                    ""
+                ),
+
+            "document_type":
+                invitation.get(
+                    "document_type",
+                    ""
+                ),
+
+            "document":
+                invitation.get(
+                    "document",
                     ""
                 ),
 
@@ -1773,6 +2020,22 @@ class UserService:
 
             "role":
                 new_role,
+
+            "document_type":
+                (
+                    data.get(
+                        "document_type",
+                        data.get(
+                            "documentType",
+                            invitation.get(
+                                "document_type",
+                                ""
+                            )
+                        )
+                    )
+                    .strip()
+                    .upper()
+                ),
 
             "document":
                 data.get(

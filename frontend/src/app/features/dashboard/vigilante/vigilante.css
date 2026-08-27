@@ -2838,6 +2838,1070 @@ tbody tr:last-child td {
     min-width: 165px;
 }
 
+/* =========================================================
+   SEGURENTRY — MÓDULO BIOMETRÍA
+   Vista preparada para ESP32 DevKit V1 + AS608
+   Pegar al final de administrador.css y vigilante.css
+   ========================================================= */
+
+.biometric-section {
+    width: 100%;
+    min-width: 0;
+}
+
+.biometric-page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+
+    margin-bottom: 20px;
+    padding: 24px;
+
+    border: 1px solid rgba(148, 163, 184, 0.14);
+    border-radius: 18px;
+
+    background:
+        radial-gradient(
+            circle at 90% 0%,
+            rgba(34, 197, 94, 0.10),
+            transparent 36%
+        ),
+        linear-gradient(
+            145deg,
+            rgba(15, 23, 42, 0.98),
+            rgba(7, 17, 31, 0.98)
+        );
+
+    box-shadow:
+        0 14px 38px rgba(0, 0, 0, 0.18);
+}
+
+.biometric-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+
+    margin-bottom: 10px;
+
+    color: #4ade80;
+
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.biometric-page-header h2 {
+    margin: 0 0 8px;
+
+    color: #f8fafc;
+
+    font-size: clamp(22px, 2.1vw, 30px);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+}
+
+.biometric-page-header p {
+    max-width: 760px;
+
+    margin: 0;
+
+    color: #94a3b8;
+
+    font-size: 13px;
+    line-height: 1.65;
+}
+
+.biometric-device-status {
+    min-width: 245px;
+
+    display: flex;
+    align-items: center;
+    gap: 11px;
+
+    padding: 13px 14px;
+
+    border-radius: 12px;
+}
+
+.biometric-device-status.offline {
+    border: 1px solid rgba(239, 68, 68, 0.20);
+    background: rgba(239, 68, 68, 0.07);
+}
+
+.device-status-dot {
+    width: 9px;
+    height: 9px;
+
+    flex: 0 0 9px;
+
+    border-radius: 50%;
+
+    background: #ef4444;
+
+    box-shadow:
+        0 0 0 4px rgba(239, 68, 68, 0.08),
+        0 0 11px rgba(239, 68, 68, 0.35);
+}
+
+.biometric-device-status strong,
+.biometric-device-status small {
+    display: block;
+}
+
+.biometric-device-status strong {
+    margin-bottom: 3px;
+
+    color: #fca5a5;
+
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.biometric-device-status small {
+    color: #94a3b8;
+
+    font-size: 10px;
+}
+
+
+/* =========================================================
+   RESUMEN
+   ========================================================= */
+
+.biometric-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+
+    margin-bottom: 20px;
+}
+
+.biometric-summary-card {
+    min-height: 92px;
+
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    margin: 0;
+    padding: 17px 18px;
+}
+
+.biometric-summary-icon {
+    width: 44px;
+    height: 44px;
+
+    flex: 0 0 44px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid rgba(56, 189, 248, 0.20);
+    border-radius: 12px;
+
+    background: rgba(56, 189, 248, 0.08);
+
+    color: #38bdf8;
+
+    font-size: 16px;
+}
+
+.biometric-summary-icon.success {
+    border-color: rgba(34, 197, 94, 0.22);
+    background: rgba(34, 197, 94, 0.09);
+    color: #4ade80;
+}
+
+.biometric-summary-icon.pending {
+    border-color: rgba(148, 163, 184, 0.18);
+    background: rgba(148, 163, 184, 0.07);
+    color: #94a3b8;
+}
+
+.biometric-summary-card strong,
+.biometric-summary-card span {
+    display: block;
+}
+
+.biometric-summary-card strong {
+    margin-bottom: 4px;
+
+    color: #f8fafc;
+
+    font-size: 22px;
+    font-weight: 800;
+}
+
+.biometric-summary-card span {
+    color: #94a3b8;
+
+    font-size: 11px;
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   LISTA DE USUARIOS
+   ========================================================= */
+
+.biometric-users-card {
+    padding: 0 !important;
+    overflow: hidden;
+}
+
+.biometric-table-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+
+    padding: 21px 22px;
+
+    border-bottom: 1px solid rgba(148, 163, 184, 0.10);
+}
+
+.biometric-table-header h3 {
+    margin: 0 0 5px;
+
+    color: #f8fafc;
+
+    font-size: 16px;
+    font-weight: 800;
+}
+
+.biometric-table-header p {
+    margin: 0;
+
+    color: #64748b;
+
+    font-size: 11px;
+}
+
+.biometric-search-box {
+    width: min(100%, 390px);
+    height: 42px;
+
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    padding: 0 12px;
+
+    border: 1px solid rgba(148, 163, 184, 0.14);
+    border-radius: 10px;
+
+    background: rgba(2, 6, 23, 0.48);
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+.biometric-search-box:focus-within {
+    border-color: rgba(34, 197, 94, 0.42);
+
+    background: rgba(2, 6, 23, 0.72);
+
+    box-shadow:
+        0 0 0 3px rgba(34, 197, 94, 0.07);
+}
+
+.biometric-search-box > i {
+    color: #64748b;
+
+    font-size: 12px;
+}
+
+.biometric-search-box input {
+    width: 100%;
+    min-width: 0;
+    height: 100%;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    border: 0 !important;
+    outline: 0 !important;
+
+    background: transparent !important;
+
+    color: #e2e8f0;
+
+    box-shadow: none !important;
+
+    font-family: inherit;
+    font-size: 12px;
+}
+
+.biometric-search-box input::placeholder {
+    color: #64748b;
+}
+
+.biometric-search-box button {
+    width: 28px;
+    height: 28px;
+
+    flex: 0 0 28px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 0;
+    border-radius: 7px;
+
+    background: transparent;
+
+    color: #64748b;
+
+    cursor: pointer;
+}
+
+.biometric-search-box button:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #f8fafc;
+}
+
+
+/* =========================================================
+   AVISO
+   ========================================================= */
+
+.biometric-info-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+
+    margin: 18px 22px 0;
+    padding: 13px 14px;
+
+    border: 1px solid rgba(56, 189, 248, 0.16);
+    border-radius: 11px;
+
+    background: rgba(56, 189, 248, 0.055);
+}
+
+.biometric-info-banner > i {
+    margin-top: 2px;
+
+    color: #38bdf8;
+
+    font-size: 13px;
+}
+
+.biometric-info-banner strong {
+    display: block;
+
+    margin-bottom: 3px;
+
+    color: #cbd5e1;
+
+    font-size: 11px;
+}
+
+.biometric-info-banner p {
+    margin: 0;
+
+    color: #64748b;
+
+    font-size: 10px;
+    line-height: 1.55;
+}
+
+
+/* =========================================================
+   TABLA
+   ========================================================= */
+
+.biometric-table-container {
+    width: 100%;
+
+    margin-top: 18px;
+
+    overflow-x: auto;
+
+    -webkit-overflow-scrolling: touch;
+}
+
+.biometric-table {
+    width: 100%;
+    min-width: 790px;
+
+    border-collapse: collapse;
+}
+
+.biometric-table th {
+    padding: 12px 18px;
+
+    border-top: 1px solid rgba(148, 163, 184, 0.08);
+    border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+
+    background: rgba(255, 255, 255, 0.02);
+
+    color: #64748b;
+
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-align: left;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.biometric-table td {
+    padding: 14px 18px;
+
+    border-bottom: 1px solid rgba(148, 163, 184, 0.06);
+
+    color: #cbd5e1;
+
+    font-size: 12px;
+
+    vertical-align: middle;
+}
+
+.biometric-table tbody tr {
+    transition: background 0.2s ease;
+}
+
+.biometric-table tbody tr:hover {
+    background: rgba(34, 197, 94, 0.025);
+}
+
+.biometric-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.biometric-user-cell {
+    min-width: 210px;
+
+    display: flex;
+    align-items: center;
+    gap: 11px;
+}
+
+.biometric-user-avatar {
+    width: 37px;
+    height: 37px;
+
+    flex: 0 0 37px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid rgba(34, 197, 94, 0.22);
+    border-radius: 10px;
+
+    background: rgba(34, 197, 94, 0.09);
+
+    color: #4ade80;
+
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.biometric-user-cell strong,
+.biometric-user-cell small {
+    display: block;
+
+    max-width: 230px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.biometric-user-cell strong {
+    margin-bottom: 3px;
+
+    color: #e2e8f0;
+
+    font-size: 12px;
+}
+
+.biometric-user-cell small {
+    color: #64748b;
+
+    font-size: 10px;
+}
+
+.biometric-role-badge,
+.biometric-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    padding: 6px 9px;
+
+    border-radius: 999px;
+
+    font-size: 10px;
+    font-weight: 700;
+
+    white-space: nowrap;
+}
+
+.biometric-role-badge {
+    border: 1px solid rgba(34, 197, 94, 0.18);
+    background: rgba(34, 197, 94, 0.07);
+    color: #4ade80;
+}
+
+.biometric-status-badge.not-registered {
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    background: rgba(148, 163, 184, 0.06);
+    color: #94a3b8;
+}
+
+.biometric-actions-column {
+    text-align: right !important;
+}
+
+.biometric-register-btn {
+    min-height: 38px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+
+    padding: 0 13px;
+
+    border: 1px solid rgba(34, 197, 94, 0.25);
+    border-radius: 9px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(34, 197, 94, 0.16),
+            rgba(34, 197, 94, 0.08)
+        );
+
+    color: #4ade80;
+
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 800;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.2s ease,
+        background 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease;
+}
+
+.biometric-register-btn:hover {
+    transform: translateY(-1px);
+
+    border-color: rgba(34, 197, 94, 0.5);
+
+    background:
+        linear-gradient(
+            135deg,
+            #22c55e,
+            #16a34a
+        );
+
+    color: #ffffff;
+}
+
+.biometric-empty-state {
+    min-height: 220px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    text-align: center;
+}
+
+.biometric-empty-state > i {
+    margin-bottom: 12px;
+
+    color: #475569;
+
+    font-size: 30px;
+}
+
+.biometric-empty-state h4 {
+    margin: 0 0 6px;
+
+    color: #cbd5e1;
+
+    font-size: 13px;
+}
+
+.biometric-empty-state p {
+    margin: 0;
+
+    color: #64748b;
+
+    font-size: 11px;
+}
+
+
+/* =========================================================
+   MODAL
+   ========================================================= */
+
+.biometric-modal-backdrop {
+    position: fixed;
+    inset: 0;
+
+    z-index: 99999;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background: rgba(2, 6, 23, 0.76);
+
+    backdrop-filter: blur(7px);
+}
+
+.biometric-modal {
+    position: relative;
+
+    width: min(560px, 100%);
+    max-height: calc(100dvh - 40px);
+
+    overflow-y: auto;
+
+    padding: 28px;
+
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    border-radius: 20px;
+
+    background:
+        radial-gradient(
+            circle at 50% 0%,
+            rgba(34, 197, 94, 0.09),
+            transparent 34%
+        ),
+        linear-gradient(
+            145deg,
+            #0f172a,
+            #07111f
+        );
+
+    color: #e2e8f0;
+
+    box-shadow:
+        0 30px 90px rgba(0, 0, 0, 0.55);
+}
+
+.biometric-modal-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+
+    width: 34px;
+    height: 34px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid rgba(148, 163, 184, 0.12);
+    border-radius: 9px;
+
+    background: rgba(255, 255, 255, 0.03);
+
+    color: #94a3b8;
+
+    cursor: pointer;
+}
+
+.biometric-modal-close:hover {
+    background: rgba(239, 68, 68, 0.08);
+    border-color: rgba(239, 68, 68, 0.20);
+    color: #f87171;
+}
+
+.biometric-modal-icon {
+    width: 64px;
+    height: 64px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin: 0 auto 16px;
+
+    border: 1px solid rgba(34, 197, 94, 0.25);
+    border-radius: 18px;
+
+    background: rgba(34, 197, 94, 0.09);
+
+    color: #4ade80;
+
+    font-size: 27px;
+
+    box-shadow:
+        0 0 0 7px rgba(34, 197, 94, 0.035);
+}
+
+.biometric-modal-heading {
+    text-align: center;
+}
+
+.biometric-modal-heading > span {
+    color: #4ade80;
+
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.biometric-modal-heading h2 {
+    margin: 6px 0 7px;
+
+    color: #f8fafc;
+
+    font-size: 22px;
+    font-weight: 800;
+}
+
+.biometric-modal-heading p {
+    max-width: 450px;
+
+    margin: 0 auto;
+
+    color: #64748b;
+
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+.biometric-selected-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    margin-top: 20px;
+    padding: 14px;
+
+    border: 1px solid rgba(34, 197, 94, 0.16);
+    border-radius: 12px;
+
+    background: rgba(34, 197, 94, 0.045);
+}
+
+.biometric-selected-avatar {
+    width: 44px;
+    height: 44px;
+
+    flex: 0 0 44px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 12px;
+
+    background: rgba(34, 197, 94, 0.12);
+
+    color: #4ade80;
+
+    font-size: 15px;
+    font-weight: 800;
+}
+
+.biometric-selected-user strong,
+.biometric-selected-user span,
+.biometric-selected-user small {
+    display: block;
+}
+
+.biometric-selected-user strong {
+    margin-bottom: 3px;
+
+    color: #f8fafc;
+
+    font-size: 13px;
+}
+
+.biometric-selected-user span {
+    margin-bottom: 2px;
+
+    color: #94a3b8;
+
+    font-size: 10px;
+}
+
+.biometric-selected-user small {
+    color: #64748b;
+
+    font-size: 10px;
+}
+
+.biometric-hardware-state {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+
+    margin-top: 14px;
+    padding: 14px;
+
+    border: 1px solid rgba(239, 68, 68, 0.16);
+    border-radius: 12px;
+
+    background: rgba(239, 68, 68, 0.055);
+}
+
+.hardware-state-icon {
+    width: 38px;
+    height: 38px;
+
+    flex: 0 0 38px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 10px;
+
+    background: rgba(239, 68, 68, 0.10);
+
+    color: #f87171;
+}
+
+.biometric-hardware-state strong {
+    display: block;
+
+    margin-bottom: 4px;
+
+    color: #fca5a5;
+
+    font-size: 11px;
+}
+
+.biometric-hardware-state p {
+    margin: 0;
+
+    color: #94a3b8;
+
+    font-size: 10px;
+    line-height: 1.55;
+}
+
+.biometric-future-flow {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+
+    margin-top: 15px;
+}
+
+.future-step {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    padding: 10px;
+
+    border: 1px solid rgba(148, 163, 184, 0.10);
+    border-radius: 10px;
+
+    background: rgba(255, 255, 255, 0.025);
+}
+
+.future-step > span {
+    width: 24px;
+    height: 24px;
+
+    flex: 0 0 24px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 7px;
+
+    background: rgba(34, 197, 94, 0.09);
+
+    color: #4ade80;
+
+    font-size: 9px;
+    font-weight: 800;
+}
+
+.future-step p {
+    margin: 0;
+
+    color: #94a3b8;
+
+    font-size: 9px;
+    line-height: 1.4;
+}
+
+.biometric-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 9px;
+
+    margin-top: 20px;
+    padding-top: 17px;
+
+    border-top: 1px solid rgba(148, 163, 184, 0.10);
+}
+
+.biometric-close-btn,
+.biometric-disabled-btn {
+    min-height: 40px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+
+    padding: 0 14px;
+
+    border-radius: 9px;
+
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.biometric-close-btn {
+    border: 1px solid rgba(148, 163, 184, 0.14);
+
+    background: rgba(255, 255, 255, 0.035);
+
+    color: #cbd5e1;
+
+    cursor: pointer;
+}
+
+.biometric-close-btn:hover {
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.biometric-disabled-btn {
+    border: 1px solid rgba(148, 163, 184, 0.12);
+
+    background: rgba(148, 163, 184, 0.05);
+
+    color: #64748b;
+
+    cursor: not-allowed;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 950px) {
+
+    .biometric-summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .biometric-summary-card:last-child {
+        grid-column: 1 / -1;
+    }
+
+    .biometric-table-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .biometric-search-box {
+        width: 100%;
+    }
+}
+
+@media (max-width: 700px) {
+
+    .biometric-page-header {
+        flex-direction: column;
+
+        padding: 19px;
+    }
+
+    .biometric-device-status {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .biometric-summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .biometric-summary-card:last-child {
+        grid-column: auto;
+    }
+
+    .biometric-table-header {
+        padding: 17px;
+    }
+
+    .biometric-info-banner {
+        margin-left: 17px;
+        margin-right: 17px;
+    }
+
+    .biometric-modal {
+        padding: 24px 18px 18px;
+    }
+}
+
+@media (max-width: 520px) {
+
+    .biometric-page-header {
+        padding: 16px;
+        border-radius: 14px;
+    }
+
+    .biometric-page-header h2 {
+        font-size: 21px;
+    }
+
+    .biometric-summary-card {
+        min-height: 82px;
+        padding: 14px;
+    }
+
+    .biometric-table {
+        min-width: 720px;
+    }
+
+    .biometric-future-flow {
+        grid-template-columns: 1fr;
+    }
+
+    .biometric-modal-backdrop {
+        padding: 10px;
+    }
+
+    .biometric-modal {
+        max-height: calc(100dvh - 20px);
+        border-radius: 16px;
+    }
+
+    .biometric-modal-actions {
+        flex-direction: column-reverse;
+    }
+
+    .biometric-close-btn,
+    .biometric-disabled-btn {
+        width: 100%;
+    }
+}
+
 
 /* =========================================================
    RESPONSIVE — FILTROS

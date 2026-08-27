@@ -41,6 +41,17 @@ interface TemporaryRequest {
   reviewed_at?: string;
 }
 
+interface BiometricUser {
+  uid?: string;
+  id?: string;
+  name: string;
+  email?: string;
+  document?: string;
+  role?: string;
+  active?: boolean;
+}
+
+
 @Component({
   selector: 'app-vigilante',
   standalone: true,
@@ -76,6 +87,15 @@ export class VigilanteComponent {
 
   accesses: Access[] = [];
 
+  // =========================================================
+  // BIOMETRÍA — SOLO VISTA POR AHORA
+  // =========================================================
+
+  biometricUsers: BiometricUser[] = [];
+  biometricSearch = '';
+  showBiometricModal = false;
+  selectedBiometricUser: BiometricUser | null = null;
+
   form: Access = {
     id: '',
     name: '',
@@ -100,6 +120,7 @@ export class VigilanteComponent {
     this.loadProfile();
     this.loadAccessLogs();
     this.loadTemporaryRequests();
+    this.loadBiometricUsers();
   }
 
   setSection(section: string): void {
@@ -731,4 +752,117 @@ export class VigilanteComponent {
       );
     }
   }
+
+  // =========================================================
+  // BIOMETRÍA — VISTA PREPARADA PARA ESP32 + AS608
+  // =========================================================
+
+  loadBiometricUsers(): void {
+
+    this.dashboardService
+      .getUsers()
+      .subscribe({
+
+        next: (res: any) => {
+
+          const users =
+            res?.users || res || [];
+
+          this.biometricUsers =
+            Array.isArray(users)
+              ? users.map((user: any): BiometricUser => ({
+                  uid:
+                    user.uid ||
+                    user.id ||
+                    '',
+                  id:
+                    user.id ||
+                    user.uid ||
+                    '',
+                  name:
+                    user.name ||
+                    'Usuario',
+                  email:
+                    user.email ||
+                    '',
+                  document:
+                    user.document ||
+                    '',
+                  role:
+                    user.role ||
+                    'usuario',
+                  active:
+                    user.active ?? true
+                }))
+              : [];
+
+        },
+
+        error: (err: any) => {
+
+          console.error(
+            'ERROR CARGANDO USUARIOS PARA BIOMETRÍA:',
+            err
+          );
+
+          this.biometricUsers = [];
+
+        }
+
+      });
+
+  }
+
+  filteredBiometricUsers(): BiometricUser[] {
+
+    const term =
+      this.biometricSearch
+        .trim()
+        .toLowerCase();
+
+    if (!term) {
+      return this.biometricUsers;
+    }
+
+    return this.biometricUsers.filter(user => {
+
+      const name =
+        user.name?.toLowerCase() || '';
+
+      const email =
+        user.email?.toLowerCase() || '';
+
+      const document =
+        user.document?.toLowerCase() || '';
+
+      const role =
+        user.role?.toLowerCase() || '';
+
+      return (
+        name.includes(term) ||
+        email.includes(term) ||
+        document.includes(term) ||
+        role.includes(term)
+      );
+
+    });
+
+  }
+
+  openFingerprintEnrollment(
+    user: BiometricUser
+  ): void {
+
+    this.selectedBiometricUser = user;
+    this.showBiometricModal = true;
+
+  }
+
+  closeFingerprintEnrollment(): void {
+
+    this.showBiometricModal = false;
+    this.selectedBiometricUser = null;
+
+  }
+
 }

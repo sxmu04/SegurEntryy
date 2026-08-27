@@ -173,101 +173,526 @@
             </ng-container>
 
             <!-- ================= USUARIOS ================= -->
+            <!-- =====================================================
+     USUARIOS
+     ===================================================== -->
+
             <ng-container *ngSwitchCase="'users'">
 
                 <section class="card list-card">
 
-                    <div class="table-header">
+                    <!-- =====================================================
+             ENCABEZADO
+             ===================================================== -->
 
-                        <div class="header-left">
-                            <h3>Usuarios Registrados</h3>
+                    <div class="users-filter-top">
 
-                            <span class="badge-total">
-                                {{ users.length || accesses.length }} usuarios
-                            </span>
+                        <div>
+
+                            <h3>
+                                Gestión de usuarios
+                            </h3>
+
+                            <p>
+                                Busca, filtra y administra las cuentas registradas.
+                            </p>
+
                         </div>
 
-                        <div class="table-actions">
 
-                            <div class="search-box">
-                                <i class="fas fa-search"></i>
-                                <input type="text" placeholder="Buscar usuario..." (input)="filterUsers($event)">
+                        <div class="users-header-actions">
+
+                            <div class="users-total-badge">
+
+                                <i class="fas fa-users"></i>
+
+                                {{ totalFilteredUsers }}
+
+                                {{
+                                totalFilteredUsers === 1
+                                ? 'usuario'
+                                : 'usuarios'
+                                }}
+
                             </div>
 
-                            <button class="primary-btn" (click)="openModal()">
+
+                            <button type="button" class="primary-btn" (click)="openModal()">
+
                                 <i class="fas fa-user-plus"></i>
-                                <span>Registrar</span>
+
+                                <span>
+                                    Registrar usuario
+                                </span>
+
                             </button>
 
                         </div>
 
                     </div>
 
+
+                    <!-- =====================================================
+             FILTROS
+             ===================================================== -->
+
+                    <div class="users-filter-panel">
+
+                        <div class="users-filter-grid">
+
+                            <!-- BUSCADOR -->
+
+                            <div class="users-search">
+
+                                <i class="fas fa-search"></i>
+
+                                <input type="text" [value]="userSearch" (input)="filterUsers($event)"
+                                    placeholder="Nombre, correo, documento, teléfono o UID...">
+
+                                <button type="button" *ngIf="userSearch" title="Limpiar búsqueda" (click)="
+                            userSearch = '';
+                            onUserFilterChange()
+                        ">
+
+                                    <i class="fas fa-xmark"></i>
+
+                                </button>
+
+                            </div>
+
+
+                            <!-- ROL -->
+
+                            <div class="users-filter-field">
+
+                                <label>
+                                    Rol
+                                </label>
+
+                                <select [(ngModel)]="userRoleFilter" (change)="onUserFilterChange()">
+
+                                    <option value="todos">
+                                        Todos los roles
+                                    </option>
+
+                                    <option *ngFor="let role of userFilterRoles" [value]="role">
+
+                                        {{ formatRoleName(role) }}
+
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <!-- ESTADO -->
+
+                            <div class="users-filter-field">
+
+                                <label>
+                                    Estado
+                                </label>
+
+                                <select [(ngModel)]="userStatusFilter" (change)="onUserFilterChange()">
+
+                                    <option value="todos">
+                                        Todos
+                                    </option>
+
+                                    <option value="activo">
+                                        Activos
+                                    </option>
+
+                                    <option value="inactivo">
+                                        Inactivos
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <!-- TIPO DOCUMENTO -->
+
+                            <div class="users-filter-field">
+
+                                <label>
+                                    Documento
+                                </label>
+
+                                <select [(ngModel)]="userDocumentTypeFilter" (change)="onUserFilterChange()">
+
+                                    <option value="todos">
+                                        Todos
+                                    </option>
+
+                                    <option value="CC">
+                                        CC
+                                    </option>
+
+                                    <option value="TI">
+                                        TI
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <!-- CANTIDAD POR PÁGINA -->
+
+                            <div class="users-filter-field">
+
+                                <label>
+                                    Mostrar
+                                </label>
+
+                                <select [(ngModel)]="userPageSize" (change)="onUserPageSizeChange()">
+
+                                    <option [ngValue]="10">
+                                        10 usuarios
+                                    </option>
+
+                                    <option [ngValue]="25">
+                                        25 usuarios
+                                    </option>
+
+                                    <option [ngValue]="50">
+                                        50 usuarios
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <!-- LIMPIAR -->
+
+                            <div class="users-filter-field users-clear-field">
+
+                                <label>
+                                    &nbsp;
+                                </label>
+
+                                <button type="button" class="users-clear-filter" (click)="resetUserFilters()">
+
+                                    <i class="fas fa-filter-circle-xmark"></i>
+
+                                    Limpiar
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =====================================================
+             INFORMACIÓN DE RESULTADOS
+             ===================================================== -->
+
+                    <div class="users-results-bar">
+
+                        <div>
+
+                            <i class="fas fa-list"></i>
+
+                            <span *ngIf="totalFilteredUsers > 0">
+
+                                Mostrando
+
+                                <strong>
+                                    {{ userResultStart }}
+                                </strong>
+
+                                -
+
+                                <strong>
+                                    {{ userResultEnd }}
+                                </strong>
+
+                                de
+
+                                <strong>
+                                    {{ totalFilteredUsers }}
+                                </strong>
+
+                                usuarios
+
+                            </span>
+
+
+                            <span *ngIf="totalFilteredUsers === 0">
+
+                                No se encontraron usuarios
+
+                            </span>
+
+                        </div>
+
+
+                        <span class="users-page-indicator" *ngIf="totalFilteredUsers > 0">
+
+                            Página
+                            {{ userCurrentPage }}
+                            de
+                            {{ totalUserPages }}
+
+                        </span>
+
+                    </div>
+
+
+                    <!-- =====================================================
+             TABLA
+             ===================================================== -->
+
                     <div class="table-container">
 
                         <table class="modern-table">
 
                             <thead>
+
                                 <tr>
-                                    <th>Usuario</th>
-                                    <th>Rol</th>
-                                    <th>Estado</th>
-                                    <th>UID</th>
-                                    <th class="text-center">Acciones</th>
+
+                                    <th>
+                                        Usuario
+                                    </th>
+
+                                    <th>
+                                        Tipo de documento
+                                    </th>
+
+                                    <th>
+                                        Documento
+                                    </th>
+
+                                    <th>
+                                        Rol
+                                    </th>
+
+                                    <th>
+                                        Estado
+                                    </th>
+
+                                    <th>
+                                        UID
+                                    </th>
+
+                                    <th class="text-center">
+                                        Acciones
+                                    </th>
+
                                 </tr>
+
                             </thead>
+
 
                             <tbody>
 
-                                <tr *ngIf="(users?.length || accesses?.length) === 0" class="empty-row">
-                                    <td colspan="5">
-                                        <div class="empty-state">
+                                <!-- =====================================================
+                         SIN RESULTADOS
+                         ===================================================== -->
+
+                                <tr *ngIf="totalFilteredUsers === 0" class="empty-row">
+
+                                    <td colspan="7">
+
+                                        <div class="users-empty-state">
+
                                             <i class="fas fa-users-slash"></i>
-                                            <p>No hay usuarios registrados</p>
+
+                                            <strong>
+                                                No se encontraron usuarios
+                                            </strong>
+
+                                            <span>
+                                                Cambia los filtros o realiza una nueva búsqueda.
+                                            </span>
+
+
+                                            <button type="button" class="users-empty-reset"
+                                                (click)="resetUserFilters()">
+
+                                                <i class="fas fa-rotate-left"></i>
+
+                                                Limpiar filtros
+
+                                            </button>
+
                                         </div>
+
                                     </td>
+
                                 </tr>
 
-                                <tr *ngFor="let a of (users || accesses)" class="table-row">
+
+                                <!-- =====================================================
+                         USUARIOS
+                         ===================================================== -->
+
+                                <tr *ngFor="
+                            let a of users;
+                            trackBy: trackByUserUid
+                        " class="table-row">
+
+
+                                    <!-- USUARIO -->
 
                                     <td class="user-cell">
+
                                         <div class="user-info">
+
                                             <div class="avatar">
-                                                {{ a?.name?.charAt(0) || 'U' }}
+
+                                                {{
+                                                (a.name || 'U')
+                                                .charAt(0)
+                                                .toUpperCase()
+                                                }}
+
                                             </div>
-                                            <div>
-                                                <strong>{{ a?.name }}</strong>
-                                                <small>{{ a?.email }}</small>
+
+
+                                            <div class="user-main-info">
+
+                                                <strong>
+                                                    {{ a.name || 'Usuario' }}
+                                                </strong>
+
+                                                <small>
+                                                    {{ a.email || 'Sin correo' }}
+                                                </small>
+
                                             </div>
+
                                         </div>
+
                                     </td>
 
+
+                                    <!-- TIPO DE DOCUMENTO -->
+
                                     <td>
+
+                                        <span class="document-type-badge" [class.cc]="
+                                    (a.document_type || a.documentType) === 'CC'
+                                " [class.ti]="
+                                    (a.document_type || a.documentType) === 'TI'
+                                ">
+
+                                            {{
+                                            a.document_type ||
+                                            a.documentType ||
+                                            'Sin tipo'
+                                            }}
+
+                                        </span>
+
+                                    </td>
+
+
+                                    <!-- DOCUMENTO -->
+
+                                    <td class="document-number">
+
+                                        {{
+                                        a.document ||
+                                        'No registrado'
+                                        }}
+
+                                    </td>
+
+
+                                    <!-- ROL -->
+
+                                    <td>
+
                                         <span class="role-badge">
-                                            {{ a?.role }}
+
+                                            {{
+                                            formatRoleName(
+                                            a.role || 'usuario'
+                                            )
+                                            }}
+
                                         </span>
+
                                     </td>
 
+
+                                    <!-- ESTADO -->
+
                                     <td>
-                                        <span class="status-badge" [class.active]="a?.active"
-                                            [class.inactive]="!a?.active">
-                                            <i class="fas" [ngClass]="a?.active ? 'fa-circle' : 'fa-circle-xmark'"></i>
-                                            {{ a?.active ? 'Activo' : 'Inactivo' }}
+
+                                        <span class="status-badge" [class.active]="a.active"
+                                            [class.inactive]="!a.active">
+
+                                            <i class="fas" [ngClass]="
+                                        a.active
+                                            ? 'fa-circle-check'
+                                            : 'fa-circle-xmark'
+                                    ">
+                                            </i>
+
+                                            {{
+                                            a.active
+                                            ? 'Activo'
+                                            : 'Inactivo'
+                                            }}
+
                                         </span>
+
                                     </td>
+
+
+                                    <!-- UID -->
 
                                     <td class="uid">
-                                        {{ a?.uid }}
+
+                                        <span class="uid-value" [title]="a.uid || ''">
+
+                                            {{
+                                            a.uid
+                                            ? (
+                                            a.uid.length > 12
+                                            ? (a.uid | slice:0:12) + '...'
+                                            : a.uid
+                                            )
+                                            : '-'
+                                            }}
+
+                                        </span>
+
                                     </td>
 
-                                    <td class="actions text-center">
-                                        <button class="icon-btn edit" (click)="editUser(a)">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
 
-                                        <button class="icon-btn delete" (click)="deleteUser(a)">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
+                                    <!-- ACCIONES -->
+
+                                    <td class="actions text-center">
+
+                                        <div class="users-action-buttons">
+
+                                            <button type="button" class="icon-btn edit" (click)="editUser(a)"
+                                                title="Editar usuario">
+
+                                                <i class="fas fa-user-pen"></i>
+
+                                            </button>
+
+
+                                            <button type="button" class="icon-btn delete" (click)="deleteUser(a)"
+                                                title="Eliminar usuario">
+
+                                                <i class="fas fa-trash"></i>
+
+                                            </button>
+
+                                        </div>
+
                                     </td>
 
                                 </tr>
@@ -278,10 +703,104 @@
 
                     </div>
 
+
+                    <!-- =====================================================
+             PAGINACIÓN
+             ===================================================== -->
+
+                    <div class="users-pagination" *ngIf="totalFilteredUsers > 0">
+
+                        <!-- INFORMACIÓN -->
+
+                        <div class="users-pagination-info">
+
+                            Mostrando
+
+                            <strong>
+                                {{ userResultStart }}
+                            </strong>
+
+                            -
+
+                            <strong>
+                                {{ userResultEnd }}
+                            </strong>
+
+                            de
+
+                            <strong>
+                                {{ totalFilteredUsers }}
+                            </strong>
+
+                        </div>
+
+
+                        <!-- CONTROLES -->
+
+                        <div class="users-pagination-controls">
+
+                            <!-- PRIMERA -->
+
+                            <button type="button" title="Primera página" [disabled]="userCurrentPage === 1"
+                                (click)="goToUserPage(1)">
+
+                                <i class="fas fa-angles-left"></i>
+
+                            </button>
+
+
+                            <!-- ANTERIOR -->
+
+                            <button type="button" title="Página anterior" [disabled]="userCurrentPage === 1"
+                                (click)="previousUserPage()">
+
+                                <i class="fas fa-chevron-left"></i>
+
+                            </button>
+
+
+                            <!-- NÚMEROS -->
+
+                            <button type="button" *ngFor="let page of userPageNumbers" class="page-number"
+                                [class.active]="
+                        page === userCurrentPage
+                    " (click)="goToUserPage(page)">
+
+                                {{ page }}
+
+                            </button>
+
+
+                            <!-- SIGUIENTE -->
+
+                            <button type="button" title="Página siguiente" [disabled]="
+                        userCurrentPage === totalUserPages
+                    " (click)="nextUserPage()">
+
+                                <i class="fas fa-chevron-right"></i>
+
+                            </button>
+
+
+                            <!-- ÚLTIMA -->
+
+                            <button type="button" title="Última página" [disabled]="
+                        userCurrentPage === totalUserPages
+                    " (click)="
+                        goToUserPage(totalUserPages)
+                    ">
+
+                                <i class="fas fa-angles-right"></i>
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
                 </section>
 
             </ng-container>
-
             <!-- =====================================================
      PERFIL
      ===================================================== -->
@@ -381,18 +900,38 @@
 
                         <div class="profile-field">
 
-                            <label>Documento</label>
+                            <label>Tipo de documento</label>
 
                             <div class="protected-field">
 
-                                <input type="text" [value]="profile.document" readonly>
+                                <input type="text"
+                                    [value]="profile.document_type || profile.documentType || 'No registrado'" readonly>
 
                                 <i class="fas fa-lock" title="Campo protegido"></i>
 
                             </div>
 
                             <small>
-                                El documento no puede modificarse desde el perfil.
+                                El tipo de documento no puede modificarse desde el perfil.
+                            </small>
+
+                        </div>
+
+
+                        <div class="profile-field">
+
+                            <label>Número de documento</label>
+
+                            <div class="protected-field">
+
+                                <input type="text" [value]="profile.document || 'No registrado'" readonly>
+
+                                <i class="fas fa-lock" title="Campo protegido"></i>
+
+                            </div>
+
+                            <small>
+                                El número de documento no puede modificarse desde el perfil.
                             </small>
 
                         </div>
@@ -500,41 +1039,819 @@
                 </section>
             </ng-container>
 
+            <!-- =====================================================
+     ACCESOS
+     ===================================================== -->
+
             <ng-container *ngSwitchCase="'access'">
-                <section class="card list-card">
 
-                    <div class="table-header">
-                        <h3>Registro de Accesos</h3>
+                <section class="access-page">
+
+                    <!-- =====================================================
+             ENCABEZADO
+             ===================================================== -->
+
+                    <div class="card access-header">
+
+                        <div class="access-header-info">
+
+                            <div class="access-header-icon">
+
+                                <i class="fas fa-door-open"></i>
+
+                            </div>
+
+
+                            <div>
+
+                                <span class="access-eyebrow">
+                                    SEGURENTRY ACCESS CONTROL
+                                </span>
+
+                                <h2>
+                                    Historial de accesos
+                                </h2>
+
+                                <p>
+                                    Supervisa entradas, salidas, métodos de acceso
+                                    y eventos de seguridad.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="access-header-actions">
+
+                            <span class="access-total">
+
+                                <i class="fas fa-database"></i>
+
+                                {{ filteredAccessLogs.length }}
+
+                                {{
+                                filteredAccessLogs.length === 1
+                                ? 'registro'
+                                : 'registros'
+                                }}
+
+                            </span>
+
+
+                            <button type="button" class="access-refresh-btn" (click)="loadAccessLogs()">
+
+                                <i class="fas fa-rotate"></i>
+
+                                Actualizar
+
+                            </button>
+
+                        </div>
+
                     </div>
 
-                    <div class="table-container">
-                        <table class="modern-table">
-                            <thead>
-                                <tr>
-                                    <th>Usuario</th>
-                                    <th>Entrada</th>
-                                    <th>Hora</th>
-                                    <th>Estado</th>
-                                </tr>
-                            </thead>
 
-                            <tbody>
-                                <tr *ngFor="let log of accessLogs">
-                                    <td>{{ log.user }}</td>
-                                    <td>{{ log.entry }}</td>
-                                    <td>{{ log.time }}</td>
-                                    <td>
-                                        <span class="status-badge" [class.active]="log.allowed"
-                                            [class.inactive]="!log.allowed">
-                                            {{ log.allowed ? 'Permitido' : 'Denegado' }}
-                                        </span>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <!-- =====================================================
+             MÉTRICAS
+             ===================================================== -->
+
+                    <div class="access-stats-grid">
+
+                        <!-- TOTAL -->
+
+                        <div class="card access-stat-card">
+
+                            <div class="access-stat-icon total">
+
+                                <i class="fas fa-list-check"></i>
+
+                            </div>
+
+                            <div>
+
+                                <span>
+                                    Registros
+                                </span>
+
+                                <strong>
+                                    {{ filteredAccessLogs.length }}
+                                </strong>
+
+                                <small>
+                                    Según filtros
+                                </small>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- PERMITIDOS -->
+
+                        <div class="card access-stat-card">
+
+                            <div class="access-stat-icon allowed">
+
+                                <i class="fas fa-circle-check"></i>
+
+                            </div>
+
+                            <div>
+
+                                <span>
+                                    Permitidos
+                                </span>
+
+                                <strong>
+                                    {{ accessAllowedCount }}
+                                </strong>
+
+                                <small>
+                                    Accesos autorizados
+                                </small>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- DENEGADOS -->
+
+                        <div class="card access-stat-card">
+
+                            <div class="access-stat-icon denied">
+
+                                <i class="fas fa-circle-xmark"></i>
+
+                            </div>
+
+                            <div>
+
+                                <span>
+                                    Denegados
+                                </span>
+
+                                <strong>
+                                    {{ accessDeniedCount }}
+                                </strong>
+
+                                <small>
+                                    Intentos bloqueados
+                                </small>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- ENTRADAS -->
+
+                        <div class="card access-stat-card">
+
+                            <div class="access-stat-icon entry">
+
+                                <i class="fas fa-arrow-right-to-bracket"></i>
+
+                            </div>
+
+                            <div>
+
+                                <span>
+                                    Entradas
+                                </span>
+
+                                <strong>
+                                    {{ accessEntriesCount }}
+                                </strong>
+
+                                <small>
+                                    Ingresos registrados
+                                </small>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- SALIDAS -->
+
+                        <div class="card access-stat-card">
+
+                            <div class="access-stat-icon exit">
+
+                                <i class="fas fa-arrow-right-from-bracket"></i>
+
+                            </div>
+
+                            <div>
+
+                                <span>
+                                    Salidas
+                                </span>
+
+                                <strong>
+                                    {{ accessExitsCount }}
+                                </strong>
+
+                                <small>
+                                    Salidas registradas
+                                </small>
+
+                            </div>
+
+                        </div>
+
                     </div>
+
+
+                    <!-- =====================================================
+             FILTROS
+             ===================================================== -->
+
+                    <section class="card access-filter-card">
+
+                        <div class="access-filter-header">
+
+                            <div>
+
+                                <h3>
+                                    <i class="fas fa-filter"></i>
+
+                                    Filtros de acceso
+                                </h3>
+
+                                <p>
+                                    Busca y limita los registros mostrados.
+                                </p>
+
+                            </div>
+
+
+                            <button type="button" class="access-clear-btn" (click)="resetAccessFilters()">
+
+                                <i class="fas fa-filter-circle-xmark"></i>
+
+                                Limpiar
+
+                            </button>
+
+                        </div>
+
+
+                        <div class="access-filter-grid">
+
+                            <!-- BUSCADOR -->
+
+                            <div class="access-search">
+
+                                <i class="fas fa-search"></i>
+
+                                <input type="text" [(ngModel)]="accessSearch" (input)="onAccessFilterChange()"
+                                    placeholder="Usuario, documento, método, dispositivo...">
+
+                                <button type="button" *ngIf="accessSearch" (click)="
+                            accessSearch = '';
+                            onAccessFilterChange()
+                        ">
+
+                                    <i class="fas fa-xmark"></i>
+
+                                </button>
+
+                            </div>
+
+
+                            <!-- MOVIMIENTO -->
+
+                            <div class="access-filter-field">
+
+                                <label>
+                                    Movimiento
+                                </label>
+
+                                <select [(ngModel)]="accessTypeFilter" (change)="onAccessFilterChange()">
+
+                                    <option value="todos">
+                                        Todos
+                                    </option>
+
+                                    <option value="entrada">
+                                        Entradas
+                                    </option>
+
+                                    <option value="salida">
+                                        Salidas
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <!-- ESTADO -->
+
+                            <div class="access-filter-field">
+
+                                <label>
+                                    Estado
+                                </label>
+
+                                <select [(ngModel)]="accessStatusFilter" (change)="onAccessFilterChange()">
+
+                                    <option value="todos">
+                                        Todos
+                                    </option>
+
+                                    <option value="permitido">
+                                        Permitidos
+                                    </option>
+
+                                    <option value="denegado">
+                                        Denegados
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <!-- MÉTODO -->
+
+                            <div class="access-filter-field">
+
+                                <label>
+                                    Método
+                                </label>
+
+                                <select [(ngModel)]="accessMethodFilter" (change)="onAccessFilterChange()">
+
+                                    <option value="todos">
+                                        Todos
+                                    </option>
+
+                                    <option *ngFor="let method of accessMethods" [value]="method">
+
+                                        {{ method }}
+
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <!-- CANTIDAD -->
+
+                            <div class="access-filter-field">
+
+                                <label>
+                                    Mostrar
+                                </label>
+
+                                <select [(ngModel)]="accessPageSize" (change)="onAccessFilterChange()">
+
+                                    <option [ngValue]="10">
+                                        10
+                                    </option>
+
+                                    <option [ngValue]="25">
+                                        25
+                                    </option>
+
+                                    <option [ngValue]="50">
+                                        50
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- =====================================================
+             TABLA
+             ===================================================== -->
+
+                    <section class="card access-table-card">
+
+                        <div class="access-table-header">
+
+                            <div>
+
+                                <h3>
+                                    <i class="fas fa-clock-rotate-left"></i>
+
+                                    Registro de movimientos
+                                </h3>
+
+                                <p>
+                                    Historial detallado del sistema de control de acceso.
+                                </p>
+
+                            </div>
+
+
+                            <span class="access-page-status" *ngIf="filteredAccessLogs.length > 0">
+
+                                Página
+                                {{ accessCurrentPage }}
+                                de
+                                {{ accessTotalPages }}
+
+                            </span>
+
+                        </div>
+
+
+                        <!-- CARGANDO -->
+
+                        <div class="access-loading" *ngIf="reportLoading">
+
+                            <i class="fas fa-circle-notch fa-spin"></i>
+
+                            <span>
+                                Cargando accesos...
+                            </span>
+
+                        </div>
+
+
+                        <!-- TABLA -->
+
+                        <div class="access-table-container" *ngIf="!reportLoading">
+
+                            <table class="access-table">
+
+                                <thead>
+
+                                    <tr>
+
+                                        <th>
+                                            Fecha
+                                        </th>
+
+                                        <th>
+                                            Usuario
+                                        </th>
+
+                                        <th>
+                                            Documento
+                                        </th>
+
+                                        <th>
+                                            Rol
+                                        </th>
+
+                                        <th>
+                                            Movimiento
+                                        </th>
+
+                                        <th>
+                                            Método
+                                        </th>
+
+                                        <th>
+                                            Dispositivo
+                                        </th>
+
+                                        <th>
+                                            Estado
+                                        </th>
+
+                                    </tr>
+
+                                </thead>
+
+
+                                <tbody>
+
+                                    <!-- REGISTROS -->
+
+                                    <tr *ngFor="
+                                let log of paginatedAccessLogs;
+                                trackBy: trackByAccessLog
+                            ">
+
+                                        <!-- FECHA -->
+
+                                        <td class="access-date">
+
+                                            <strong>
+                                                {{
+                                                log.date
+                                                | date:'dd/MM/yyyy'
+                                                }}
+                                            </strong>
+
+                                            <small>
+                                                {{
+                                                log.date
+                                                | date:'HH:mm:ss'
+                                                }}
+                                            </small>
+
+                                        </td>
+
+
+                                        <!-- USUARIO -->
+
+                                        <td>
+
+                                            <div class="access-user">
+
+                                                <div class="access-avatar">
+
+                                                    {{
+                                                    (log.user || 'U')
+                                                    .charAt(0)
+                                                    .toUpperCase()
+                                                    }}
+
+                                                </div>
+
+                                                <div>
+
+                                                    <strong>
+                                                        {{
+                                                        log.user ||
+                                                        'Usuario desconocido'
+                                                        }}
+                                                    </strong>
+
+                                                    <small>
+                                                        {{
+                                                        log.email ||
+                                                        'Sin correo'
+                                                        }}
+                                                    </small>
+
+                                                </div>
+
+                                            </div>
+
+                                        </td>
+
+
+                                        <!-- DOCUMENTO -->
+
+                                        <td class="access-document">
+
+                                            {{
+                                            log.document ||
+                                            'No registrado'
+                                            }}
+
+                                        </td>
+
+
+                                        <!-- ROL -->
+
+                                        <td>
+
+                                            <span class="access-role">
+
+                                                {{
+                                                formatRoleName(
+                                                log.role ||
+                                                'usuario'
+                                                )
+                                                }}
+
+                                            </span>
+
+                                        </td>
+
+
+                                        <!-- MOVIMIENTO -->
+
+                                        <td>
+
+                                            <span class="access-movement" [class.entry]="log.type === 'entrada'"
+                                                [class.exit]="log.type === 'salida'">
+
+                                                <i class="fas" [ngClass]="
+                                            log.type === 'salida'
+                                                ? 'fa-arrow-right-from-bracket'
+                                                : 'fa-arrow-right-to-bracket'
+                                        ">
+                                                </i>
+
+                                                {{
+                                                log.type === 'salida'
+                                                ? 'Salida'
+                                                : 'Entrada'
+                                                }}
+
+                                            </span>
+
+                                        </td>
+
+
+                                        <!-- MÉTODO -->
+
+                                        <td>
+
+                                            <span class="access-method">
+
+                                                <i class="fas" [ngClass]="
+                                            getAccessMethodIcon(
+                                                log.method
+                                            )
+                                        ">
+                                                </i>
+
+                                                {{
+                                                log.method ||
+                                                'No especificado'
+                                                }}
+
+                                            </span>
+
+                                        </td>
+
+
+                                        <!-- DISPOSITIVO -->
+
+                                        <td class="access-device">
+
+                                            <i class="fas fa-microchip"></i>
+
+                                            {{
+                                            log.device ||
+                                            'No especificado'
+                                            }}
+
+                                        </td>
+
+
+                                        <!-- ESTADO -->
+
+                                        <td>
+
+                                            <span class="access-status" [class.allowed]="log.allowed"
+                                                [class.denied]="!log.allowed">
+
+                                                <i class="fas" [ngClass]="
+                                            log.allowed
+                                                ? 'fa-circle-check'
+                                                : 'fa-circle-xmark'
+                                        ">
+                                                </i>
+
+                                                {{
+                                                log.allowed
+                                                ? 'Permitido'
+                                                : 'Denegado'
+                                                }}
+
+                                            </span>
+
+                                        </td>
+
+                                    </tr>
+
+
+                                    <!-- SIN REGISTROS -->
+
+                                    <tr *ngIf="
+                                filteredAccessLogs.length === 0
+                            ">
+
+                                        <td colspan="8">
+
+                                            <div class="access-empty">
+
+                                                <div class="access-empty-icon">
+
+                                                    <i class="fas fa-door-closed"></i>
+
+                                                </div>
+
+                                                <h4>
+                                                    No se encontraron accesos
+                                                </h4>
+
+                                                <p>
+                                                    No existen registros que coincidan
+                                                    con los filtros seleccionados.
+                                                </p>
+
+                                                <button type="button" (click)="resetAccessFilters()">
+
+                                                    <i class="fas fa-rotate-left"></i>
+
+                                                    Limpiar filtros
+
+                                                </button>
+
+                                            </div>
+
+                                        </td>
+
+                                    </tr>
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+
+                        <!-- =====================================================
+                 PAGINACIÓN
+                 ===================================================== -->
+
+                        <div class="access-pagination" *ngIf="
+                    !reportLoading &&
+                    filteredAccessLogs.length > 0
+                ">
+
+                            <div class="access-pagination-info">
+
+                                Mostrando
+
+                                <strong>
+                                    {{ accessResultStart }}
+                                </strong>
+
+                                -
+
+                                <strong>
+                                    {{ accessResultEnd }}
+                                </strong>
+
+                                de
+
+                                <strong>
+                                    {{ filteredAccessLogs.length }}
+                                </strong>
+
+                            </div>
+
+
+                            <div class="access-pagination-controls">
+
+                                <button type="button" [disabled]="accessCurrentPage === 1" (click)="goToAccessPage(1)"
+                                    title="Primera página">
+
+                                    <i class="fas fa-angles-left"></i>
+
+                                </button>
+
+
+                                <button type="button" [disabled]="accessCurrentPage === 1"
+                                    (click)="previousAccessPage()" title="Anterior">
+
+                                    <i class="fas fa-chevron-left"></i>
+
+                                </button>
+
+
+                                <button type="button" class="page-number" *ngFor="let page of accessPageNumbers"
+                                    [class.active]="
+                            page === accessCurrentPage
+                        " (click)="goToAccessPage(page)">
+
+                                    {{ page }}
+
+                                </button>
+
+
+                                <button type="button" [disabled]="
+                            accessCurrentPage ===
+                            accessTotalPages
+                        " (click)="nextAccessPage()" title="Siguiente">
+
+                                    <i class="fas fa-chevron-right"></i>
+
+                                </button>
+
+
+                                <button type="button" [disabled]="
+                            accessCurrentPage ===
+                            accessTotalPages
+                        " (click)="
+                            goToAccessPage(
+                                accessTotalPages
+                            )
+                        " title="Última página">
+
+                                    <i class="fas fa-angles-right"></i>
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </section>
 
                 </section>
+
             </ng-container>
 
             <ng-container *ngSwitchCase="'roles'">
@@ -703,30 +2020,770 @@
             </ng-container>
 
             <ng-container *ngSwitchCase="'reports'">
-                <section class="card">
 
-                    <h3>Reportes del Sistema</h3>
+                <section class="reports-page">
 
-                    <div class="report-grid">
+                    <!-- =====================================================
+             ENCABEZADO
+             ===================================================== -->
 
-                        <div class="report-card">
-                            <h4>Accesos Hoy</h4>
-                            <p>{{ stats.today_access }}</p>
+                    <div class="card reports-header">
+
+                        <div class="reports-header-info">
+
+                            <div class="reports-icon">
+
+                                <i class="fas fa-chart-line"></i>
+
+                            </div>
+
+                            <div>
+
+                                <span class="reports-eyebrow">
+                                    SEGURENTRY ANALYTICS
+                                </span>
+
+                                <h2>
+                                    Reportes del Sistema
+                                </h2>
+
+                                <p>
+                                    Consulta estadísticas de usuarios, accesos,
+                                    seguridad e invitaciones del sistema.
+                                </p>
+
+                            </div>
+
                         </div>
 
-                        <div class="report-card">
-                            <h4>Denegados</h4>
-                            <p>{{ stats.denied_access }}</p>
-                        </div>
 
-                        <div class="report-card">
-                            <h4>Usuarios</h4>
-                            <p>{{ stats.total_users }}</p>
+                        <div class="reports-header-actions">
+
+                            <button type="button" class="report-secondary-btn" (click)="printReport()">
+
+                                <i class="fas fa-print"></i>
+
+                                Imprimir / PDF
+
+                            </button>
+
+
+                            <button type="button" class="report-export-btn" (click)="exportReportCsv()">
+
+                                <i class="fas fa-file-csv"></i>
+
+                                Exportar CSV
+
+                            </button>
+
                         </div>
 
                     </div>
 
+
+                    <!-- =====================================================
+             MÉTRICAS GENERALES
+             ===================================================== -->
+
+                    <div class="reports-summary-grid">
+
+                        <!-- USUARIOS -->
+
+                        <div class="card report-summary-card">
+
+                            <div class="report-summary-icon users">
+
+                                <i class="fas fa-users"></i>
+
+                            </div>
+
+                            <div>
+
+                                <span>
+                                    Usuarios registrados
+                                </span>
+
+                                <strong>
+                                    {{ stats.total_users }}
+                                </strong>
+
+                                <small>
+                                    Total actual del sistema
+                                </small>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- ACCESOS -->
+
+                        <div class="card report-summary-card">
+
+                            <div class="report-summary-icon accesses">
+
+                                <i class="fas fa-door-open"></i>
+
+                            </div>
+
+                            <div>
+
+                                <span>
+                                    Accesos encontrados
+                                </span>
+
+                                <strong>
+                                    {{ filteredReportLogs.length }}
+                                </strong>
+
+                                <small>
+                                    Según los filtros aplicados
+                                </small>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- PERMITIDOS -->
+
+                        <div class="card report-summary-card">
+
+                            <div class="report-summary-icon allowed">
+
+                                <i class="fas fa-shield-check"></i>
+
+                            </div>
+
+                            <div>
+
+                                <span>
+                                    Accesos permitidos
+                                </span>
+
+                                <strong>
+                                    {{ reportAllowed }}
+                                </strong>
+
+                                <small>
+                                    {{ reportSuccessRate }}% de éxito
+                                </small>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- DENEGADOS -->
+
+                        <div class="card report-summary-card">
+
+                            <div class="report-summary-icon denied">
+
+                                <i class="fas fa-shield-halved"></i>
+
+                            </div>
+
+                            <div>
+
+                                <span>
+                                    Accesos denegados
+                                </span>
+
+                                <strong>
+                                    {{ reportDenied }}
+                                </strong>
+
+                                <small>
+                                    Intentos bloqueados
+                                </small>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- ENTRADAS -->
+
+                        <div class="card report-summary-card">
+
+                            <div class="report-summary-icon entry">
+
+                                <i class="fas fa-arrow-right-to-bracket"></i>
+
+                            </div>
+
+                            <div>
+
+                                <span>
+                                    Entradas
+                                </span>
+
+                                <strong>
+                                    {{ reportEntries }}
+                                </strong>
+
+                                <small>
+                                    Registros de ingreso
+                                </small>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- SALIDAS -->
+
+                        <div class="card report-summary-card">
+
+                            <div class="report-summary-icon exit">
+
+                                <i class="fas fa-arrow-right-from-bracket"></i>
+
+                            </div>
+
+                            <div>
+
+                                <span>
+                                    Salidas
+                                </span>
+
+                                <strong>
+                                    {{ reportExits }}
+                                </strong>
+
+                                <small>
+                                    Registros de salida
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =====================================================
+             FILTROS
+             ===================================================== -->
+
+                    <section class="card reports-filter-card">
+
+                        <div class="reports-section-heading">
+
+                            <div>
+
+                                <h3>
+                                    <i class="fas fa-filter"></i>
+                                    Filtros del reporte
+                                </h3>
+
+                                <p>
+                                    Limita los resultados por fecha, estado,
+                                    tipo de acceso o rol.
+                                </p>
+
+                            </div>
+
+
+                            <button type="button" class="report-clear-btn" (click)="resetReportFilters()">
+
+                                <i class="fas fa-rotate-left"></i>
+
+                                Limpiar filtros
+
+                            </button>
+
+                        </div>
+
+
+                        <div class="reports-filter-grid">
+
+                            <!-- DESDE -->
+
+                            <div class="report-filter-field">
+
+                                <label>
+                                    Desde
+                                </label>
+
+                                <input type="date" [(ngModel)]="reportFrom">
+
+                            </div>
+
+
+                            <!-- HASTA -->
+
+                            <div class="report-filter-field">
+
+                                <label>
+                                    Hasta
+                                </label>
+
+                                <input type="date" [(ngModel)]="reportTo">
+
+                            </div>
+
+
+                            <!-- ESTADO -->
+
+                            <div class="report-filter-field">
+
+                                <label>
+                                    Estado
+                                </label>
+
+                                <select [(ngModel)]="reportStatus">
+
+                                    <option value="todos">
+                                        Todos
+                                    </option>
+
+                                    <option value="permitido">
+                                        Permitidos
+                                    </option>
+
+                                    <option value="denegado">
+                                        Denegados
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <!-- TIPO -->
+
+                            <div class="report-filter-field">
+
+                                <label>
+                                    Movimiento
+                                </label>
+
+                                <select [(ngModel)]="reportType">
+
+                                    <option value="todos">
+                                        Todos
+                                    </option>
+
+                                    <option value="entrada">
+                                        Entradas
+                                    </option>
+
+                                    <option value="salida">
+                                        Salidas
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <!-- ROL -->
+
+                            <div class="report-filter-field">
+
+                                <label>
+                                    Rol
+                                </label>
+
+                                <select [(ngModel)]="reportRole">
+
+                                    <option value="todos">
+                                        Todos los roles
+                                    </option>
+
+                                    <option *ngFor="let role of reportRoles" [value]="role">
+
+                                        {{ formatRoleName(role) }}
+
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <!-- BUSCADOR -->
+
+                            <div class="report-filter-field report-search-field">
+
+                                <label>
+                                    Buscar
+                                </label>
+
+                                <div class="report-search">
+
+                                    <i class="fas fa-search"></i>
+
+                                    <input type="text" [(ngModel)]="reportSearch"
+                                        placeholder="Usuario, documento, método...">
+
+                                    <button type="button" *ngIf="reportSearch" (click)="reportSearch = ''">
+
+                                        <i class="fas fa-xmark"></i>
+
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- =====================================================
+             RESUMEN DE USUARIOS POR ROL
+             ===================================================== -->
+
+                    <section class="card reports-role-card">
+
+                        <div class="reports-section-heading">
+
+                            <div>
+
+                                <h3>
+                                    <i class="fas fa-chart-simple"></i>
+                                    Distribución de usuarios
+                                </h3>
+
+                                <p>
+                                    Usuarios registrados actualmente por rol.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="report-role-list">
+
+                            <div class="report-role-row" *ngFor="let role of roles">
+
+                                <div class="report-role-info">
+
+                                    <span>
+                                        {{ role.name }}
+                                    </span>
+
+                                    <strong>
+                                        {{ role.users }}
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="report-role-progress">
+
+                                    <div class="report-role-progress-value"
+                                        [style.width.%]="getRolePercentage(role.users)">
+                                    </div>
+
+                                </div>
+
+
+                                <small>
+                                    {{ getRolePercentage(role.users) }}%
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- =====================================================
+             TABLA DE ACCESOS
+             ===================================================== -->
+
+                    <section class="card reports-table-card">
+
+                        <div class="reports-section-heading">
+
+                            <div>
+
+                                <h3>
+                                    <i class="fas fa-list"></i>
+                                    Historial de accesos
+                                </h3>
+
+                                <p>
+                                    Registro detallado de los movimientos encontrados.
+                                </p>
+
+                            </div>
+
+
+                            <span class="reports-result-count">
+
+                                {{ filteredReportLogs.length }}
+
+                                {{
+                                filteredReportLogs.length === 1
+                                ? 'registro'
+                                : 'registros'
+                                }}
+
+                            </span>
+
+                        </div>
+
+
+                        <!-- CARGANDO -->
+
+                        <div class="reports-loading" *ngIf="reportLoading">
+
+                            <i class="fas fa-circle-notch fa-spin"></i>
+
+                            <span>
+                                Cargando registros...
+                            </span>
+
+                        </div>
+
+
+                        <!-- TABLA -->
+
+                        <div class="report-table-container" *ngIf="!reportLoading">
+
+                            <table class="report-table">
+
+                                <thead>
+
+                                    <tr>
+
+                                        <th>
+                                            Fecha
+                                        </th>
+
+                                        <th>
+                                            Usuario
+                                        </th>
+
+                                        <th>
+                                            Documento
+                                        </th>
+
+                                        <th>
+                                            Rol
+                                        </th>
+
+                                        <th>
+                                            Movimiento
+                                        </th>
+
+                                        <th>
+                                            Método
+                                        </th>
+
+                                        <th>
+                                            Dispositivo
+                                        </th>
+
+                                        <th>
+                                            Estado
+                                        </th>
+
+                                    </tr>
+
+                                </thead>
+
+
+                                <tbody>
+
+                                    <tr *ngFor="let log of filteredReportLogs">
+
+                                        <!-- FECHA -->
+
+                                        <td class="report-date-cell">
+
+                                            <strong>
+                                                {{ log.date | date:'dd/MM/yyyy' }}
+                                            </strong>
+
+                                            <small>
+                                                {{ log.date | date:'HH:mm:ss' }}
+                                            </small>
+
+                                        </td>
+
+
+                                        <!-- USUARIO -->
+
+                                        <td>
+
+                                            <div class="report-user">
+
+                                                <div class="report-user-avatar">
+
+                                                    {{ log.user.charAt(0).toUpperCase() || 'U' }}
+
+                                                </div>
+
+                                                <div>
+
+                                                    <strong>
+                                                        {{ log.user }}
+                                                    </strong>
+
+                                                    <small>
+                                                        {{ log.email || 'Sin correo' }}
+                                                    </small>
+
+                                                </div>
+
+                                            </div>
+
+                                        </td>
+
+
+                                        <!-- DOCUMENTO -->
+
+                                        <td>
+
+                                            {{ log.document || '—' }}
+
+                                        </td>
+
+
+                                        <!-- ROL -->
+
+                                        <td>
+
+                                            <span class="report-role-badge">
+
+                                                {{
+                                                formatRoleName(
+                                                log.role || 'usuario'
+                                                )
+                                                }}
+
+                                            </span>
+
+                                        </td>
+
+
+                                        <!-- MOVIMIENTO -->
+
+                                        <td>
+
+                                            <span class="report-movement" [class.entry]="log.type === 'entrada'"
+                                                [class.exit]="log.type === 'salida'">
+
+                                                <i class="fas" [ngClass]="
+                                            log.type === 'salida'
+                                                ? 'fa-arrow-right-from-bracket'
+                                                : 'fa-arrow-right-to-bracket'
+                                        ">
+                                                </i>
+
+                                                {{
+                                                log.type === 'salida'
+                                                ? 'Salida'
+                                                : 'Entrada'
+                                                }}
+
+                                            </span>
+
+                                        </td>
+
+
+                                        <!-- MÉTODO -->
+
+                                        <td>
+
+                                            <span class="report-method">
+
+                                                <i class="fas" [ngClass]="getAccessMethodIcon(log.method)">
+                                                </i>
+
+                                                {{
+                                                log.method ||
+                                                'No especificado'
+                                                }}
+
+                                            </span>
+
+                                        </td>
+
+
+                                        <!-- DISPOSITIVO -->
+
+                                        <td>
+
+                                            {{
+                                            log.device ||
+                                            'No especificado'
+                                            }}
+
+                                        </td>
+
+
+                                        <!-- ESTADO -->
+
+                                        <td>
+
+                                            <span class="report-access-status" [class.allowed]="log.allowed"
+                                                [class.denied]="!log.allowed">
+
+                                                <i class="fas" [ngClass]="
+                                            log.allowed
+                                                ? 'fa-circle-check'
+                                                : 'fa-circle-xmark'
+                                        ">
+                                                </i>
+
+                                                {{
+                                                log.allowed
+                                                ? 'Permitido'
+                                                : 'Denegado'
+                                                }}
+
+                                            </span>
+
+                                        </td>
+
+                                    </tr>
+
+
+                                    <!-- SIN RESULTADOS -->
+
+                                    <tr *ngIf="filteredReportLogs.length === 0">
+
+                                        <td colspan="8">
+
+                                            <div class="reports-empty">
+
+                                                <i class="fas fa-chart-column"></i>
+
+                                                <h4>
+                                                    No hay registros
+                                                </h4>
+
+                                                <p>
+                                                    No existen accesos que coincidan
+                                                    con los filtros seleccionados.
+                                                </p>
+
+                                            </div>
+
+                                        </td>
+
+                                    </tr>
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                    </section>
+
                 </section>
+
             </ng-container>
 
             <ng-container *ngSwitchCase="'notifications'">
@@ -738,11 +2795,15 @@
                         <div class="header-left">
 
                             <div>
-                                <h3>Notificaciones</h3>
+
+                                <h3>
+                                    Notificaciones
+                                </h3>
 
                                 <p class="section-description">
-                                    Actividad importante del sistema.
+                                    Actividad importante del sistema y solicitudes de acceso temporal.
                                 </p>
+
                             </div>
 
                             <span class="badge-total" *ngIf="unreadNotifications > 0">
@@ -755,7 +2816,7 @@
 
                         <div>
 
-                            <button class="secondary-btn" *ngIf="unreadNotifications > 0"
+                            <button type="button" class="secondary-btn" *ngIf="unreadNotifications > 0"
                                 (click)="markAllNotificationsAsRead()">
 
                                 <i class="fas fa-check-double"></i>
@@ -796,6 +2857,7 @@
 
                             </div>
 
+
                             <div class="notification-content">
 
                                 <strong>
@@ -810,12 +2872,31 @@
                                     {{ formatNotificationDate(n) }}
                                 </small>
 
-                                <!-- SOLICITUD TEMPORAL -->
 
-                                <div class="temporary-request-actions" *ngIf="
-                                        n.type === 'temporary_request' &&
-                                        n.data?.request_id
-                                    " (click)="$event.stopPropagation()">
+                                <!-- ESTADO SOLICITUD TEMPORAL -->
+
+                                <div class="temporary-request-status" *ngIf="
+                            n.type === 'temporary_request' ||
+                            n.type === 'temporary_request_approved' ||
+                            n.type === 'temporary_request_rejected'
+                        ">
+
+                                    <span class="request-status-badge"
+                                        [class.pending]="getTemporaryRequestStatus(n) === 'Pendiente'"
+                                        [class.approved]="getTemporaryRequestStatus(n) === 'Aprobada'"
+                                        [class.rejected]="getTemporaryRequestStatus(n) === 'Rechazada'">
+
+                                        {{ getTemporaryRequestStatus(n) }}
+
+                                    </span>
+
+                                </div>
+
+
+                                <!-- ACCIONES SOLICITUD TEMPORAL -->
+
+                                <div class="temporary-request-actions" *ngIf="canProcessTemporaryRequest(n)"
+                                    (click)="$event.stopPropagation()">
 
                                     <button type="button" class="primary-btn" (click)="approveTemporaryRequest(n)">
 
@@ -824,6 +2905,7 @@
                                         Aprobar
 
                                     </button>
+
 
                                     <button type="button" class="danger-btn" (click)="rejectTemporaryRequest(n)">
 
@@ -835,7 +2917,33 @@
 
                                 </div>
 
+
+                                <!-- SOLICITUD PROCESADA -->
+
+                                <div class="temporary-request-processed" *ngIf="
+                            (
+                                n.type === 'temporary_request' ||
+                                n.type === 'temporary_request_approved' ||
+                                n.type === 'temporary_request_rejected'
+                            ) &&
+                            !canProcessTemporaryRequest(n) &&
+                            getTemporaryRequestStatus(n) !== 'Pendiente'
+                        ">
+
+                                    <i class="fas" [class.fa-circle-check]="
+                                getTemporaryRequestStatus(n) === 'Aprobada'
+                            " [class.fa-circle-xmark]="
+                                getTemporaryRequestStatus(n) === 'Rechazada'
+                            ">
+                                    </i>
+
+                                    Solicitud
+                                    {{ getTemporaryRequestStatus(n) | lowercase }}.
+
+                                </div>
+
                             </div>
+
 
                             <div class="notification-status" *ngIf="!n.read">
 
@@ -851,32 +2959,504 @@
 
             </ng-container>
 
-            <ng-container *ngSwitchCase="'settings'">
-                <section class="card">
+            <!-- =====================================================
+     AUDITORÍA
+     ===================================================== -->
 
-                    <h3>Configuración del Sistema</h3>
+            <ng-container *ngSwitchCase="'audit'">
 
-                    <div class="settings-grid">
+                <section class="audit-page">
 
-                        <div class="setting-item">
-                            <label>Modo Oscuro</label>
-                            <input type="checkbox" [(ngModel)]="settings.darkMode">
+                    <!-- ENCABEZADO -->
+
+                    <div class="card audit-header">
+
+                        <div class="audit-header-left">
+
+                            <div class="audit-header-icon">
+                                <i class="fas fa-clock-rotate-left"></i>
+                            </div>
+
+                            <div>
+
+                                <span class="audit-eyebrow">
+                                    SEGURENTRY SECURITY
+                                </span>
+
+                                <h2>
+                                    Historial de auditoría
+                                </h2>
+
+                                <p>
+                                    Consulta las acciones administrativas realizadas
+                                    dentro del sistema.
+                                </p>
+
+                            </div>
+
                         </div>
 
-                        <div class="setting-item">
-                            <label>Alertas Activas</label>
-                            <input type="checkbox" [(ngModel)]="settings.alerts">
-                        </div>
 
-                        <div class="setting-item">
-                            <label>Notificaciones</label>
-                            <input type="checkbox" [(ngModel)]="settings.notifications">
+                        <div class="audit-header-right">
+
+                            <span class="audit-total">
+
+                                <i class="fas fa-database"></i>
+
+                                {{ filteredAuditLogs.length }}
+
+                                {{
+                                filteredAuditLogs.length === 1
+                                ? 'registro'
+                                : 'registros'
+                                }}
+
+                            </span>
+
+
+                            <button type="button" class="audit-refresh-btn" (click)="loadAuditLogs()">
+
+                                <i class="fas fa-rotate"></i>
+
+                                Actualizar
+
+                            </button>
+
                         </div>
 
                     </div>
 
+
+                    <!-- =====================================================
+             FILTROS
+             ===================================================== -->
+
+                    <section class="card audit-filters">
+
+                        <div class="audit-filter-header">
+
+                            <div>
+
+                                <h3>
+                                    <i class="fas fa-filter"></i>
+                                    Filtros
+                                </h3>
+
+                                <p>
+                                    Busca por administrador, usuario afectado o tipo de acción.
+                                </p>
+
+                            </div>
+
+
+                            <button type="button" class="audit-clear-btn" (click)="
+                        auditSearch = '';
+                        auditAction = 'todos';
+                        auditDate = ''
+                    ">
+
+                                <i class="fas fa-rotate-left"></i>
+
+                                Limpiar
+
+                            </button>
+
+                        </div>
+
+
+                        <div class="audit-filter-grid">
+
+                            <!-- BUSCADOR -->
+
+                            <div class="audit-filter-field audit-search-field">
+
+                                <label>
+                                    Buscar actividad
+                                </label>
+
+                                <div class="audit-search-box">
+
+                                    <i class="fas fa-search"></i>
+
+                                    <input type="text" [(ngModel)]="auditSearch"
+                                        placeholder="Nombre, correo, acción...">
+
+                                    <button type="button" *ngIf="auditSearch" (click)="auditSearch = ''">
+
+                                        <i class="fas fa-xmark"></i>
+
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- ACCIÓN -->
+
+                            <div class="audit-filter-field">
+
+                                <label>
+                                    Tipo de acción
+                                </label>
+
+                                <select [(ngModel)]="auditAction">
+
+                                    <option value="todos">
+                                        Todas las acciones
+                                    </option>
+
+                                    <option *ngFor="let action of auditActions" [value]="action">
+
+                                        {{ getAuditActionLabel(action) }}
+
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <!-- FECHA -->
+
+                            <div class="audit-filter-field">
+
+                                <label>
+                                    Fecha
+                                </label>
+
+                                <input type="date" [(ngModel)]="auditDate">
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- =====================================================
+             CARGANDO
+             ===================================================== -->
+
+                    <section class="card audit-loading" *ngIf="auditLoading">
+
+                        <i class="fas fa-circle-notch fa-spin"></i>
+
+                        <strong>
+                            Cargando auditoría...
+                        </strong>
+
+                        <p>
+                            Consultando los registros de seguridad.
+                        </p>
+
+                    </section>
+
+
+                    <!-- =====================================================
+             SIN REGISTROS
+             ===================================================== -->
+
+                    <section class="card audit-empty" *ngIf="
+                !auditLoading &&
+                filteredAuditLogs.length === 0
+            ">
+
+                        <div class="audit-empty-icon">
+                            <i class="fas fa-clipboard-check"></i>
+                        </div>
+
+                        <h3>
+                            No hay registros de auditoría
+                        </h3>
+
+                        <p>
+                            No se encontraron actividades que coincidan con los filtros seleccionados.
+                        </p>
+
+                    </section>
+
+
+                    <!-- =====================================================
+             LISTA DE AUDITORÍA
+             ===================================================== -->
+
+                    <section class="audit-list" *ngIf="
+                !auditLoading &&
+                filteredAuditLogs.length > 0
+            ">
+
+                        <article class="card audit-item" *ngFor="let log of filteredAuditLogs"
+                            [class.audit-created]="log.action === 'user_created'"
+                            [class.audit-updated]="log.action === 'user_updated'"
+                            [class.audit-deleted]="log.action === 'user_deleted'"
+                            [class.audit-approved]="log.action === 'temporary_request_approved'"
+                            [class.audit-rejected]="log.action === 'temporary_request_rejected'">
+
+                            <!-- ICONO -->
+
+                            <div class="audit-item-icon">
+
+                                <i class="fas" [ngClass]="{
+                            'fa-user-plus':
+                                log.action === 'user_created',
+
+                            'fa-user-pen':
+                                log.action === 'user_updated',
+
+                            'fa-user-minus':
+                                log.action === 'user_deleted',
+
+                            'fa-user-check':
+                                log.action === 'temporary_request_approved',
+
+                            'fa-user-xmark':
+                                log.action === 'temporary_request_rejected',
+
+                            'fa-envelope':
+                                log.action === 'invitation_created',
+
+                            'fa-envelope-circle-check':
+                                log.action === 'invitation_resent',
+
+                            'fa-trash':
+                                log.action === 'invitation_deleted',
+
+                            'fa-clock-rotate-left':
+                                log.action !== 'user_created' &&
+                                log.action !== 'user_updated' &&
+                                log.action !== 'user_deleted' &&
+                                log.action !== 'temporary_request_approved' &&
+                                log.action !== 'temporary_request_rejected' &&
+                                log.action !== 'invitation_created' &&
+                                log.action !== 'invitation_resent' &&
+                                log.action !== 'invitation_deleted'
+                        }">
+                                </i>
+
+                            </div>
+
+
+                            <!-- CONTENIDO -->
+
+                            <div class="audit-item-content">
+
+                                <div class="audit-item-top">
+
+                                    <!-- ACTOR -->
+
+                                    <div class="audit-actor">
+
+                                        <div class="audit-avatar">
+
+                                            {{
+                                            (log.actor_name || 'S')
+                                            .charAt(0)
+                                            .toUpperCase()
+                                            }}
+
+                                        </div>
+
+                                        <div>
+
+                                            <strong>
+                                                {{ log.actor_name || 'Sistema' }}
+                                            </strong>
+
+                                            <span>
+                                                {{ getAuditRoleLabel(log.actor_role) }}
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <!-- ACCIÓN -->
+
+                                    <div class="audit-action-area">
+
+                                        <span class="audit-action-badge" [class.created]="log.action === 'user_created'"
+                                            [class.updated]="log.action === 'user_updated'"
+                                            [class.deleted]="log.action === 'user_deleted'"
+                                            [class.approved]="log.action === 'temporary_request_approved'"
+                                            [class.rejected]="log.action === 'temporary_request_rejected'">
+
+                                            {{ getAuditActionLabel(log.action) }}
+
+                                        </span>
+
+                                        <small>
+                                            {{ formatAuditDate(log.created_at) }}
+                                        </small>
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- DESCRIPCIÓN -->
+
+                                <div class="audit-description">
+
+                                    <p>
+                                        {{ log.description || 'Actividad registrada en el sistema.' }}
+                                    </p>
+
+                                </div>
+
+
+                                <!-- USUARIO AFECTADO -->
+
+                                <div class="audit-target" *ngIf="
+                            log.target_uid ||
+                            log.target_name ||
+                            log.target_email
+                        ">
+
+                                    <i class="fas fa-user"></i>
+
+                                    <span>
+                                        Usuario afectado:
+                                    </span>
+
+                                    <strong>
+                                        {{
+                                        log.target_name ||
+                                        log.target_email ||
+                                        log.target_uid
+                                        }}
+                                    </strong>
+
+                                </div>
+
+
+                                <!-- =====================================================
+                         CAMBIOS ANTES / DESPUÉS
+                         ===================================================== -->
+
+                                <div class="audit-changes" *ngIf="getAuditChanges(log).length > 0">
+
+                                    <div class="audit-changes-title">
+
+                                        <i class="fas fa-code-compare"></i>
+
+                                        <span>
+                                            Cambios realizados
+                                        </span>
+
+                                    </div>
+
+
+                                    <div class="audit-changes-grid">
+
+                                        <div class="audit-change" *ngFor="let change of getAuditChanges(log)">
+
+                                            <div class="audit-change-label">
+
+                                                {{ getAuditFieldLabel(change.field) }}
+
+                                            </div>
+
+
+                                            <div class="audit-change-values">
+
+                                                <!-- ANTES -->
+
+                                                <div class="audit-before">
+
+                                                    <span>
+                                                        Antes
+                                                    </span>
+
+                                                    <strong>
+                                                        {{
+                                                        formatAuditValue(
+                                                        change.field,
+                                                        change.before
+                                                        )
+                                                        }}
+                                                    </strong>
+
+                                                </div>
+
+
+                                                <i class="fas fa-arrow-right"></i>
+
+
+                                                <!-- DESPUÉS -->
+
+                                                <div class="audit-after">
+
+                                                    <span>
+                                                        Después
+                                                    </span>
+
+                                                    <strong>
+                                                        {{
+                                                        formatAuditValue(
+                                                        change.field,
+                                                        change.after
+                                                        )
+                                                        }}
+                                                    </strong>
+
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- IDS -->
+
+                                <div class="audit-meta">
+
+                                    <span *ngIf="log.actor_uid">
+
+                                        <i class="fas fa-shield-halved"></i>
+
+                                        Actor:
+                                        {{ log.actor_uid | slice:0:8 }}...
+
+                                    </span>
+
+
+                                    <span *ngIf="log.target_uid">
+
+                                        <i class="fas fa-crosshairs"></i>
+
+                                        Usuario:
+                                        {{ log.target_uid | slice:0:8 }}...
+
+                                    </span>
+
+
+                                    <span>
+
+                                        <i class="fas fa-folder"></i>
+
+                                        {{ log.category || 'sistema' }}
+
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </article>
+
+                    </section>
+
                 </section>
+
             </ng-container>
+
+
 
         </div>
 
@@ -921,10 +3501,44 @@
                 </select>
             </div>
 
-            <div class="form-group">
-                <label>Documento</label>
+            <!-- TIPO DE DOCUMENTO -->
 
-                <input type="text" [(ngModel)]="form.document" name="document">
+            <div class="form-group">
+
+                <label>
+                    Tipo de documento
+                </label>
+
+                <select [(ngModel)]="form.documentType" name="documentType" required>
+
+                    <option value="">
+                        Seleccione un tipo
+                    </option>
+
+                    <option value="CC">
+                        CC - Cédula de Ciudadanía
+                    </option>
+
+                    <option value="TI">
+                        TI - Tarjeta de Identidad
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- NÚMERO DE DOCUMENTO -->
+
+            <div class="form-group">
+
+                <label>
+                    Número de documento
+                </label>
+
+                <input type="text" [(ngModel)]="form.document" name="document" placeholder="Número de documento"
+                    inputmode="numeric" maxlength="15" required>
+
             </div>
 
             <div class="form-group">

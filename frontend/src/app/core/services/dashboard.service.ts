@@ -201,4 +201,15 @@ export class DashboardService {
       }
     );
   }
+  // =====================================
+  // AUDITORÍA
+  // =====================================
+
+  getAuditLogs(): Observable<any> {
+    return this.http.get<any>(
+      `${this.apiUrl}/audit/`
+    );
+  }
+
+
 }

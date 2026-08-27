@@ -1,8 +1,6 @@
 <!-- ====================== SIDEBAR ====================== -->
 
-<aside
-    class="sidebar"
-    [class.collapsed]="!menuOpen">
+<aside class="sidebar" [class.collapsed]="!menuOpen">
 
     <div class="profile-card">
 
@@ -10,14 +8,9 @@
 
         <div class="avatar">
 
-            <img
-                *ngIf="profile.photo"
-                [src]="profile.photo"
-                alt="Foto de perfil">
+            <img *ngIf="profile.photo" [src]="profile.photo" alt="Foto de perfil">
 
-            <i
-                *ngIf="!profile.photo"
-                class="fas fa-user">
+            <i *ngIf="!profile.photo" class="fas fa-user">
             </i>
 
         </div>
@@ -30,9 +23,7 @@
 
         <!-- CARGO -->
 
-        <p
-            *ngIf="menuOpen"
-            class="profile-role">
+        <p *ngIf="menuOpen" class="profile-role">
 
             {{ getProfileRole() }}
 
@@ -40,13 +31,9 @@
 
         <!-- ESTADO -->
 
-        <div
-            *ngIf="menuOpen"
-            class="profile-status">
+        <div *ngIf="menuOpen" class="profile-status">
 
-            <span
-                class="status-dot"
-                [class.inactive]="!isProfileActive()">
+            <span class="status-dot" [class.inactive]="!isProfileActive()">
             </span>
 
             <span>
@@ -75,9 +62,7 @@
 
     <nav>
 
-        <button
-            [class.active]="activeRoute === 'dashboard'"
-            (click)="goTo('dashboard')">
+        <button [class.active]="activeRoute === 'dashboard'" (click)="goTo('dashboard')">
 
             <i class="fas fa-home"></i>
 
@@ -88,9 +73,7 @@
         </button>
 
 
-        <button
-            [class.active]="activeRoute === 'usuarios'"
-            (click)="goTo('usuarios')">
+        <button [class.active]="activeRoute === 'usuarios'" (click)="goTo('usuarios')">
 
             <i class="fas fa-users"></i>
 
@@ -101,9 +84,7 @@
         </button>
 
 
-        <button
-            [class.active]="activeRoute === 'reportes'"
-            (click)="goTo('reportes')">
+        <button [class.active]="activeRoute === 'reportes'" (click)="goTo('reportes')">
 
             <i class="fas fa-chart-line"></i>
 
@@ -114,9 +95,7 @@
         </button>
 
 
-        <button
-            [class.active]="activeRoute === 'notificaciones'"
-            (click)="goTo('notificaciones')">
+        <button [class.active]="activeRoute === 'notificaciones'" (click)="goTo('notificaciones')">
 
             <i class="fas fa-bell"></i>
 
@@ -127,9 +106,7 @@
         </button>
 
 
-        <button
-            [class.active]="activeRoute === 'perfil'"
-            (click)="goTo('perfil')">
+        <button [class.active]="activeRoute === 'perfil'" (click)="goTo('perfil')">
 
             <i class="fas fa-user-circle"></i>
 
@@ -139,18 +116,16 @@
 
         </button>
 
+        <button [class.active]="activeRoute === 'biometria'" (click)="goTo('biometria')">
 
-        <button
-            [class.active]="activeRoute === 'configuracion'"
-            (click)="goTo('configuracion')">
-
-            <i class="fas fa-cog"></i>
+            <i class="fas fa-fingerprint"></i>
 
             <span *ngIf="menuOpen">
-                Configuración
+                Biometría
             </span>
 
         </button>
+
 
     </nav>
 
@@ -159,9 +134,7 @@
 
     <div class="sidebar-bottom">
 
-        <button
-            class="logout"
-            (click)="logout()">
+        <button class="logout" (click)="logout()">
 
             <i class="fas fa-sign-out-alt"></i>
 
@@ -184,9 +157,7 @@
 
     <header>
 
-        <button
-            class="menu-btn"
-            (click)="toggleMenu()">
+        <button class="menu-btn" (click)="toggleMenu()">
 
             <i class="fas fa-bars"></i>
 
@@ -212,9 +183,7 @@
          DASHBOARD
          ===================================================== -->
 
-    <section
-        *ngIf="activeRoute === 'dashboard'"
-        class="section stats">
+    <section *ngIf="activeRoute === 'dashboard'" class="section stats">
 
         <div class="card stat-card">
 
@@ -248,90 +217,271 @@
          USUARIOS
          ===================================================== -->
 
-    <section
-        *ngIf="activeRoute === 'usuarios'"
-        class="card">
+    <!-- =====================================================
+     USUARIOS
+     ===================================================== -->
 
-        <button
-            class="primary-btn"
-            (click)="openForm()">
+    <section *ngIf="activeRoute === 'usuarios'" class="card">
 
-            <i class="fas fa-user-plus"></i>
+        <div class="table-header">
 
-            Nuevo Usuario
+            <div class="header-left">
 
-        </button>
+                <div>
 
+                    <h3>
+                        Gestión de usuarios
+                    </h3>
 
-        <table>
+                    <p class="section-description">
+                        Administra las cuentas operativas del sistema.
+                    </p>
 
-            <thead>
+                </div>
 
-                <tr>
+                <span class="badge-total">
+                    {{ accesses.length }} usuarios
+                </span>
 
-                    <th>
-                        Nombre
-                    </th>
-
-                    <th>
-                        Correo
-                    </th>
-
-                    <th>
-                        Documento
-                    </th>
-
-                    <th>
-                        Rol
-                    </th>
-
-                    <th>
-                        Acciones
-                    </th>
-
-                </tr>
-
-            </thead>
+            </div>
 
 
-            <tbody>
+            <button type="button" class="primary-btn" (click)="openForm()">
 
-                <tr
-                    *ngFor="let a of accesses">
+                <i class="fas fa-user-plus"></i>
 
-                    <td>
-                        {{ a.name }}
-                    </td>
+                Nuevo usuario
 
-                    <td>
-                        {{ a.email }}
-                    </td>
+            </button>
 
-                    <td>
-                        {{ a.document || '-' }}
-                    </td>
+        </div>
 
-                    <td>
-                        {{ a.role }}
-                    </td>
 
-                    <td>
+        <div class="table-container">
 
-                        <button
-                            class="icon-btn delete"
-                            (click)="deleteAccess(a.uid!)">
+            <table class="modern-table">
 
-                            <i class="fas fa-trash"></i>
+                <thead>
 
-                        </button>
+                    <tr>
 
-                    </td>
+                        <th>
+                            Usuario
+                        </th>
 
-                </tr>
+                        <th>
+                            Tipo de documento
+                        </th>
 
-            </tbody>
+                        <th>
+                            Documento
+                        </th>
 
-        </table>
+                        <th>
+                            Rol
+                        </th>
+
+                        <th>
+                            Estado
+                        </th>
+
+                        <th class="text-center">
+                            Acciones
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    <!-- SIN USUARIOS -->
+
+                    <tr *ngIf="accesses.length === 0">
+
+                        <td colspan="6">
+
+                            <div class="empty-state">
+
+                                <i class="fas fa-users-slash"></i>
+
+                                <p>
+                                    No existen usuarios registrados.
+                                </p>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+
+                    <!-- USUARIOS -->
+
+                    <tr *ngFor="let a of accesses">
+
+                        <!-- USUARIO -->
+
+                        <td>
+
+                            <div class="user-info">
+
+                                <div class="avatar">
+
+                                    {{
+                                    (a.name || 'U')
+                                    .charAt(0)
+                                    .toUpperCase()
+                                    }}
+
+                                </div>
+
+                                <div>
+
+                                    <strong>
+                                        {{ a.name || 'Usuario' }}
+                                    </strong>
+
+                                    <small>
+                                        {{ a.email || 'Sin correo' }}
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+
+                        <!-- TIPO DOCUMENTO -->
+
+                        <td>
+
+                            <span class="document-type-badge" [class.cc]="
+                                (a.document_type || a.documentType) === 'CC'
+                            " [class.ti]="
+                                (a.document_type || a.documentType) === 'TI'
+                            ">
+
+                                {{
+                                a.document_type ||
+                                a.documentType ||
+                                'Sin tipo'
+                                }}
+
+                            </span>
+
+                        </td>
+
+
+                        <!-- DOCUMENTO -->
+
+                        <td>
+
+                            {{
+                            a.document ||
+                            'No registrado'
+                            }}
+
+                        </td>
+
+
+                        <!-- ROL -->
+
+                        <td>
+
+                            <span class="role-badge">
+
+                                {{
+                                a.role ||
+                                'Sin rol'
+                                }}
+
+                            </span>
+
+                        </td>
+
+
+                        <!-- ESTADO -->
+
+                        <td>
+
+                            <span class="status-badge" [class.active]="a.active" [class.inactive]="!a.active">
+
+                                <i class="fas" [ngClass]="
+                                    a.active
+                                        ? 'fa-circle-check'
+                                        : 'fa-circle-xmark'
+                                ">
+                                </i>
+
+                                {{
+                                a.active
+                                ? 'Activo'
+                                : 'Inactivo'
+                                }}
+
+                            </span>
+
+                        </td>
+
+
+                        <!-- ACCIONES -->
+
+                        <td class="actions text-center">
+
+                            <!-- USUARIO NORMAL -->
+
+                            <div class="users-action-buttons" *ngIf="
+                                a.role !== 'administrador' &&
+                                a.role !== 'super-admin' &&
+                                a.role !== 'superadmin' &&
+                                a.role !== 'super_admin'
+                            ">
+
+                                <button type="button" class="icon-btn edit" (click)="editAccess(a)"
+                                    title="Editar usuario">
+
+                                    <i class="fas fa-user-pen"></i>
+
+                                </button>
+
+
+                                <button type="button" class="icon-btn delete" (click)="deleteAccess(a.uid!)"
+                                    title="Eliminar usuario">
+
+                                    <i class="fas fa-trash"></i>
+
+                                </button>
+
+                            </div>
+
+
+                            <!-- ADMINISTRADORES PROTEGIDOS -->
+
+                            <span class="status-badge protected" *ngIf="
+                                a.role === 'administrador' ||
+                                a.role === 'super-admin' ||
+                                a.role === 'superadmin' ||
+                                a.role === 'super_admin'
+                            " title="Esta cuenta no puede ser modificada por un Administrador">
+
+                                <i class="fas fa-lock"></i>
+
+                                Protegido
+
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
 
     </section>
 
@@ -340,9 +490,7 @@
          REPORTES
          ===================================================== -->
 
-    <section
-        *ngIf="activeRoute === 'reportes'"
-        class="card">
+    <section *ngIf="activeRoute === 'reportes'" class="card">
 
         <h3>
             Reportes
@@ -356,31 +504,183 @@
 
 
     <!-- =====================================================
-         NOTIFICACIONES
-         ===================================================== -->
+     NOTIFICACIONES
+     ===================================================== -->
 
-    <section
-        *ngIf="activeRoute === 'notificaciones'"
-        class="card">
+    <section *ngIf="activeRoute === 'notificaciones'" class="card">
 
-        <h3>
-            Notificaciones
-        </h3>
+        <div class="table-header">
 
-        <p>
-            No existen notificaciones.
-        </p>
+            <div class="header-left">
+
+                <div>
+
+                    <h3>
+                        Notificaciones
+                    </h3>
+
+                    <p class="section-description">
+                        Actividad importante del sistema y solicitudes de acceso temporal.
+                    </p>
+
+                </div>
+
+                <span class="badge-total" *ngIf="unreadNotifications > 0">
+
+                    {{ unreadNotifications }} sin leer
+
+                </span>
+
+            </div>
+
+            <div>
+
+                <button type="button" class="secondary-btn" *ngIf="unreadNotifications > 0"
+                    (click)="markAllNotificationsAsRead()">
+
+                    <i class="fas fa-check-double"></i>
+
+                    Marcar todas como leídas
+
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div class="notification-list">
+
+            <!-- SIN NOTIFICACIONES -->
+
+            <div class="empty-state" *ngIf="notifications.length === 0">
+
+                <i class="fas fa-bell-slash"></i>
+
+                <p>
+                    No tienes notificaciones.
+                </p>
+
+            </div>
+
+
+            <!-- NOTIFICACIONES -->
+
+            <div class="notification-item" *ngFor="let n of notifications" [class.unread]="!n.read"
+                (click)="markNotificationAsRead(n)">
+
+                <div class="notification-icon">
+
+                    <i class="fas" [ngClass]="getNotificationIcon(n)">
+                    </i>
+
+                </div>
+
+
+                <div class="notification-content">
+
+                    <strong>
+                        {{ n.title || 'Notificación' }}
+                    </strong>
+
+                    <p>
+                        {{ n.message }}
+                    </p>
+
+                    <small>
+                        {{ formatNotificationDate(n) }}
+                    </small>
+
+
+                    <!-- ESTADO DE SOLICITUD TEMPORAL -->
+
+                    <div class="temporary-request-status" *ngIf="
+                        n.type === 'temporary_request' ||
+                        n.type === 'temporary_request_approved' ||
+                        n.type === 'temporary_request_rejected'
+                    ">
+
+                        <span class="request-status-badge"
+                            [class.pending]="getTemporaryRequestStatus(n) === 'Pendiente'"
+                            [class.approved]="getTemporaryRequestStatus(n) === 'Aprobada'"
+                            [class.rejected]="getTemporaryRequestStatus(n) === 'Rechazada'">
+
+                            {{ getTemporaryRequestStatus(n) }}
+
+                        </span>
+
+                    </div>
+
+
+                    <!-- BOTONES SOLO SI SIGUE PENDIENTE -->
+
+                    <div class="temporary-request-actions" *ngIf="canProcessTemporaryRequest(n)"
+                        (click)="$event.stopPropagation()">
+
+                        <button type="button" class="primary-btn" (click)="approveTemporaryRequest(n)">
+
+                            <i class="fas fa-check"></i>
+
+                            Aprobar
+
+                        </button>
+
+
+                        <button type="button" class="danger-btn" (click)="rejectTemporaryRequest(n)">
+
+                            <i class="fas fa-xmark"></i>
+
+                            Rechazar
+
+                        </button>
+
+                    </div>
+
+
+                    <!-- SOLICITUD YA PROCESADA -->
+
+                    <div class="temporary-request-processed" *ngIf="
+                        (
+                            n.type === 'temporary_request' ||
+                            n.type === 'temporary_request_approved' ||
+                            n.type === 'temporary_request_rejected'
+                        ) &&
+                        !canProcessTemporaryRequest(n) &&
+                        getTemporaryRequestStatus(n) !== 'Pendiente'
+                    ">
+
+                        <i class="fas" [class.fa-circle-check]="
+                            getTemporaryRequestStatus(n) === 'Aprobada'
+                        " [class.fa-circle-xmark]="
+                            getTemporaryRequestStatus(n) === 'Rechazada'
+                        ">
+                        </i>
+
+                        Solicitud
+                        {{ getTemporaryRequestStatus(n) | lowercase }}.
+
+                    </div>
+
+                </div>
+
+
+                <div class="notification-status" *ngIf="!n.read">
+
+                    <span></span>
+
+                </div>
+
+            </div>
+
+        </div>
 
     </section>
 
-
     <!-- =====================================================
-         PERFIL
-         ===================================================== -->
+     PERFIL
+     ===================================================== -->
 
-    <section
-        *ngIf="activeRoute === 'perfil'"
-        class="card profile-section">
+    <section *ngIf="activeRoute === 'perfil'" class="card profile-section">
 
         <div class="profile-header">
 
@@ -399,15 +699,18 @@
         </div>
 
 
-        <!-- ====================== FOTO ====================== -->
+        <!-- =====================================================
+         FOTO
+         ===================================================== -->
 
         <div class="profile-photo-container">
 
             <div class="profile-photo">
 
-                <img
-                    [src]="profile.photo"
-                    alt="Foto de perfil">
+                <img *ngIf="profile.photo" [src]="profile.photo" alt="Foto de perfil">
+
+                <i *ngIf="!profile.photo" class="fas fa-user">
+                </i>
 
             </div>
 
@@ -423,9 +726,7 @@
                 </p>
 
 
-                <label
-                    for="profilePhoto"
-                    class="photo-btn">
+                <label for="profilePhoto" class="photo-btn">
 
                     <i class="fas fa-camera"></i>
 
@@ -434,34 +735,40 @@
                 </label>
 
 
-                <input
-                    id="profilePhoto"
-                    type="file"
-                    accept="image/png,image/jpeg,image/webp"
-                    (change)="uploadPhoto($event)"
-                    hidden>
+                <input id="profilePhoto" type="file" accept="image/png,image/jpeg,image/webp"
+                    (change)="uploadPhoto($event)" hidden>
 
             </div>
 
         </div>
 
 
-        <!-- ====================== DATOS ====================== -->
+        <!-- =====================================================
+         INFORMACIÓN
+         ===================================================== -->
 
         <div class="profile-form">
 
-            <!-- NOMBRE -->
+            <!-- NOMBRE PROTEGIDO -->
 
             <div class="profile-field">
 
                 <label>
-                    Nombre
+                    Nombre completo
                 </label>
 
-                <input
-                    type="text"
-                    [(ngModel)]="profile.name"
-                    placeholder="Nombre completo">
+                <div class="protected-field">
+
+                    <input type="text" [value]="profile.name || 'No registrado'" readonly>
+
+                    <i class="fas fa-lock" title="Campo protegido">
+                    </i>
+
+                </div>
+
+                <small>
+                    El nombre no puede modificarse desde el perfil.
+                </small>
 
             </div>
 
@@ -474,10 +781,7 @@
                     Correo electrónico
                 </label>
 
-                <input
-                    type="email"
-                    [(ngModel)]="profile.email"
-                    placeholder="Correo electrónico">
+                <input type="email" [(ngModel)]="profile.email" placeholder="Correo electrónico">
 
             </div>
 
@@ -490,10 +794,7 @@
                     Teléfono
                 </label>
 
-                <input
-                    type="text"
-                    [(ngModel)]="profile.phone"
-                    placeholder="Número de teléfono">
+                <input type="text" [(ngModel)]="profile.phone" placeholder="Número de teléfono">
 
             </div>
 
@@ -506,44 +807,64 @@
                     Dirección
                 </label>
 
-                <input
-                    type="text"
-                    [(ngModel)]="profile.address"
-                    placeholder="Dirección">
+                <input type="text" [(ngModel)]="profile.address" placeholder="Dirección">
 
             </div>
 
 
-            <!-- DOCUMENTO -->
+            <!-- TIPO DE DOCUMENTO PROTEGIDO -->
 
             <div class="profile-field">
 
                 <label>
-                    Documento
+                    Tipo de documento
                 </label>
 
                 <div class="protected-field">
 
-                    <input
-                        type="text"
-                        [value]="profile.document"
-                        readonly>
+                    <input type="text" [value]="
+                        profile.document_type ||
+                        profile.documentType ||
+                        'No registrado'
+                    " readonly>
 
-                    <i
-                        class="fas fa-lock"
-                        title="Campo protegido">
+                    <i class="fas fa-lock" title="Campo protegido">
                     </i>
 
                 </div>
 
                 <small>
-                    El documento no puede modificarse.
+                    El tipo de documento no puede modificarse desde el perfil.
                 </small>
 
             </div>
 
 
-            <!-- ROL -->
+            <!-- DOCUMENTO PROTEGIDO -->
+
+            <div class="profile-field">
+
+                <label>
+                    Número de documento
+                </label>
+
+                <div class="protected-field">
+
+                    <input type="text" [value]="profile.document || 'No registrado'" readonly>
+
+                    <i class="fas fa-lock" title="Campo protegido">
+                    </i>
+
+                </div>
+
+                <small>
+                    El número de documento no puede modificarse desde el perfil.
+                </small>
+
+            </div>
+
+
+            <!-- ROL PROTEGIDO -->
 
             <div class="profile-field">
 
@@ -553,14 +874,9 @@
 
                 <div class="protected-field">
 
-                    <input
-                        type="text"
-                        [value]="profile.role"
-                        readonly>
+                    <input type="text" [value]="getProfileRole()" readonly>
 
-                    <i
-                        class="fas fa-lock"
-                        title="Campo protegido">
+                    <i class="fas fa-lock" title="Campo protegido">
                     </i>
 
                 </div>
@@ -572,7 +888,7 @@
             </div>
 
 
-            <!-- ID -->
+            <!-- UID PROTEGIDO -->
 
             <div class="profile-field">
 
@@ -582,20 +898,15 @@
 
                 <div class="protected-field">
 
-                    <input
-                        type="text"
-                        [value]="profile.uid"
-                        readonly>
+                    <input type="text" [value]="profile.uid || 'No disponible'" readonly>
 
-                    <i
-                        class="fas fa-lock"
-                        title="Campo protegido">
+                    <i class="fas fa-lock" title="Campo protegido">
                     </i>
 
                 </div>
 
                 <small>
-                    El ID del usuario es permanente.
+                    El identificador de usuario es permanente.
                 </small>
 
             </div>
@@ -611,13 +922,15 @@
 
                 <div class="profile-status-large">
 
-                    <span
-                        class="status-dot"
-                        [class.inactive]="!isProfileActive()">
+                    <span class="status-dot" [class.inactive]="!isProfileActive()">
                     </span>
 
                     <strong>
-                        {{ isProfileActive() ? 'Activo' : 'Inactivo' }}
+                        {{
+                        isProfileActive()
+                        ? 'Activo'
+                        : 'Inactivo'
+                        }}
                     </strong>
 
                 </div>
@@ -627,13 +940,13 @@
         </div>
 
 
-        <!-- ====================== GUARDAR ====================== -->
+        <!-- =====================================================
+         GUARDAR
+         ===================================================== -->
 
         <div class="profile-actions">
 
-            <button
-                class="primary-btn"
-                (click)="updateProfile()">
+            <button type="button" class="primary-btn" (click)="updateProfile()">
 
                 <i class="fas fa-save"></i>
 
@@ -646,21 +959,261 @@
     </section>
 
 
+
+
     <!-- =====================================================
-         CONFIGURACIÓN
+         BIOMETRÍA
+         Vista preparada para futura conexión ESP32 + AS608
          ===================================================== -->
 
-    <section
-        *ngIf="activeRoute === 'configuracion'"
-        class="card">
+    <section *ngIf="activeRoute === 'biometria'" class="biometric-section">
 
-        <h3>
-            Configuración
-        </h3>
+        <div class="biometric-page-header">
 
-        <p>
-            Opciones del sistema.
-        </p>
+            <div>
+                <span class="biometric-eyebrow">
+                    <i class="fas fa-fingerprint"></i>
+                    Gestión biométrica
+                </span>
+
+                <h2>Registro de huellas</h2>
+
+                <p>
+                    Busca un usuario registrado y prepara su enrolamiento biométrico.
+                    La captura real se habilitará cuando el ESP32 y el sensor AS608 estén conectados.
+                </p>
+            </div>
+
+            <div class="biometric-device-status offline">
+
+                <span class="device-status-dot"></span>
+
+                <div>
+                    <strong>Sensor no conectado</strong>
+                    <small>ESP32 + AS608 pendientes de integración</small>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="biometric-summary-grid">
+
+            <div class="card biometric-summary-card">
+
+                <div class="biometric-summary-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+
+                <div>
+                    <strong>{{ accesses.length }}</strong>
+                    <span>Usuarios disponibles</span>
+                </div>
+
+            </div>
+
+
+            <div class="card biometric-summary-card">
+
+                <div class="biometric-summary-icon success">
+                    <i class="fas fa-fingerprint"></i>
+                </div>
+
+                <div>
+                    <strong>0</strong>
+                    <span>Huellas registradas</span>
+                </div>
+
+            </div>
+
+
+            <div class="card biometric-summary-card">
+
+                <div class="biometric-summary-icon pending">
+                    <i class="fas fa-user-clock"></i>
+                </div>
+
+                <div>
+                    <strong>{{ accesses.length }}</strong>
+                    <span>Pendientes de enrolamiento</span>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <section class="card biometric-users-card">
+
+            <div class="biometric-table-header">
+
+                <div>
+                    <h3>Usuarios registrados</h3>
+
+                    <p>
+                        Selecciona el usuario al que deseas asociar una huella.
+                    </p>
+                </div>
+
+
+                <div class="biometric-search-box">
+
+                    <i class="fas fa-search"></i>
+
+                    <input type="text" [(ngModel)]="biometricSearch"
+                        placeholder="Buscar por nombre, correo, documento o rol"
+                        aria-label="Buscar usuario para registrar huella">
+
+                    <button type="button" *ngIf="biometricSearch" (click)="biometricSearch = ''"
+                        title="Limpiar búsqueda" aria-label="Limpiar búsqueda">
+
+                        <i class="fas fa-xmark"></i>
+
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div class="biometric-info-banner">
+
+                <i class="fas fa-circle-info"></i>
+
+                <div>
+                    <strong>Vista preparada para el hardware</strong>
+
+                    <p>
+                        Por ahora ninguna huella se guarda. El botón Registrar huella abre
+                        el flujo visual y muestra el usuario seleccionado.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="biometric-table-container">
+
+                <table class="biometric-table">
+
+                    <thead>
+
+                        <tr>
+                            <th>Usuario</th>
+                            <th>Tipo</th>
+                            <th>Documento</th>
+                            <th>Rol</th>
+                            <th>Estado biométrico</th>
+                            <th class="biometric-actions-column">Acción</th>
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        <tr *ngFor="let user of filteredBiometricUsers()">
+
+                            <td>
+
+                                <div class="biometric-user-cell">
+
+                                    <div class="biometric-user-avatar">
+                                        {{ user.name.charAt(0).toUpperCase() || 'U' }}
+                                    </div>
+
+                                    <div>
+                                        <strong>{{ user.name || 'Usuario' }}</strong>
+                                        <small>{{ user.email || 'Sin correo registrado' }}</small>
+                                    </div>
+
+                                </div>
+
+                            </td>
+
+
+                            <td>
+
+                                <span class="document-type-badge">
+
+                                    {{ user.document_type || user.documentType || '-' }}
+
+                                </span>
+
+                            </td>
+
+
+                            <td>
+                                {{ user.document || 'No registrado' }}
+                            </td>
+
+
+                            <td>
+
+                                <span class="biometric-role-badge">
+                                    {{ user.role || 'Usuario' }}
+                                </span>
+
+                            </td>
+
+
+                            <td>
+
+                                <span class="biometric-status-badge not-registered">
+
+                                    <i class="fas fa-circle-minus"></i>
+
+                                    No registrada
+
+                                </span>
+
+                            </td>
+
+
+                            <td class="biometric-actions-column">
+
+                                <button type="button" class="biometric-register-btn"
+                                    (click)="openFingerprintEnrollment(user)">
+
+                                    <i class="fas fa-fingerprint"></i>
+
+                                    Registrar huella
+
+                                </button>
+
+                            </td>
+
+                        </tr>
+
+
+                        <tr *ngIf="filteredBiometricUsers().length === 0">
+
+                            <td colspan="6">
+
+                                <div class="biometric-empty-state">
+
+                                    <i class="fas fa-user-slash"></i>
+
+                                    <h4>No encontramos usuarios</h4>
+
+                                    <p>
+                                        Prueba con otro nombre, correo, documento o rol.
+                                    </p>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
 
     </section>
 
@@ -668,67 +1221,394 @@
 
 
 <!-- =========================================================
-     MODAL CREAR USUARIO
+     MODAL CREAR / EDITAR USUARIO
      ========================================================= -->
 
-<div
-    class="modal-backdrop"
-    *ngIf="showForm">
+<div class="modal-backdrop" *ngIf="showForm">
 
     <div class="modal">
 
-        <h2>
-            Registrar nuevo usuario
-        </h2>
+        <!-- HEADER -->
+
+        <div class="modal-header">
+
+            <div>
+
+                <h2>
+
+                    {{
+                    editMode
+                    ? 'Editar usuario'
+                    : 'Registrar nuevo usuario'
+                    }}
+
+                </h2>
+
+                <p>
+
+                    {{
+                    editMode
+                    ? 'Actualiza la información del usuario.'
+                    : 'Completa la información del nuevo usuario.'
+                    }}
+
+                </p>
+
+            </div>
 
 
-        <input
-            [(ngModel)]="form.name"
-            placeholder="Nombre completo">
+            <button type="button" class="modal-close-btn" (click)="closeForm()" title="Cerrar">
+
+                <i class="fas fa-xmark"></i>
+
+            </button>
+
+        </div>
 
 
-        <input
-            [(ngModel)]="form.email"
-            placeholder="Correo electrónico">
+        <!-- FORMULARIO -->
+
+        <div class="modal-form">
+
+            <!-- NOMBRE -->
+
+            <div class="form-group">
+
+                <label>
+                    Nombre completo
+                </label>
+
+                <input type="text" [(ngModel)]="form.name" placeholder="Nombre completo">
+
+            </div>
 
 
-        <input
-            [(ngModel)]="form.document"
-            placeholder="Documento">
+            <!-- CORREO -->
+
+            <div class="form-group">
+
+                <label>
+                    Correo electrónico
+                </label>
+
+                <input type="email" [(ngModel)]="form.email" placeholder="correo@ejemplo.com">
+
+            </div>
 
 
-        <select
-            [(ngModel)]="form.role">
+            <!-- TIPO DE DOCUMENTO -->
 
-            <option value="">
-                Seleccione un rol
-            </option>
+            <div class="form-group">
 
-            <option value="usuario">
-                Usuario
-            </option>
+                <label>
+                    Tipo de documento
+                </label>
 
-            <option value="vigilante">
-                Vigilante
-            </option>
+                <select [(ngModel)]="form.documentType">
 
-        </select>
+                    <option value="">
+                        Seleccione un tipo
+                    </option>
+
+                    <option value="CC">
+                        CC - Cédula de Ciudadanía
+                    </option>
+
+                    <option value="TI">
+                        TI - Tarjeta de Identidad
+                    </option>
+
+                </select>
+
+            </div>
 
 
-        <button
-            (click)="saveAccess()">
+            <!-- DOCUMENTO -->
 
-            Guardar usuario
+            <div class="form-group">
+
+                <label>
+                    Número de documento
+                </label>
+
+                <input type="text" [(ngModel)]="form.document" placeholder="Número de documento" inputmode="numeric"
+                    maxlength="15">
+
+            </div>
+
+
+            <!-- TELÉFONO -->
+
+            <div class="form-group">
+
+                <label>
+                    Teléfono
+                </label>
+
+                <input type="text" [(ngModel)]="form.phone" placeholder="Número de teléfono">
+
+            </div>
+
+
+            <!-- DIRECCIÓN -->
+
+            <div class="form-group">
+
+                <label>
+                    Dirección
+                </label>
+
+                <input type="text" [(ngModel)]="form.address" placeholder="Dirección">
+
+            </div>
+
+
+            <!-- ROL -->
+
+            <div class="form-group form-group-full">
+
+                <label>
+                    Rol
+                </label>
+
+                <select [(ngModel)]="form.role">
+
+                    <option value="">
+                        Seleccione un rol
+                    </option>
+
+                    <option value="aprendiz">
+                        Aprendiz
+                    </option>
+
+                    <option value="instructor">
+                        Instructor
+                    </option>
+
+                    <option value="vigilante">
+                        Vigilante
+                    </option>
+
+                    <option value="usuario">
+                        Usuario
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- ESTADO -->
+
+            <div class="form-group form-group-full" *ngIf="editMode">
+
+                <label>
+                    Estado de la cuenta
+                </label>
+
+                <div class="switch">
+
+                    <input type="checkbox" [(ngModel)]="form.active">
+
+                    <span>
+
+                        {{
+                        form.active
+                        ? 'Activo'
+                        : 'Inactivo'
+                        }}
+
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- INFORMACIÓN DE SEGURIDAD -->
+
+        <div class="document-info">
+
+            <i class="fas fa-shield-halved"></i>
+
+            <div>
+
+                <strong>
+                    Gestión administrativa protegida
+                </strong>
+
+                <p>
+                    Como Administrador puedes modificar usuarios operativos,
+                    pero no cuentas de Administrador ni Super Administrador.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- ACCIONES -->
+
+        <div class="modal-actions">
+
+            <button type="button" class="secondary-btn" (click)="closeForm()">
+
+                Cancelar
+
+            </button>
+
+
+            <button type="button" class="primary-btn" (click)="saveAccess()">
+
+                <i class="fas" [ngClass]="
+                        editMode
+                            ? 'fa-floppy-disk'
+                            : 'fa-user-plus'
+                    ">
+                </i>
+
+                {{
+                editMode
+                ? 'Guardar cambios'
+                : 'Crear usuario'
+                }}
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     MODAL BIOMETRÍA — SOLO VISTA
+     ========================================================= -->
+
+<div class="biometric-modal-backdrop" *ngIf="showBiometricModal" (click)="closeFingerprintEnrollment()">
+
+    <div class="biometric-modal" role="dialog" aria-modal="true" aria-labelledby="biometricModalTitle"
+        (click)="$event.stopPropagation()">
+
+        <button type="button" class="biometric-modal-close" (click)="closeFingerprintEnrollment()" title="Cerrar"
+            aria-label="Cerrar">
+
+            <i class="fas fa-xmark"></i>
 
         </button>
 
 
-        <button
-            (click)="closeForm()">
+        <div class="biometric-modal-icon">
 
-            Cancelar
+            <i class="fas fa-fingerprint"></i>
 
-        </button>
+        </div>
+
+
+        <div class="biometric-modal-heading">
+
+            <span>Enrolamiento biométrico</span>
+
+            <h2 id="biometricModalTitle">
+                Registrar huella
+            </h2>
+
+            <p>
+                La interfaz está lista. La lectura física se habilitará
+                cuando conectemos el ESP32 DevKit V1 y el AS608.
+            </p>
+
+        </div>
+
+
+        <div class="biometric-selected-user" *ngIf="selectedBiometricUser">
+
+            <div class="biometric-selected-avatar">
+                {{ selectedBiometricUser.name.charAt(0).toUpperCase() || 'U' }}
+            </div>
+
+            <div>
+                <strong>
+                    {{ selectedBiometricUser.name || 'Usuario' }}
+                </strong>
+
+                <span>
+                    {{ selectedBiometricUser.document_type || selectedBiometricUser.documentType || '-' }}
+                    {{ selectedBiometricUser.document || 'Documento no registrado' }}
+                    ·
+                    {{ selectedBiometricUser.role || 'Usuario' }}
+                </span>
+
+                <small>
+                    {{ selectedBiometricUser.email || 'Sin correo registrado' }}
+                </small>
+            </div>
+
+        </div>
+
+
+        <div class="biometric-hardware-state">
+
+            <div class="hardware-state-icon">
+                <i class="fas fa-microchip"></i>
+            </div>
+
+            <div>
+                <strong>Dispositivo biométrico desconectado</strong>
+
+                <p>
+                    No se enviará ni almacenará información biométrica en este momento.
+                </p>
+            </div>
+
+        </div>
+
+
+        <div class="biometric-future-flow">
+
+            <div class="future-step">
+                <span>1</span>
+                <p>Colocar el dedo sobre el AS608</p>
+            </div>
+
+            <div class="future-step">
+                <span>2</span>
+                <p>Retirar el dedo después de la primera lectura</p>
+            </div>
+
+            <div class="future-step">
+                <span>3</span>
+                <p>Colocar nuevamente el mismo dedo</p>
+            </div>
+
+            <div class="future-step">
+                <span>4</span>
+                <p>Asociar la plantilla biométrica con este usuario</p>
+            </div>
+
+        </div>
+
+
+        <div class="biometric-modal-actions">
+
+            <button type="button" class="biometric-close-btn" (click)="closeFingerprintEnrollment()">
+
+                Cerrar
+
+            </button>
+
+            <button type="button" class="biometric-disabled-btn" disabled>
+
+                <i class="fas fa-fingerprint"></i>
+
+                Esperando sensor
+
+            </button>
+
+        </div>
 
     </div>
 

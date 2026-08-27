@@ -1,1 +1,596 @@
-<p>setup-superadmin works!</p>
+<div class="setup-page">
+
+  <!-- =====================================================
+       FONDO DECORATIVO
+       ===================================================== -->
+
+  <div class="background-shape background-shape-one"></div>
+
+  <div class="background-shape background-shape-two"></div>
+
+
+  <!-- =====================================================
+       CONTENEDOR PRINCIPAL
+       ===================================================== -->
+
+  <main class="setup-container">
+
+    <!-- ===================================================
+         TARJETA
+         =================================================== -->
+
+    <section class="setup-card">
+
+      <!-- =================================================
+           ENCABEZADO
+           ================================================= -->
+
+      <div class="setup-header">
+
+        <div class="brand-icon">
+
+          <i class="fas fa-shield-alt"></i>
+
+        </div>
+
+        <div class="brand-name">
+
+          <span>Segur</span><strong>Entry</strong>
+
+        </div>
+
+        <span class="setup-badge">
+
+          CONFIGURACIÓN INICIAL
+
+        </span>
+
+        <h1>
+
+          Crear SuperAdministrador
+
+        </h1>
+
+        <p>
+
+          Configura la cuenta principal que administrará
+          el sistema SegurEntry.
+
+        </p>
+
+      </div>
+
+
+      <!-- =================================================
+           VERIFICANDO SISTEMA
+           ================================================= -->
+
+      <div
+        class="system-check"
+        *ngIf="checkingSystem"
+      >
+
+        <div class="loading-spinner"></div>
+
+        <p>
+
+          Verificando configuración del sistema...
+
+        </p>
+
+      </div>
+
+
+      <!-- =================================================
+           SISTEMA YA CONFIGURADO
+           ================================================= -->
+
+      <div
+        class="system-message success"
+        *ngIf="
+          !checkingSystem &&
+          systemAlreadyInitialized &&
+          successMessage
+        "
+      >
+
+        <i class="fas fa-check-circle"></i>
+
+        <div>
+
+          <strong>
+
+            Sistema configurado
+
+          </strong>
+
+          <p>
+
+            {{ successMessage }}
+
+          </p>
+
+          <small>
+
+            Serás redirigido al inicio de sesión.
+
+          </small>
+
+        </div>
+
+      </div>
+
+
+      <!-- =================================================
+           ERROR DE VERIFICACIÓN
+           ================================================= -->
+
+      <div
+        class="system-message error"
+        *ngIf="
+          !checkingSystem &&
+          errorMessage
+        "
+      >
+
+        <i class="fas fa-exclamation-circle"></i>
+
+        <div>
+
+          <strong>
+
+            No fue posible continuar
+
+          </strong>
+
+          <p>
+
+            {{ errorMessage }}
+
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <!-- =================================================
+           FORMULARIO
+           ================================================= -->
+
+      <form
+        *ngIf="
+          !checkingSystem &&
+          !systemAlreadyInitialized
+        "
+        class="setup-form"
+        (ngSubmit)="createSuperAdmin()"
+        novalidate
+      >
+
+        <!-- ===============================================
+             INFORMACIÓN PERSONAL
+             =============================================== -->
+
+        <div class="form-section">
+
+          <div class="section-title">
+
+            <div class="section-icon">
+
+              <i class="fas fa-user-shield"></i>
+
+            </div>
+
+            <div>
+
+              <h2>
+
+                Información del administrador
+
+              </h2>
+
+              <p>
+
+                Datos que identificarán al
+                SuperAdministrador.
+
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <!-- NOMBRE -->
+
+          <div class="form-group">
+
+            <label for="name">
+
+              Nombre completo
+
+            </label>
+
+            <div class="input-wrapper">
+
+              <i class="fas fa-user"></i>
+
+              <input
+                id="name"
+                type="text"
+                name="name"
+                [(ngModel)]="name"
+                placeholder="Ingresa el nombre completo"
+                autocomplete="name"
+                maxlength="100"
+                [disabled]="loading"
+              >
+
+            </div>
+
+          </div>
+
+
+          <!-- DOCUMENTO -->
+
+          <div class="form-group">
+
+            <label for="document">
+
+              Documento de identidad
+
+            </label>
+
+            <div class="input-wrapper">
+
+              <i class="fas fa-id-card"></i>
+
+              <input
+                id="document"
+                type="text"
+                name="document"
+                [(ngModel)]="document"
+                placeholder="Ingresa el número de documento"
+                inputmode="numeric"
+                autocomplete="off"
+                maxlength="15"
+                [disabled]="loading"
+              >
+
+            </div>
+
+          </div>
+
+
+          <!-- CORREO -->
+
+          <div class="form-group">
+
+            <label for="email">
+
+              Correo electrónico
+
+            </label>
+
+            <div class="input-wrapper">
+
+              <i class="fas fa-envelope"></i>
+
+              <input
+                id="email"
+                type="email"
+                name="email"
+                [(ngModel)]="email"
+                placeholder="superadmin@ejemplo.com"
+                autocomplete="email"
+                maxlength="150"
+                [disabled]="loading"
+              >
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- ===============================================
+             SEGURIDAD
+             =============================================== -->
+
+        <div class="form-section">
+
+          <div class="section-title">
+
+            <div class="section-icon">
+
+              <i class="fas fa-lock"></i>
+
+            </div>
+
+            <div>
+
+              <h2>
+
+                Seguridad de la cuenta
+
+              </h2>
+
+              <p>
+
+                Define la contraseña del
+                SuperAdministrador.
+
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <!-- CONTRASEÑA -->
+
+          <div class="form-group">
+
+            <label for="password">
+
+              Contraseña
+
+            </label>
+
+            <div class="input-wrapper">
+
+              <i class="fas fa-key"></i>
+
+              <input
+                id="password"
+                [type]="
+                  showPassword
+                    ? 'text'
+                    : 'password'
+                "
+                name="password"
+                [(ngModel)]="password"
+                placeholder="Mínimo 8 caracteres"
+                autocomplete="new-password"
+                maxlength="128"
+                [disabled]="loading"
+              >
+
+              <button
+                type="button"
+                class="password-toggle"
+                (click)="togglePassword()"
+                [disabled]="loading"
+                [attr.aria-label]="
+                  showPassword
+                    ? 'Ocultar contraseña'
+                    : 'Mostrar contraseña'
+                "
+              >
+
+                <i
+                  [class]="
+                    showPassword
+                      ? 'fas fa-eye-slash'
+                      : 'fas fa-eye'
+                  "
+                ></i>
+
+              </button>
+
+            </div>
+
+          </div>
+
+
+          <!-- CONFIRMAR CONTRASEÑA -->
+
+          <div class="form-group">
+
+            <label for="confirmPassword">
+
+              Confirmar contraseña
+
+            </label>
+
+            <div class="input-wrapper">
+
+              <i class="fas fa-lock"></i>
+
+              <input
+                id="confirmPassword"
+                [type]="
+                  showConfirmPassword
+                    ? 'text'
+                    : 'password'
+                "
+                name="confirmPassword"
+                [(ngModel)]="confirmPassword"
+                placeholder="Repite la contraseña"
+                autocomplete="new-password"
+                maxlength="128"
+                [disabled]="loading"
+              >
+
+              <button
+                type="button"
+                class="password-toggle"
+                (click)="toggleConfirmPassword()"
+                [disabled]="loading"
+                [attr.aria-label]="
+                  showConfirmPassword
+                    ? 'Ocultar contraseña'
+                    : 'Mostrar contraseña'
+                "
+              >
+
+                <i
+                  [class]="
+                    showConfirmPassword
+                      ? 'fas fa-eye-slash'
+                      : 'fas fa-eye'
+                  "
+                ></i>
+
+              </button>
+
+            </div>
+
+          </div>
+
+
+          <!-- REQUISITOS -->
+
+          <div class="password-requirements">
+
+            <i class="fas fa-info-circle"></i>
+
+            <span>
+
+              La contraseña debe contener como mínimo
+              8 caracteres.
+
+            </span>
+
+          </div>
+
+        </div>
+
+
+        <!-- ===============================================
+             ALERTA DE SEGURIDAD
+             =============================================== -->
+
+        <div class="security-notice">
+
+          <div class="security-notice-icon">
+
+            <i class="fas fa-shield-alt"></i>
+
+          </div>
+
+          <div>
+
+            <strong>
+
+              Cuenta principal del sistema
+
+            </strong>
+
+            <p>
+
+              Esta cuenta tendrá permisos de
+              SuperAdministrador. Utiliza un correo y una
+              contraseña seguros.
+
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <!-- ===============================================
+             ERROR
+             =============================================== -->
+
+        <div
+          class="form-error"
+          *ngIf="errorMessage"
+        >
+
+          <i class="fas fa-exclamation-triangle"></i>
+
+          <span>
+
+            {{ errorMessage }}
+
+          </span>
+
+        </div>
+
+
+        <!-- ===============================================
+             BOTÓN CREAR
+             =============================================== -->
+
+        <button
+          type="submit"
+          class="create-button"
+          [disabled]="loading"
+        >
+
+          <span
+            class="button-spinner"
+            *ngIf="loading"
+          ></span>
+
+          <i
+            *ngIf="!loading"
+            class="fas fa-user-shield"
+          ></i>
+
+          <span>
+
+            {{
+              loading
+                ? 'Creando SuperAdministrador...'
+                : 'Crear SuperAdministrador'
+            }}
+
+          </span>
+
+        </button>
+
+
+        <!-- ===============================================
+             LOGIN
+             =============================================== -->
+
+        <button
+          type="button"
+          class="login-button"
+          (click)="goToLogin()"
+          [disabled]="loading"
+        >
+
+          <i class="fas fa-arrow-left"></i>
+
+          Volver al inicio de sesión
+
+        </button>
+
+      </form>
+
+
+      <!-- =================================================
+           PIE
+           ================================================= -->
+
+      <footer class="setup-footer">
+
+        <span>
+
+          <i class="fas fa-shield-alt"></i>
+
+          SegurEntry
+
+        </span>
+
+        <span class="separator">•</span>
+
+        <span>
+
+          Sistema de control de acceso
+
+        </span>
+
+      </footer>
+
+    </section>
+
+  </main>
+
+</div>

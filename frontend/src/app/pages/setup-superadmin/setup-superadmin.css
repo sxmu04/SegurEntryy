@@ -1,0 +1,1162 @@
+/* =========================================================
+   SEGURENTRY - SETUP SUPERADMIN
+   DISEÑO CEO
+   ========================================================= */
+
+
+/* =========================================================
+   RESET LOCAL
+   ========================================================= */
+
+:host {
+
+  display: block;
+
+  min-height: 100vh;
+
+  font-family:
+    'Inter',
+    'Segoe UI',
+    Arial,
+    sans-serif;
+
+}
+
+
+/* =========================================================
+   PÁGINA
+   ========================================================= */
+
+.setup-page {
+
+  position: relative;
+
+  min-height: 100vh;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 40px 20px;
+
+  overflow: hidden;
+
+  background:
+    linear-gradient(
+      135deg,
+      #f4f7f5 0%,
+      #eaf4ed 50%,
+      #f8faf9 100%
+    );
+
+}
+
+
+/* =========================================================
+   FORMAS DE FONDO
+   ========================================================= */
+
+.background-shape {
+
+  position: absolute;
+
+  border-radius: 50%;
+
+  pointer-events: none;
+
+  filter: blur(2px);
+
+}
+
+
+.background-shape-one {
+
+  width: 430px;
+
+  height: 430px;
+
+  top: -180px;
+
+  right: -120px;
+
+  background:
+    rgba(57, 169, 0, 0.08);
+
+}
+
+
+.background-shape-two {
+
+  width: 350px;
+
+  height: 350px;
+
+  bottom: -170px;
+
+  left: -120px;
+
+  background:
+    rgba(0, 119, 182, 0.07);
+
+}
+
+
+/* =========================================================
+   CONTENEDOR
+   ========================================================= */
+
+.setup-container {
+
+  position: relative;
+
+  z-index: 2;
+
+  width: 100%;
+
+  max-width: 720px;
+
+}
+
+
+/* =========================================================
+   TARJETA
+   ========================================================= */
+
+.setup-card {
+
+  background: #ffffff;
+
+  border-radius: 24px;
+
+  border: 1px solid rgba(0, 0, 0, 0.06);
+
+  box-shadow:
+    0 25px 60px rgba(0, 0, 0, 0.10);
+
+  padding: 42px;
+
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.setup-header {
+
+  text-align: center;
+
+  margin-bottom: 32px;
+
+}
+
+
+.brand-icon {
+
+  width: 68px;
+
+  height: 68px;
+
+  margin: 0 auto 14px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border-radius: 20px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #39a900,
+      #007832
+    );
+
+  color: #ffffff;
+
+  font-size: 30px;
+
+  box-shadow:
+    0 12px 28px rgba(57, 169, 0, 0.24);
+
+}
+
+
+.brand-name {
+
+  font-size: 25px;
+
+  font-weight: 700;
+
+  letter-spacing: -0.5px;
+
+  color: #222222;
+
+}
+
+
+.brand-name strong {
+
+  color: #39a900;
+
+}
+
+
+.setup-badge {
+
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  margin-top: 12px;
+
+  padding: 6px 12px;
+
+  border-radius: 999px;
+
+  background: #eaf6e5;
+
+  color: #287a00;
+
+  font-size: 11px;
+
+  font-weight: 800;
+
+  letter-spacing: 0.8px;
+
+}
+
+
+.setup-header h1 {
+
+  margin: 22px 0 8px;
+
+  color: #1f2933;
+
+  font-size: 30px;
+
+  line-height: 1.2;
+
+  font-weight: 800;
+
+}
+
+
+.setup-header p {
+
+  max-width: 540px;
+
+  margin: 0 auto;
+
+  color: #6b7280;
+
+  font-size: 14px;
+
+  line-height: 1.7;
+
+}
+
+
+/* =========================================================
+   SYSTEM CHECK
+   ========================================================= */
+
+.system-check {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  flex-direction: column;
+
+  gap: 14px;
+
+  padding: 40px 20px;
+
+}
+
+
+.system-check p {
+
+  margin: 0;
+
+  color: #667085;
+
+  font-size: 14px;
+
+}
+
+
+/* =========================================================
+   LOADING
+   ========================================================= */
+
+.loading-spinner {
+
+  width: 42px;
+
+  height: 42px;
+
+  border: 4px solid #e5e7eb;
+
+  border-top-color: #39a900;
+
+  border-radius: 50%;
+
+  animation:
+    spin 0.8s linear infinite;
+
+}
+
+
+@keyframes spin {
+
+  to {
+
+    transform: rotate(360deg);
+
+  }
+
+}
+
+
+/* =========================================================
+   SYSTEM MESSAGE
+   ========================================================= */
+
+.system-message {
+
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 14px;
+
+  padding: 18px;
+
+  margin-bottom: 20px;
+
+  border-radius: 14px;
+
+}
+
+
+.system-message > i {
+
+  font-size: 22px;
+
+  margin-top: 2px;
+
+}
+
+
+.system-message strong {
+
+  display: block;
+
+  margin-bottom: 4px;
+
+  font-size: 14px;
+
+}
+
+
+.system-message p {
+
+  margin: 0;
+
+  font-size: 13px;
+
+  line-height: 1.5;
+
+}
+
+
+.system-message small {
+
+  display: block;
+
+  margin-top: 8px;
+
+  font-size: 12px;
+
+}
+
+
+.system-message.success {
+
+  background: #edf9e9;
+
+  color: #287a00;
+
+  border: 1px solid #ccebbf;
+
+}
+
+
+.system-message.error {
+
+  background: #fff2f2;
+
+  color: #b42318;
+
+  border: 1px solid #f5c6c6;
+
+}
+
+
+/* =========================================================
+   FORMULARIO
+   ========================================================= */
+
+.setup-form {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 24px;
+
+}
+
+
+/* =========================================================
+   SECCIONES
+   ========================================================= */
+
+.form-section {
+
+  padding: 24px;
+
+  border-radius: 18px;
+
+  background: #fafcfb;
+
+  border: 1px solid #e7ece9;
+
+}
+
+
+.section-title {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  margin-bottom: 22px;
+
+}
+
+
+.section-icon {
+
+  width: 42px;
+
+  height: 42px;
+
+  flex-shrink: 0;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border-radius: 12px;
+
+  background: #eaf6e5;
+
+  color: #39a900;
+
+  font-size: 17px;
+
+}
+
+
+.section-title h2 {
+
+  margin: 0 0 3px;
+
+  color: #27313a;
+
+  font-size: 15px;
+
+  font-weight: 750;
+
+}
+
+
+.section-title p {
+
+  margin: 0;
+
+  color: #7b8490;
+
+  font-size: 12px;
+
+  line-height: 1.4;
+
+}
+
+
+/* =========================================================
+   GRUPOS
+   ========================================================= */
+
+.form-group {
+
+  margin-bottom: 17px;
+
+}
+
+
+.form-group:last-child {
+
+  margin-bottom: 0;
+
+}
+
+
+.form-group label {
+
+  display: block;
+
+  margin-bottom: 8px;
+
+  color: #344054;
+
+  font-size: 13px;
+
+  font-weight: 650;
+
+}
+
+
+/* =========================================================
+   INPUT WRAPPER
+   ========================================================= */
+
+.input-wrapper {
+
+  position: relative;
+
+  display: flex;
+
+  align-items: center;
+
+}
+
+
+.input-wrapper > i {
+
+  position: absolute;
+
+  left: 15px;
+
+  color: #98a2b3;
+
+  font-size: 14px;
+
+  pointer-events: none;
+
+  z-index: 2;
+
+}
+
+
+.input-wrapper input {
+
+  width: 100%;
+
+  height: 48px;
+
+  box-sizing: border-box;
+
+  padding:
+    0 46px
+    0 43px;
+
+  border:
+    1px solid #d9e0dc;
+
+  border-radius: 11px;
+
+  outline: none;
+
+  background: #ffffff;
+
+  color: #27313a;
+
+  font-size: 14px;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+
+}
+
+
+.input-wrapper input::placeholder {
+
+  color: #a6adb5;
+
+}
+
+
+.input-wrapper input:focus {
+
+  border-color: #39a900;
+
+  box-shadow:
+    0 0 0 4px rgba(57, 169, 0, 0.10);
+
+  background: #ffffff;
+
+}
+
+
+.input-wrapper input:disabled {
+
+  background: #f2f4f3;
+
+  cursor: not-allowed;
+
+}
+
+
+/* =========================================================
+   PASSWORD TOGGLE
+   ========================================================= */
+
+.password-toggle {
+
+  position: absolute;
+
+  right: 7px;
+
+  width: 36px;
+
+  height: 36px;
+
+  border: 0;
+
+  border-radius: 8px;
+
+  background: transparent;
+
+  color: #8a949d;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+
+}
+
+
+.password-toggle:hover {
+
+  background: #edf4ef;
+
+  color: #287a00;
+
+}
+
+
+.password-toggle:disabled {
+
+  cursor: not-allowed;
+
+  opacity: 0.5;
+
+}
+
+
+/* =========================================================
+   REQUISITOS
+   ========================================================= */
+
+.password-requirements {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  margin-top: 14px;
+
+  padding: 11px 13px;
+
+  border-radius: 9px;
+
+  background: #f0f7f2;
+
+  color: #5d7164;
+
+  font-size: 12px;
+
+}
+
+
+.password-requirements i {
+
+  color: #39a900;
+
+}
+
+
+/* =========================================================
+   AVISO DE SEGURIDAD
+   ========================================================= */
+
+.security-notice {
+
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 13px;
+
+  padding: 17px;
+
+  border-radius: 14px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #f1f8ee,
+      #eef7f4
+    );
+
+  border: 1px solid #dbeadb;
+
+}
+
+
+.security-notice-icon {
+
+  width: 38px;
+
+  height: 38px;
+
+  flex-shrink: 0;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border-radius: 10px;
+
+  background: #39a900;
+
+  color: #ffffff;
+
+}
+
+
+.security-notice strong {
+
+  display: block;
+
+  margin-bottom: 4px;
+
+  color: #26352b;
+
+  font-size: 13px;
+
+}
+
+
+.security-notice p {
+
+  margin: 0;
+
+  color: #637166;
+
+  font-size: 12px;
+
+  line-height: 1.55;
+
+}
+
+
+/* =========================================================
+   ERROR FORMULARIO
+   ========================================================= */
+
+.form-error {
+
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 9px;
+
+  padding: 13px 15px;
+
+  border-radius: 10px;
+
+  background: #fff1f1;
+
+  border: 1px solid #f3c5c5;
+
+  color: #b42318;
+
+  font-size: 13px;
+
+  line-height: 1.5;
+
+}
+
+
+.form-error i {
+
+  margin-top: 2px;
+
+}
+
+
+/* =========================================================
+   BOTÓN CREAR
+   ========================================================= */
+
+.create-button {
+
+  width: 100%;
+
+  min-height: 52px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 10px;
+
+  border: 0;
+
+  border-radius: 12px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #39a900,
+      #287a00
+    );
+
+  color: #ffffff;
+
+  font-size: 14px;
+
+  font-weight: 750;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 10px 22px rgba(57, 169, 0, 0.22);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
+
+}
+
+
+.create-button:hover:not(:disabled) {
+
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 14px 28px rgba(57, 169, 0, 0.28);
+
+}
+
+
+.create-button:active:not(:disabled) {
+
+  transform: translateY(0);
+
+}
+
+
+.create-button:disabled {
+
+  cursor: not-allowed;
+
+  opacity: 0.65;
+
+  box-shadow: none;
+
+}
+
+
+/* =========================================================
+   SPINNER BOTÓN
+   ========================================================= */
+
+.button-spinner {
+
+  width: 17px;
+
+  height: 17px;
+
+  border:
+    2px solid rgba(255, 255, 255, 0.45);
+
+  border-top-color: #ffffff;
+
+  border-radius: 50%;
+
+  animation:
+    spin 0.7s linear infinite;
+
+}
+
+
+/* =========================================================
+   BOTÓN LOGIN
+   ========================================================= */
+
+.login-button {
+
+  align-self: center;
+
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 7px;
+
+  padding: 8px 12px;
+
+  border: 0;
+
+  background: transparent;
+
+  color: #667085;
+
+  font-size: 13px;
+
+  cursor: pointer;
+
+  transition:
+    color 0.2s ease;
+
+}
+
+
+.login-button:hover:not(:disabled) {
+
+  color: #287a00;
+
+}
+
+
+.login-button:disabled {
+
+  cursor: not-allowed;
+
+  opacity: 0.5;
+
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.setup-footer {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 9px;
+
+  margin-top: 28px;
+
+  color: #98a2b3;
+
+  font-size: 11px;
+
+}
+
+
+.setup-footer span:first-child {
+
+  color: #68736c;
+
+  font-weight: 650;
+
+}
+
+
+.setup-footer i {
+
+  color: #39a900;
+
+  margin-right: 3px;
+
+}
+
+
+.separator {
+
+  color: #c4cbc7;
+
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+  .setup-page {
+
+    padding: 24px 14px;
+
+    align-items: flex-start;
+
+  }
+
+
+  .setup-card {
+
+    margin-top: 15px;
+
+    padding: 28px 20px;
+
+    border-radius: 20px;
+
+  }
+
+
+  .setup-header h1 {
+
+    font-size: 25px;
+
+  }
+
+
+  .form-section {
+
+    padding: 19px 16px;
+
+  }
+
+}
+
+
+@media (max-width: 450px) {
+
+  .setup-page {
+
+    padding: 14px 10px;
+
+  }
+
+
+  .setup-card {
+
+    padding: 24px 15px;
+
+    border-radius: 17px;
+
+  }
+
+
+  .brand-icon {
+
+    width: 58px;
+
+    height: 58px;
+
+    font-size: 25px;
+
+  }
+
+
+  .brand-name {
+
+    font-size: 22px;
+
+  }
+
+
+  .setup-header h1 {
+
+    font-size: 22px;
+
+  }
+
+
+  .setup-header p {
+
+    font-size: 13px;
+
+  }
+
+
+  .section-title {
+
+    align-items: flex-start;
+
+  }
+
+
+  .section-icon {
+
+    width: 38px;
+
+    height: 38px;
+
+  }
+
+
+  .setup-footer {
+
+    flex-wrap: wrap;
+
+    text-align: center;
+
+  }
+
+}
+
+
+/* =========================================================
+   ACCESIBILIDAD
+   ========================================================= */
+
+button:focus-visible,
+input:focus-visible {
+
+  outline:
+    3px solid rgba(57, 169, 0, 0.25);
+
+  outline-offset: 2px;
+
+}
