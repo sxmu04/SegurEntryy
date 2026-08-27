@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { adminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -16,14 +17,14 @@ export const routes: Routes = [
   { path: 'dashboard/aprendiz', canActivate: [authGuard], loadComponent: () => import('./features/dashboard/aprendiz/aprendiz').then(m => m.Aprendiz) },
   { path: 'dashboard/user', canActivate: [authGuard], loadComponent: () => import('./features/dashboard/userx/userx').then(m => m.UserxComponent) },
 
-  // Centro operativo y seguridad. Se conserva authGuard para no exponer información sensible.
-  { path: 'operaciones', canActivate: [authGuard], loadComponent: () => import('./pages/operations/operations').then(m => m.Operations) },
-  { path: 'accesos', canActivate: [authGuard], loadComponent: () => import('./pages/access-history/access-history').then(m => m.AccessHistory) },
-  { path: 'accesos/:id', canActivate: [authGuard], loadComponent: () => import('./pages/access-detail/access-detail').then(m => m.AccessDetail) },
-  { path: 'reportes', canActivate: [authGuard], loadComponent: () => import('./pages/reports/reports').then(m => m.Reports) },
-  { path: 'incidentes', canActivate: [authGuard], loadComponent: () => import('./pages/incidents/incidents').then(m => m.Incidents) },
-  { path: 'dispositivos', canActivate: [authGuard], loadComponent: () => import('./pages/iot-devices/iot-devices').then(m => m.IotDevices) },
-  { path: 'configuracion', canActivate: [authGuard], loadComponent: () => import('./pages/system-settings/system-settings').then(m => m.SystemSettings) },
+  // Herramientas sensibles: requieren sesión activa y rol administrador/superadministrador.
+  { path: 'operaciones', canActivate: [authGuard, adminGuard], loadComponent: () => import('./pages/operations/operations').then(m => m.Operations) },
+  { path: 'accesos', canActivate: [authGuard, adminGuard], loadComponent: () => import('./pages/access-history/access-history').then(m => m.AccessHistory) },
+  { path: 'accesos/:id', canActivate: [authGuard, adminGuard], loadComponent: () => import('./pages/access-detail/access-detail').then(m => m.AccessDetail) },
+  { path: 'reportes', canActivate: [authGuard, adminGuard], loadComponent: () => import('./pages/reports/reports').then(m => m.Reports) },
+  { path: 'incidentes', canActivate: [authGuard, adminGuard], loadComponent: () => import('./pages/incidents/incidents').then(m => m.Incidents) },
+  { path: 'dispositivos', canActivate: [authGuard, adminGuard], loadComponent: () => import('./pages/iot-devices/iot-devices').then(m => m.IotDevices) },
+  { path: 'configuracion', canActivate: [authGuard, adminGuard], loadComponent: () => import('./pages/system-settings/system-settings').then(m => m.SystemSettings) },
 
   { path: '403', loadComponent: () => import('./pages/forbidden/forbidden').then(m => m.Forbidden) },
   { path: '404', loadComponent: () => import('./pages/not-found/not-found').then(m => m.NotFound) },
