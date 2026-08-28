@@ -1,333 +1,573 @@
 <div class="layout">
 
-    <!-- SIDEBAR -->
+    <!-- =========================================================
+         SIDEBAR
+         ========================================================= -->
     <aside class="sidebar" [class.collapsed]="!menuOpen">
 
-        <div class="profile">
-            <div class="avatar">
-                <i class="fas fa-user-tie"></i>
+        <div class="sidebar-content">
+
+            <!-- PERFIL -->
+            <div class="sidebar-profile">
+
+                <div class="sidebar-avatar">
+
+                    <img
+                        *ngIf="profile.photo"
+                        [src]="profile.photo"
+                        alt="Foto del instructor">
+
+                    <i
+                        *ngIf="!profile.photo"
+                        class="fas fa-chalkboard-user">
+                    </i>
+
+                </div>
+
+                <div
+                    class="sidebar-profile-info"
+                    *ngIf="menuOpen">
+
+                    <span class="profile-eyebrow">
+                        INSTRUCTOR
+                    </span>
+
+                    <h3>
+                        {{ profile.name || 'Instructor' }}
+                    </h3>
+
+                    <p>
+                        Seguimiento de aprendices
+                    </p>
+
+                    <div class="profile-status">
+                        <span></span>
+                        Cuenta activa
+                    </div>
+
+                </div>
+
             </div>
-            <div *ngIf="menuOpen">
-                <h3>Instructor</h3>
-                <p>Control de Acceso</p>
+
+
+            <!-- MARCA -->
+            <div class="brand">
+
+                <div class="brand-icon">
+                    <i class="fas fa-shield-halved"></i>
+                </div>
+
+                <div *ngIf="menuOpen">
+                    <strong>SegurEntry</strong>
+                    <span>Control de acceso</span>
+                </div>
+
             </div>
+
+
+            <!-- NAVEGACIÓN -->
+            <nav>
+
+                <button
+                    type="button"
+                    (click)="changeTab('dashboard')"
+                    [class.active]="activeTab === 'dashboard'"
+                    title="Dashboard">
+
+                    <i class="fas fa-chart-pie"></i>
+
+                    <span *ngIf="menuOpen">
+                        Dashboard
+                    </span>
+
+                </button>
+
+
+                <button
+                    type="button"
+                    (click)="changeTab('aprendices')"
+                    [class.active]="activeTab === 'aprendices'"
+                    title="Aprendices">
+
+                    <i class="fas fa-user-graduate"></i>
+
+                    <span *ngIf="menuOpen">
+                        Aprendices
+                    </span>
+
+                </button>
+
+
+                <button
+                    type="button"
+                    (click)="changeTab('notificaciones')"
+                    [class.active]="activeTab === 'notificaciones'"
+                    title="Notificaciones">
+
+                    <i class="fas fa-bell"></i>
+
+                    <span *ngIf="menuOpen">
+                        Notificaciones
+                    </span>
+
+                </button>
+<button
+                    type="button"
+                    (click)="changeTab('profile')"
+                    [class.active]="activeTab === 'profile'"
+                    title="Mi perfil">
+
+                    <i class="fas fa-user-circle"></i>
+
+                    <span *ngIf="menuOpen">
+                        Mi Perfil
+                    </span>
+
+                </button>
+
+            </nav>
+
         </div>
 
-        <nav>
 
-            <button (click)="changeTab('dashboard')" [class.active]="activeTab==='dashboard'">
-                <i class="fas fa-chart-line"></i>
-                <span *ngIf="menuOpen">Dashboard</span>
+        <!-- CERRAR SESIÓN -->
+        <div class="sidebar-bottom">
+
+            <button
+                type="button"
+                class="logout"
+                (click)="logout()">
+
+                <i class="fas fa-right-from-bracket"></i>
+
+                <span *ngIf="menuOpen">
+                    Cerrar sesión
+                </span>
+
             </button>
 
-            <button (click)="changeTab('aprendices')" [class.active]="activeTab==='aprendices'">
-                <i class="fas fa-users"></i>
-                <span *ngIf="menuOpen">Aprendices</span>
-            </button>
-
-            <button (click)="changeTab('notificaciones')" [class.active]="activeTab==='notificaciones'">
-                <i class="fas fa-bell"></i>
-                <span *ngIf="menuOpen">Notificaciones</span>
-            </button>
-
-            <button (click)="changeTab('config')" [class.active]="activeTab==='config'">
-                <i class="fas fa-cog"></i>
-                <span *ngIf="menuOpen">Configuración</span>
-            </button>
-
-            <button (click)="changeTab('profile')" [class.active]="activeTab==='profile'">
-                <i class="fas fa-user-circle"></i>
-                <span *ngIf="menuOpen">Mi Perfil</span>
-            </button>
-
-        </nav>
-
-
-        <!-- 🔥 LOGOUT -->
-        <div style="padding:15px;">
-            <button class="logout" (click)="logout()">
-                <i class="fas fa-sign-out-alt"></i>
-                <span *ngIf="menuOpen">Cerrar sesión</span>
-            </button>
         </div>
 
     </aside>
 
 
-
-
-
-    <!-- MAIN -->
+    <!-- =========================================================
+         CONTENIDO PRINCIPAL
+         ========================================================= -->
     <main class="main">
 
         <!-- HEADER -->
-        <header>
-            <button class="menu-btn" (click)="toggleMenu()">
-                <i class="fas fa-bars"></i>
-            </button>
+        <header class="main-header">
 
-            <div>
-                <h2>{{ activeTab | titlecase }}</h2>
-                <p class="header-subtitle">Panel del instructor</p>
-            </div>
-        </header>
+            <div class="header-left">
 
-        <!-- DASHBOARD -->
-        <section *ngIf="activeTab==='dashboard'" class="dashboard">
+                <button
+                    type="button"
+                    class="menu-btn"
+                    (click)="toggleMenu()"
+                    aria-label="Abrir o cerrar menú">
 
-            <div class="stats">
+                    <i class="fas fa-bars"></i>
 
-                <div class="card stat-card">
-                    <i class="fas fa-door-open"></i>
-                    <div>
-                        <h2>{{ stats.ingresos }}</h2>
-                        <p>Ingresos</p>
-                    </div>
-                </div>
-
-                <div class="card stat-card">
-                    <i class="fas fa-check-circle"></i>
-                    <div>
-                        <h2>{{ stats.permitidos }}</h2>
-                        <p>Permitidos</p>
-                    </div>
-                </div>
-
-                <div class="card stat-card">
-                    <i class="fas fa-times-circle"></i>
-                    <div>
-                        <h2>{{ stats.denegados }}</h2>
-                        <p>Denegados</p>
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="card big">
-                <h3>Accesos recientes</h3>
-
-                <div class="access-log" *ngFor="let log of logs">
-                    <div>
-                        <strong>{{ log.name }}</strong>
-                        <p>{{ log.email }}</p>
-                    </div>
-
-                    <div>
-                        <span>{{ log.time }}</span>
-                        <span class="badge success">{{ log.result }}</span>
-                    </div>
-                </div>
-            </div>
-
-        </section>
-
-        <!-- APRENDICES -->
-        <section *ngIf="activeTab==='aprendices'" class="card">
-
-            <div class="table-header">
-
-                <div class="header-left">
-                    <h3>Aprendices</h3>
-                    <span class="badge-total">{{ filteredUsers.length }} usuarios</span>
-                </div>
-
-                <div class="table-actions">
-                    <div class="search-box">
-                        <i class="fas fa-search"></i>
-                        <input type="text" placeholder="Buscar por nombre o documento..." [(ngModel)]="searchTerm"
-                            (input)="filterUsers()" />
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="table-container">
-                <table>
-
-                    <thead>
-                        <tr>
-                            <th>Usuario</th>
-                            <th>Email</th>
-                            <th>Estado</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        <tr *ngFor="let user of filteredUsers">
-
-                            <td class="user-cell">
-                                <div class="user-info">
-
-                                    <div class="avatar small">
-                                        <i class="fas fa-user"></i>
-                                    </div>
-
-                                    <div>
-                                        <strong>{{ user.name }}</strong>
-                                    </div>
-
-                                </div>
-                            </td>
-
-                            <td>
-                                {{ user.document || 'Sin documento' }}
-                            </td>
-
-                            <td>
-                                {{ user.email }}
-                            </td>
-
-                            <td>
-                                <span class="status-badge active">
-                                    Activo
-                                </span>
-                            </td>
-
-                        </tr>
-                    </tbody>
-
-                </table>
-            </div>
-
-        </section>
-
-        <!-- NOTIFICACIONES -->
-        <section *ngIf="activeTab==='notificaciones'" class="card">
-
-            <h3>Notificaciones</h3>
-
-            <div class="notification" *ngFor="let n of notifications">
-                <p>{{ n }}</p>
-                <span>Hace unos minutos</span>
-            </div>
-
-        </section>
-
-        <!-- ===================== PERFIL ===================== -->
-
-        <section *ngIf="activeTab==='profile'" class="card profile-section">
-
-            <div class="profile-header">
-
-                <!-- FOTO -->
-                <div class="profile-photo">
-
-                    <img [src]="profile.photo || 'assets/avatar.png'" alt="Foto de perfil">
-
-                    <label class="upload-btn">
-
-                        <i class="fas fa-camera"></i>
-
-                        Cambiar foto
-
-                        <input type="file" accept="image/*" (change)="uploadPhoto($event)" hidden>
-
-                    </label>
-
-                </div>
+                </button>
 
 
-                <!-- INFORMACIÓN -->
-                <div class="profile-info">
+                <div>
+
+                    <span class="header-eyebrow">
+                        PANEL DEL INSTRUCTOR
+                    </span>
 
                     <h2>
-                        {{ profile.name || 'Instructor' }}
+                        {{
+                            activeTab === 'dashboard'
+                                ? 'Resumen general'
+                                : activeTab === 'aprendices'
+                                ? 'Mis aprendices'
+                                : activeTab === 'notificaciones'
+                                ? 'Notificaciones'
+                                : 'Mi perfil'
+                        }}
                     </h2>
 
-                    <span class="role-badge">
+                    <p class="header-subtitle">
+                        {{
+                            activeTab === 'dashboard'
+                                ? 'Consulta el estado general de tus aprendices y su actividad.'
+                                : activeTab === 'aprendices'
+                                ? 'Consulta los aprendices registrados y su información.'
+                                : activeTab === 'notificaciones'
+                                ? 'Revisa la actividad importante relacionada con tu gestión.'
+                                : 'Consulta y actualiza la información permitida de tu perfil.'
+                        }}
+                    </p>
 
+                </div>
+
+            </div>
+
+
+            <div class="header-profile">
+
+                <div class="header-profile-avatar">
+
+                    <img
+                        *ngIf="profile.photo"
+                        [src]="profile.photo"
+                        alt="Foto de perfil">
+
+                    <i
+                        *ngIf="!profile.photo"
+                        class="fas fa-chalkboard-user">
+                    </i>
+
+                </div>
+
+                <div>
+                    <strong>
+                        {{ profile.name || 'Instructor' }}
+                    </strong>
+
+                    <span>
                         {{ currentUser?.role || 'instructor' }}
+                    </span>
+                </div>
 
+            </div>
+
+        </header>
+
+
+        <!-- =====================================================
+             DASHBOARD — MIS INGRESOS Y SALIDAS
+             ===================================================== -->
+        <section
+            *ngIf="activeTab === 'dashboard'"
+            class="dashboard">
+
+            <!-- HERO -->
+            <div class="dashboard-hero">
+
+                <div>
+
+                    <span class="section-eyebrow">
+                        MI ACTIVIDAD
+                    </span>
+
+                    <h3>
+                        Mis ingresos y salidas
+                    </h3>
+
+                    <p>
+                        Consulta únicamente tus movimientos personales
+                        registrados como Instructor en SegurEntry.
+                    </p>
+
+                </div>
+
+
+                <div class="dashboard-hero-side">
+
+                    <span class="dashboard-live-chip">
+                        <span></span>
+                        En vivo · 1 s
+                    </span>
+
+                    <div class="dashboard-hero-icon">
+                        <i class="fas fa-id-badge"></i>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ESTADÍSTICAS PERSONALES -->
+            <div class="stats">
+
+                <article class="stat-card entries">
+
+                    <div class="stat-head">
+
+                        <div class="stat-icon">
+                            <i class="fas fa-arrow-right-to-bracket"></i>
+                        </div>
+
+                        <span>
+                            Mis movimientos
+                        </span>
+
+                    </div>
+
+                    <strong>
+                        {{ stats.ingresos }}
+                    </strong>
+
+                    <p>
+                        Mis ingresos
+                    </p>
+
+                </article>
+
+
+                <article class="stat-card exits">
+
+                    <div class="stat-head">
+
+                        <div class="stat-icon">
+                            <i class="fas fa-arrow-right-from-bracket"></i>
+                        </div>
+
+                        <span>
+                            Mis movimientos
+                        </span>
+
+                    </div>
+
+                    <strong>
+                        {{ stats.salidas }}
+                    </strong>
+
+                    <p>
+                        Mis salidas
+                    </p>
+
+                </article>
+
+
+                <article class="stat-card allowed">
+
+                    <div class="stat-head">
+
+                        <div class="stat-icon">
+                            <i class="fas fa-circle-check"></i>
+                        </div>
+
+                        <span>
+                            Mi cuenta
+                        </span>
+
+                    </div>
+
+                    <strong>
+                        {{ stats.permitidos }}
+                    </strong>
+
+                    <p>
+                        Accesos permitidos
+                    </p>
+
+                </article>
+
+
+                <article class="stat-card last-movement">
+
+                    <div class="stat-head">
+
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+
+                        <span>
+                            Último registro
+                        </span>
+
+                    </div>
+
+                    <strong>
+                        {{ stats.ultimoMovimiento }}
+                    </strong>
+
+                    <p>
+                        Último movimiento
+                    </p>
+
+                </article>
+
+            </div>
+
+
+            <!-- HISTORIAL PERSONAL -->
+            <section class="content-card recent-access-card">
+
+                <div class="section-header">
+
+                    <div>
+
+                        <span class="section-eyebrow">
+                            HISTORIAL PERSONAL
+                        </span>
+
+                        <h3>
+                            Mis movimientos recientes
+                        </h3>
+
+                        <p>
+                            Aquí solo aparecen tus ingresos y salidas.
+                        </p>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        class="refresh-access-btn"
+                        (click)="loadMyAccesses()">
+
+                        <i class="fas fa-rotate"></i>
+
+                        Actualizar
+
+                    </button>
+
+                </div>
+
+
+                <div
+                    class="empty-state"
+                    *ngIf="recentMyAccesses.length === 0">
+
+                    <i class="fas fa-door-closed"></i>
+
+                    <strong>
+                        Aún no tienes movimientos
+                    </strong>
+
+                    <span>
+                        Cuando uses tu huella como Instructor,
+                        el ingreso o la salida aparecerá aquí.
                     </span>
 
                 </div>
 
-            </div>
+
+                <div
+                    class="access-list"
+                    *ngIf="recentMyAccesses.length > 0">
+
+                    <div
+                        class="access-row"
+                        *ngFor="let log of recentMyAccesses">
+
+                        <div class="access-user">
+
+                            <div
+                                class="access-icon"
+                                [class.exit]="log.type === 'Salida'">
+
+                                <i
+                                    class="fas"
+                                    [class.fa-arrow-right-to-bracket]="log.type === 'Ingreso'"
+                                    [class.fa-arrow-right-from-bracket]="log.type === 'Salida'">
+                                </i>
+
+                            </div>
 
 
-            <!-- ===================== FORMULARIO ===================== -->
+                            <div>
 
-            <div class="profile-form">
+                                <strong>
+                                    {{ log.type }}
+                                </strong>
 
-                <!-- NOMBRE -->
-                <div class="form-group">
+                                <span>
+                                    {{ formatAccessDate(log.date) }}
+                                    ·
+                                    {{ formatAccessTime(log.date) }}
+                                </span>
 
-                    <label>Nombre</label>
+                            </div>
 
-                    <input type="text" [(ngModel)]="profile.name" name="profileName">
+                        </div>
+
+
+                        <div class="access-meta">
+
+                            <span class="method-chip">
+
+                                <i class="fas fa-fingerprint"></i>
+
+                                {{ log.method || 'Huella' }}
+
+                            </span>
+
+
+                            <span
+                                class="movement-badge"
+                                [class.exit]="log.type === 'Salida'">
+
+                                {{ log.type }}
+
+                            </span>
+
+
+                            <span
+                                class="status-badge"
+                                [class.allowed]="log.result === 'Permitido'"
+                                [class.denied]="log.result === 'Denegado'">
+
+                                {{ log.result }}
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </section>
+
+
+        <!-- =====================================================
+             APRENDICES — TODOS + ÚLTIMOS MOVIMIENTOS
+             ===================================================== -->
+        <section
+            *ngIf="activeTab === 'aprendices'"
+            class="content-card apprentices-section">
+
+            <div class="table-header">
+
+                <div>
+
+                    <span class="section-eyebrow">
+                        TODOS LOS REGISTRADOS
+                    </span>
+
+                    <div class="title-with-badge">
+
+                        <h3>
+                            Aprendices
+                        </h3>
+
+                        <span class="count-badge">
+                            {{ filteredUsers.length }}
+                            de
+                            {{ users.length }}
+                        </span>
+
+                    </div>
+
+                    <p>
+                        Consulta todos los aprendices registrados
+                        y su último ingreso y salida.
+                    </p>
 
                 </div>
 
 
-                <!-- DOCUMENTO -->
-                <div class="form-group">
+                <div class="table-actions">
 
-                    <label>Documento</label>
+                    <button
+                        type="button"
+                        class="refresh-students-btn"
+                        (click)="loadUsers()">
 
-                    <input type="text" [(ngModel)]="profile.document" name="profileDocument">
+                        <i class="fas fa-rotate"></i>
 
-                </div>
-
-
-                <!-- CORREO -->
-                <div class="form-group">
-
-                    <label>Correo electrónico</label>
-
-                    <input type="email" [(ngModel)]="profile.email" name="profileEmail">
-
-                </div>
-
-
-                <!-- TELÉFONO -->
-                <div class="form-group">
-
-                    <label>Teléfono</label>
-
-                    <input type="text" [(ngModel)]="profile.phone" name="profilePhone">
-
-                </div>
-
-
-                <!-- DIRECCIÓN -->
-                <div class="form-group">
-
-                    <label>Dirección</label>
-
-                    <input type="text" [(ngModel)]="profile.address" name="profileAddress">
-
-                </div>
-
-
-                <!-- ROL -->
-                <div class="form-group">
-
-                    <label>Rol</label>
-
-                    <input type="text" [value]="currentUser?.role || 'instructor'" readonly class="readonly-input">
-
-                </div>
-
-
-                <!-- UID -->
-                <div class="form-group">
-
-                    <label>Identificador</label>
-
-                    <input type="text" [value]="currentUser?.uid || currentUser?.id || ''" readonly
-                        class="readonly-input">
-
-                </div>
-
-
-                <!-- GUARDAR -->
-                <div class="profile-actions">
-
-                    <button class="primary-btn" (click)="updateProfile()">
-
-                        <i class="fas fa-save"></i>
-
-                        Guardar cambios
+                        Actualizar
 
                     </button>
 
@@ -335,21 +575,631 @@
 
             </div>
 
-        </section>
 
-        <!-- CONFIG -->
-        <section *ngIf="activeTab==='config'" class="card">
+            <!-- BUSCADOR AVANZADO -->
 
-            <h3>Configuración</h3>
+            <div class="student-search-panel">
 
-            <div class="config-item">
-                <label>Modo oscuro</label>
-                <input type="checkbox" />
+                <div class="student-search-box">
+
+                    <i class="fas fa-magnifying-glass"></i>
+
+                    <input
+                        type="text"
+                        placeholder="Ej: Juan Pérez CC 123456789..."
+                        [(ngModel)]="searchTerm"
+                        (input)="filterUsers()">
+
+                    <button
+                        type="button"
+                        *ngIf="searchTerm"
+                        (click)="clearUserSearch()"
+                        aria-label="Limpiar búsqueda">
+
+                        <i class="fas fa-xmark"></i>
+
+                    </button>
+
+                </div>
+
+
+                <div class="search-help">
+
+                    <i class="fas fa-circle-info"></i>
+
+                    <span>
+                        Puedes buscar por nombre, apellido,
+                        tipo de documento, número de documento
+                        o combinarlos en una sola búsqueda.
+                    </span>
+
+                </div>
+
             </div>
 
-            <div class="config-item">
-                <label>Notificaciones</label>
-                <input type="checkbox" checked />
+
+            <!-- SIN RESULTADOS -->
+
+            <div
+                class="empty-state"
+                *ngIf="filteredUsers.length === 0">
+
+                <i class="fas fa-user-graduate"></i>
+
+                <strong>
+                    No se encontraron aprendices
+                </strong>
+
+                <span *ngIf="searchTerm">
+                    No hay coincidencias para “{{ searchTerm }}”.
+                </span>
+
+                <span *ngIf="!searchTerm">
+                    Aún no hay aprendices registrados.
+                </span>
+
+            </div>
+
+
+            <!-- TABLA -->
+
+            <div
+                class="table-container students-table-container"
+                *ngIf="filteredUsers.length > 0">
+
+                <table class="students-table">
+
+                    <thead>
+
+                        <tr>
+                            <th>Aprendiz</th>
+                            <th>Tipo doc.</th>
+                            <th>Documento</th>
+                            <th>Correo</th>
+                            <th>Último ingreso</th>
+                            <th>Última salida</th>
+                            <th>Estado</th>
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        <tr
+                            *ngFor="
+                                let user
+                                of filteredUsers
+                            ">
+
+                            <!-- APRENDIZ -->
+                            <td>
+
+                                <div class="table-user">
+
+                                    <div class="table-avatar">
+                                        <i class="fas fa-user-graduate"></i>
+                                    </div>
+
+                                    <div>
+
+                                        <strong>
+                                            {{ user.name }}
+                                        </strong>
+
+                                        <span>
+                                            Aprendiz
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                            </td>
+
+
+                            <!-- TIPO DOCUMENTO -->
+                            <td>
+
+                                <span class="document-type-badge">
+                                    {{
+                                        user.documentType ||
+                                        '—'
+                                    }}
+                                </span>
+
+                            </td>
+
+
+                            <!-- DOCUMENTO -->
+                            <td class="document-cell">
+                                {{
+                                    user.document ||
+                                    'Sin documento'
+                                }}
+                            </td>
+
+
+                            <!-- CORREO -->
+                            <td class="student-email">
+                                {{
+                                    user.email ||
+                                    'Sin correo'
+                                }}
+                            </td>
+
+
+                            <!-- ÚLTIMO INGRESO -->
+                            <td>
+
+                                <div
+                                    class="last-movement"
+                                    *ngIf="user.lastEntry">
+
+                                    <div class="movement-time-icon entry">
+                                        <i class="fas fa-arrow-right-to-bracket"></i>
+                                    </div>
+
+                                    <div>
+
+                                        <strong>
+                                            {{ formatAccessTime(user.lastEntry) }}
+                                        </strong>
+
+                                        <span>
+                                            {{ formatAccessDate(user.lastEntry) }}
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+
+                                <span
+                                    class="no-movement"
+                                    *ngIf="!user.lastEntry">
+
+                                    Sin registro
+
+                                </span>
+
+                            </td>
+
+
+                            <!-- ÚLTIMA SALIDA -->
+                            <td>
+
+                                <div
+                                    class="last-movement"
+                                    *ngIf="user.lastExit">
+
+                                    <div class="movement-time-icon exit">
+                                        <i class="fas fa-arrow-right-from-bracket"></i>
+                                    </div>
+
+                                    <div>
+
+                                        <strong>
+                                            {{ formatAccessTime(user.lastExit) }}
+                                        </strong>
+
+                                        <span>
+                                            {{ formatAccessDate(user.lastExit) }}
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+
+                                <span
+                                    class="no-movement"
+                                    *ngIf="!user.lastExit">
+
+                                    Sin registro
+
+                                </span>
+
+                            </td>
+
+
+                            <!-- ESTADO -->
+                            <td>
+
+                                <span
+                                    class="status-badge"
+                                    [class.allowed]="user.active"
+                                    [class.denied]="!user.active">
+
+                                    <span
+                                        class="status-dot"
+                                        *ngIf="user.active">
+                                    </span>
+
+                                    {{
+                                        user.active
+                                            ? 'Activo'
+                                            : 'Inactivo'
+                                    }}
+
+                                </span>
+
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             NOTIFICACIONES
+             ===================================================== -->
+        <section
+            *ngIf="activeTab === 'notificaciones'"
+            class="content-card">
+
+            <div class="section-header">
+
+                <div>
+
+                    <span class="section-eyebrow">
+                        CENTRO DE ACTIVIDAD
+                    </span>
+
+                    <h3>
+                        Notificaciones
+                    </h3>
+
+                    <p>
+                        Avisos relacionados con la actividad del sistema.
+                    </p>
+
+                </div>
+
+
+                <span class="count-badge">
+                    {{ notifications.length }}
+                </span>
+
+            </div>
+
+
+            <div class="notification-list">
+
+                <article
+                    class="notification-item"
+                    *ngFor="let n of notifications">
+
+                    <div class="notification-icon">
+                        <i class="fas fa-bell"></i>
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            {{ n }}
+                        </strong>
+
+                        <span>
+                            Actividad reciente de SegurEntry
+                        </span>
+
+                    </div>
+
+                    <i class="fas fa-chevron-right notification-arrow"></i>
+
+                </article>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             PERFIL
+             ===================================================== -->
+        <section
+            *ngIf="activeTab === 'profile'"
+            class="content-card profile-section">
+
+            <div class="profile-page-header">
+
+                <div>
+
+                    <span class="section-eyebrow">
+                        MI CUENTA
+                    </span>
+
+                    <h3>
+                        Mi perfil
+                    </h3>
+
+                    <p>
+                        Consulta y actualiza la información disponible
+                        de tu cuenta.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="profile-identity">
+
+                <div class="profile-photo-area">
+
+                    <div class="profile-photo">
+
+                        <img
+                            [src]="profile.photo || 'assets/avatar.png'"
+                            alt="Foto de perfil">
+
+                    </div>
+
+
+                    <label class="upload-btn">
+
+                        <i class="fas fa-camera"></i>
+
+                        Cambiar foto
+
+                        <input
+                            type="file"
+                            accept="image/*"
+                            (change)="uploadPhoto($event)"
+                            hidden>
+
+                    </label>
+
+                </div>
+
+
+                <div class="profile-info">
+
+                    <span class="profile-label">
+                        INSTRUCTOR
+                    </span>
+
+                    <h2>
+                        {{ profile.name || 'Instructor' }}
+                    </h2>
+
+                    <span class="role-badge">
+                        {{ currentUser?.role || 'instructor' }}
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="profile-form">
+
+                <!-- NOMBRE — PROTEGIDO -->
+                <div class="form-group readonly-group">
+
+                    <label>
+                        Nombre completo
+                    </label>
+
+                    <div class="readonly-control">
+
+                        <input
+                            type="text"
+                            [value]="profile.name || 'No registrado'"
+                            readonly
+                            class="readonly-input">
+
+                        <i
+                            class="fas fa-lock"
+                            title="Campo protegido">
+                        </i>
+
+                    </div>
+
+                    <small class="protected-help">
+                        Tu nombre no puede modificarse desde el perfil.
+                    </small>
+
+                </div>
+
+
+                <!-- TIPO DE DOCUMENTO — PROTEGIDO -->
+                <div class="form-group readonly-group">
+
+                    <label>
+                        Tipo de documento
+                    </label>
+
+                    <div class="readonly-control">
+
+                        <input
+                            type="text"
+                            [value]="profile.documentType || 'No registrado'"
+                            readonly
+                            class="readonly-input">
+
+                        <i
+                            class="fas fa-lock"
+                            title="Campo protegido">
+                        </i>
+
+                    </div>
+
+                    <small class="protected-help">
+                        El tipo de documento no puede modificarse.
+                    </small>
+
+                </div>
+
+
+                <!-- NÚMERO DE DOCUMENTO — PROTEGIDO -->
+                <div class="form-group readonly-group">
+
+                    <label>
+                        Número de documento
+                    </label>
+
+                    <div class="readonly-control">
+
+                        <input
+                            type="text"
+                            [value]="profile.document || 'No registrado'"
+                            readonly
+                            class="readonly-input">
+
+                        <i
+                            class="fas fa-lock"
+                            title="Campo protegido">
+                        </i>
+
+                    </div>
+
+                    <small class="protected-help">
+                        El número de documento no puede modificarse.
+                    </small>
+
+                </div>
+
+
+                <!-- CORREO — EDITABLE -->
+                <div class="form-group">
+
+                    <label>
+                        Correo electrónico
+                    </label>
+
+                    <input
+                        type="email"
+                        [(ngModel)]="profile.email"
+                        name="profileEmail">
+
+                </div>
+
+
+                <!-- TELÉFONO — EDITABLE -->
+                <div class="form-group">
+
+                    <label>
+                        Teléfono
+                    </label>
+
+                    <input
+                        type="text"
+                        [(ngModel)]="profile.phone"
+                        name="profilePhone">
+
+                </div>
+
+
+                <!-- DIRECCIÓN — EDITABLE -->
+                <div class="form-group form-group-full">
+
+                    <label>
+                        Dirección
+                    </label>
+
+                    <input
+                        type="text"
+                        [(ngModel)]="profile.address"
+                        name="profileAddress">
+
+                </div>
+
+
+                <!-- ROL — PROTEGIDO -->
+                <div class="form-group readonly-group">
+
+                    <label>
+                        Rol
+                    </label>
+
+                    <div class="readonly-control">
+
+                        <input
+                            type="text"
+                            [value]="currentUser?.role || 'instructor'"
+                            readonly
+                            class="readonly-input">
+
+                        <i
+                            class="fas fa-lock"
+                            title="Campo protegido">
+                        </i>
+
+                    </div>
+
+                </div>
+
+
+                <!-- UID — PROTEGIDO -->
+                <div class="form-group readonly-group">
+
+                    <label>
+                        Identificador
+                    </label>
+
+                    <div class="readonly-control">
+
+                        <input
+                            type="text"
+                            [value]="currentUser?.uid || currentUser?.id || ''"
+                            readonly
+                            class="readonly-input">
+
+                        <i
+                            class="fas fa-lock"
+                            title="Campo protegido">
+                        </i>
+
+                    </div>
+
+                </div>
+
+
+                <!-- AVISO -->
+                <div class="profile-security-note">
+
+                    <i class="fas fa-shield-halved"></i>
+
+                    <div>
+
+                        <strong>
+                            Datos de identidad protegidos
+                        </strong>
+
+                        <p>
+                            Tu nombre, tipo de documento y número de documento
+                            solo pueden ser modificados por personal autorizado.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- GUARDAR -->
+                <div class="profile-actions">
+
+                    <button
+                        type="button"
+                        class="primary-btn"
+                        (click)="updateProfile()">
+
+                        <i class="fas fa-floppy-disk"></i>
+
+                        Guardar cambios
+
+                    </button>
+
+                </div>
+
             </div>
 
         </section>

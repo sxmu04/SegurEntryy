@@ -133,6 +133,89 @@ export class DashboardService {
 
 
   // =====================================
+  // BIOMETRÍA
+  // =====================================
+
+  getBiometricUsers(): Observable<any> {
+    return this.http.get<any>(
+      `${this.apiUrl}/biometrics/users/`
+    );
+  }
+
+  createBiometricEnrollment(
+    uid: string,
+    actorUid: string,
+    device: string = 'SEGURENTRY-ESP32'
+  ): Observable<any> {
+
+    return this.http.post<any>(
+      `${this.apiUrl}/biometrics/enroll/`,
+      {
+        uid,
+        actor_uid: actorUid,
+        device
+      }
+    );
+
+  }
+
+
+  deleteBiometricFingerprint(
+    uid: string,
+    actorUid: string,
+    device: string = 'SEGURENTRY-ESP32'
+  ): Observable<any> {
+
+    return this.http.post<any>(
+      `${this.apiUrl}/biometrics/delete/`,
+      {
+        uid,
+        actor_uid: actorUid,
+        device
+      }
+    );
+
+  }
+
+  getBiometricJob(
+    jobId: string
+  ): Observable<any> {
+
+    return this.http.get<any>(
+      `${this.apiUrl}/biometrics/jobs/${jobId}/`
+    );
+
+  }
+
+  getBiometricDeviceStatus(
+    device: string = 'SEGURENTRY-ESP32'
+  ): Observable<any> {
+
+    return this.http.get<any>(
+      `${this.apiUrl}/biometrics/device/status/`,
+      {
+        params: {
+          device
+        }
+      }
+    );
+
+  }
+
+
+
+  // =====================================
+  // AUDITORÍA
+  // =====================================
+
+  getAuditLogs(): Observable<any> {
+    return this.http.get<any>(
+      `${this.apiUrl}/audit/`
+    );
+  }
+
+
+  // =====================================
   // REPORTES
   // =====================================
 
@@ -160,9 +243,11 @@ export class DashboardService {
     );
   }
 
-  //==========================================================
-  // VIGILANTE USUARIOS TEMPORALES
-  //==========================================================
+
+  // =====================================
+  // VIGILANTE - USUARIOS TEMPORALES
+  // =====================================
+
   createTemporaryRequest(data: any): Observable<any> {
     return this.http.post<any>(
       `${this.apiUrl}/temporary-requests/`,
@@ -201,15 +286,4 @@ export class DashboardService {
       }
     );
   }
-  // =====================================
-  // AUDITORÍA
-  // =====================================
-
-  getAuditLogs(): Observable<any> {
-    return this.http.get<any>(
-      `${this.apiUrl}/audit/`
-    );
-  }
-
-
 }

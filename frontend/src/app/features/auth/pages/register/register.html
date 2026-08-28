@@ -1,139 +1,274 @@
-<div class="container">
+<main class="auth-page">
 
-  <div class="card">
+  <div class="auth-grid">
 
-    <!-- BOTÓN MODO OSCURO -->
-    <div class="toggle-container">
+    <!-- =====================================================
+         IDENTIDAD SEGURENTRY
+    ====================================================== -->
+    <section class="brand-panel">
 
-      <button
-        class="theme-btn"
-        (click)="toggleDarkMode()">
+      <div class="brand-content">
 
-        <i class="fa-solid fa-moon"></i>
+        <div class="brand-badge">
+          <span class="status-dot"></span>
+          Registro protegido por invitación
+        </div>
 
-      </button>
+        <div class="brand-mark">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
 
-    </div>
+        <h1>
+          Segur<span>Entry</span>
+        </h1>
 
-    <!-- LOGO -->
-    <div class="logo">
+        <p>
+          Crea tu acceso utilizando la invitación
+          asignada por un administrador.
+        </p>
 
-      <i class="fa-solid fa-shield-halved"></i>
+        <div class="security-features">
 
-    </div>
+          <div>
+            <i class="fa-solid fa-key"></i>
 
-    <!-- TITULOS -->
+            <span>
+              <strong>Invitación</strong>
+              Código único de registro
+            </span>
+          </div>
 
-    <h2>SEGURENTRY</h2>
+          <div>
+            <i class="fa-solid fa-user-shield"></i>
 
-    <p class="subtitle">
+            <span>
+              <strong>Rol protegido</strong>
+              Permisos definidos por SegurEntry
+            </span>
+          </div>
 
-      Crear una nueva cuenta
+          <div>
+            <i class="fa-solid fa-lock"></i>
 
-    </p>
+            <span>
+              <strong>Cuenta segura</strong>
+              Credenciales protegidas
+            </span>
+          </div>
 
+        </div>
 
-    <!-- EMAIL -->
+      </div>
 
-    <div class="input-group">
+      <div class="brand-footer">
+        <i class="fa-solid fa-circle-check"></i>
+        Registro controlado · SegurEntry
+      </div>
 
-      <i class="fa-solid fa-envelope"></i>
-
-      <input
-        type="email"
-        placeholder="Correo electrónico"
-        [(ngModel)]="email">
-
-    </div>
-
-    <!-- CÓDIGO DE INVITACIÓN -->
-
-<div class="input-group">
-
-  <i class="fa-solid fa-key"></i>
-
-  <input
-    type="text"
-    placeholder="Código de invitación"
-    [(ngModel)]="invitationCode">
-
-</div>
-
-    <!-- PASSWORD -->
-
-    <div class="input-group">
-
-      <i class="fa-solid fa-lock"></i>
-
-      <input
-        [type]="showPassword ? 'text' : 'password'"
-        placeholder="Contraseña"
-        [(ngModel)]="password">
-
-      <button
-        type="button"
-        class="eye-btn"
-        (click)="showPassword = !showPassword">
-
-        <i
-          [class]="showPassword
-          ? 'fa-solid fa-eye-slash'
-          : 'fa-solid fa-eye'">
-
-        </i>
-
-      </button>
-
-    </div>
-
-    <!-- CONFIRMAR PASSWORD -->
-
-    <div class="input-group">
-
-      <i class="fa-solid fa-lock"></i>
-
-      <input
-        [type]="showConfirmPassword ? 'text' : 'password'"
-        placeholder="Confirmar contraseña"
-        [(ngModel)]="confirmPassword">
-
-      <button
-        type="button"
-        class="eye-btn"
-        (click)="showConfirmPassword = !showConfirmPassword">
-
-        <i
-          [class]="showConfirmPassword
-          ? 'fa-solid fa-eye-slash'
-          : 'fa-solid fa-eye'">
-    </i>
-      </button>
-    </div>
-
-    <!-- BOTÓN REGISTRO -->
-
-    <button
-      class="register-btn"
-      (click)="register()">
-      Crear Cuenta
-    </button>
-
-    <!-- DIVISOR -->
-
-    <div class="divider">
-      <span>o</span>
-    </div>
-
-    <!-- GOOGLE -->
+    </section>
 
 
-    <!-- LINK LOGIN -->
+    <!-- =====================================================
+         REGISTRO
+    ====================================================== -->
+    <section class="form-panel">
 
-    <p class="link">
-      ¿Ya tienes cuenta?
-      <a routerLink="/login">
-        Inicia sesión
-      </a>
-    </p>
+      <div class="auth-card register-card">
+
+        <div class="mobile-brand">
+
+          <div class="mobile-logo">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+
+          <strong>
+            Segur<span>Entry</span>
+          </strong>
+
+        </div>
+
+
+        <div class="form-heading">
+
+          <span class="eyebrow">
+            CREAR CUENTA
+          </span>
+
+          <h2>
+            Completa tu registro
+          </h2>
+
+          <p>
+            Usa el correo y código de invitación
+            que fueron asignados a tu cuenta.
+          </p>
+
+        </div>
+
+
+        <div class="field">
+
+          <label for="registerEmail">
+            Correo electrónico
+          </label>
+
+          <div class="input-group">
+
+            <i class="fa-solid fa-envelope"></i>
+
+            <input
+              id="registerEmail"
+              type="email"
+              autocomplete="email"
+              placeholder="nombre@correo.com"
+              [(ngModel)]="email">
+
+          </div>
+
+        </div>
+
+
+        <div class="field">
+
+          <label for="invitationCode">
+            Código de invitación
+          </label>
+
+          <div class="input-group invitation-input">
+
+            <i class="fa-solid fa-key"></i>
+
+            <input
+              id="invitationCode"
+              type="text"
+              autocomplete="off"
+              placeholder="Ej: SEG-ABC123"
+              [(ngModel)]="invitationCode">
+
+          </div>
+
+          <small class="field-help">
+            El código debe coincidir con el correo invitado.
+          </small>
+
+        </div>
+
+
+        <div class="password-grid">
+
+          <div class="field">
+
+            <label for="registerPassword">
+              Contraseña
+            </label>
+
+            <div class="input-group">
+
+              <i class="fa-solid fa-lock"></i>
+
+              <input
+                id="registerPassword"
+                [type]="showPassword ? 'text' : 'password'"
+                autocomplete="new-password"
+                placeholder="Mínimo 6 caracteres"
+                [(ngModel)]="password">
+
+              <button
+                type="button"
+                class="eye-btn"
+                (click)="showPassword = !showPassword"
+                aria-label="Mostrar u ocultar contraseña">
+
+                <i
+                  [class]="
+                    showPassword
+                      ? 'fa-solid fa-eye-slash'
+                      : 'fa-solid fa-eye'
+                  ">
+                </i>
+
+              </button>
+
+            </div>
+
+          </div>
+
+
+          <div class="field">
+
+            <label for="confirmPassword">
+              Confirmar contraseña
+            </label>
+
+            <div class="input-group">
+
+              <i class="fa-solid fa-shield-keyhole"></i>
+
+              <input
+                id="confirmPassword"
+                [type]="showConfirmPassword ? 'text' : 'password'"
+                autocomplete="new-password"
+                placeholder="Repite la contraseña"
+                [(ngModel)]="confirmPassword"
+                (keyup.enter)="register()">
+
+              <button
+                type="button"
+                class="eye-btn"
+                (click)="showConfirmPassword = !showConfirmPassword"
+                aria-label="Mostrar u ocultar confirmación">
+
+                <i
+                  [class]="
+                    showConfirmPassword
+                      ? 'fa-solid fa-eye-slash'
+                      : 'fa-solid fa-eye'
+                  ">
+                </i>
+
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <button
+          type="button"
+          class="primary-auth-btn"
+          (click)="register()"
+          [disabled]="loading">
+
+          <i
+            class="fa-solid"
+            [class.fa-user-plus]="!loading"
+            [class.fa-circle-notch]="loading"
+            [class.fa-spin]="loading">
+          </i>
+
+          {{
+            loading
+              ? 'Creando cuenta...'
+              : 'Crear cuenta'
+          }}
+
+        </button>
+
+
+        <p class="auth-switch">
+          ¿Ya tienes una cuenta?
+
+          <a routerLink="/login">
+            Iniciar sesión
+          </a>
+        </p>
+
+      </div>
+
+    </section>
+
   </div>
-</div>
+
+</main>

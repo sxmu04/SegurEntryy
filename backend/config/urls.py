@@ -18,6 +18,7 @@ urlpatterns = [
     path("api/notifications/", include("api.notifications.urls")),
     path("api/temporary-requests/", include("api.temporary_requests.urls")),
     path("api/audit/", include("api.audit.urls")),
+    path("api/biometrics/", include("api.biometrics.urls")),
 ]
 
 urlpatterns += static(

@@ -1,10 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+
 import Swal from 'sweetalert2';
 
 import { ApiService } from '../../../../core/services/api.service';
+
 
 @Component({
   standalone: true,
@@ -16,7 +18,7 @@ import { ApiService } from '../../../../core/services/api.service';
   templateUrl: './register.html',
   styleUrls: ['./register.css']
 })
-export class RegisterComponent implements OnInit {
+export class RegisterComponent {
 
   email = '';
   password = '';
@@ -25,62 +27,39 @@ export class RegisterComponent implements OnInit {
 
   showPassword = false;
   showConfirmPassword = false;
+  loading = false;
+
 
   constructor(
     private router: Router,
     private apiService: ApiService
-  ) { }
+  ) {}
 
-  ngOnInit(): void {
 
-    const theme = localStorage.getItem('theme');
+  isValidEmail(
+    email: string
+  ): boolean {
 
-    if (theme === 'dark') {
-      document.body.classList.add('dark');
-    }
+    const regex =
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-  }
-
-  // =========================
-  // MODO OSCURO
-  // =========================
-
-  toggleDarkMode(): void {
-
-    document.body.classList.toggle('dark');
-
-    localStorage.setItem(
-      'theme',
-      document.body.classList.contains('dark')
-        ? 'dark'
-        : 'light'
+    return regex.test(
+      email
     );
 
   }
 
-  // =========================
-  // VALIDAR CORREO
-  // =========================
-
-  isValidEmail(email: string): boolean {
-
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    return regex.test(email);
-
-  }
-
-  // =========================
-  // REGISTRO
-  // =========================
 
   async register(): Promise<void> {
 
-    // =========================
-    // CORREO
-    // =========================
+    if (this.loading) {
+      return;
+    }
 
-    const email = this.email.trim().toLowerCase();
+    const email =
+      this.email
+        .trim()
+        .toLowerCase();
 
     if (!email) {
 
@@ -91,9 +70,14 @@ export class RegisterComponent implements OnInit {
       );
 
       return;
+
     }
 
-    if (!this.isValidEmail(email)) {
+    if (
+      !this.isValidEmail(
+        email
+      )
+    ) {
 
       Swal.fire(
         'Error',
@@ -102,13 +86,13 @@ export class RegisterComponent implements OnInit {
       );
 
       return;
+
     }
 
-    // =========================
-    // CÓDIGO
-    // =========================
-
-    const code = this.invitationCode.trim().toUpperCase();
+    const code =
+      this.invitationCode
+        .trim()
+        .toUpperCase();
 
     if (!code) {
 
@@ -119,11 +103,8 @@ export class RegisterComponent implements OnInit {
       );
 
       return;
-    }
 
-    // =========================
-    // CONTRASEÑA
-    // =========================
+    }
 
     if (!this.password) {
 
@@ -134,9 +115,12 @@ export class RegisterComponent implements OnInit {
       );
 
       return;
+
     }
 
-    if (this.password.length < 6) {
+    if (
+      this.password.length < 6
+    ) {
 
       Swal.fire(
         'Error',
@@ -145,9 +129,13 @@ export class RegisterComponent implements OnInit {
       );
 
       return;
+
     }
 
-    if (this.password !== this.confirmPassword) {
+    if (
+      this.password !==
+      this.confirmPassword
+    ) {
 
       Swal.fire(
         'Error',
@@ -156,24 +144,26 @@ export class RegisterComponent implements OnInit {
       );
 
       return;
+
     }
+
+    this.loading = true;
 
     try {
 
-      // =========================
-      // VALIDAR INVITACIÓN
-      // =========================
+      const invitation: any =
+        await this.apiService
+          .validateInvitation({
+            email,
+            code
+          })
+          .toPromise();
 
-      const invitation: any = await this.apiService
-        .validateInvitation({
-          email: email,
-          code: code
-        })
-        .toPromise();
+      if (
+        !invitation?.success
+      ) {
 
-      console.log('INVITACIÓN:', invitation);
-
-      if (!invitation?.success) {
+        this.loading = false;
 
         Swal.fire({
           icon: 'error',
@@ -184,23 +174,25 @@ export class RegisterComponent implements OnInit {
         });
 
         return;
+
       }
 
-      // =========================
-      // CREAR CUENTA
-      // =========================
+      const response: any =
+        await this.apiService
+          .completeRegistration({
+            email,
+            password:
+              this.password,
+            invitation_code:
+              code
+          })
+          .toPromise();
 
-      const response: any = await this.apiService
-        .completeRegistration({
-          email: this.email,
-          password: this.password,
-          invitation_code: this.invitationCode
-        })
-        .toPromise();
+      if (
+        !response?.success
+      ) {
 
-      console.log('REGISTRO:', response);
-
-      if (!response?.success) {
+        this.loading = false;
 
         Swal.fire({
           icon: 'error',
@@ -211,24 +203,25 @@ export class RegisterComponent implements OnInit {
         });
 
         return;
-      }
 
-      // =========================
-      // ÉXITO
-      // =========================
+      }
 
       await Swal.fire({
         icon: 'success',
         title: 'Cuenta creada',
-        text: 'Tu cuenta fue creada correctamente. Ahora puedes iniciar sesión.',
-        confirmButtonText: 'Ir al login'
+        text:
+          'Tu cuenta fue creada correctamente. Ahora puedes iniciar sesión.',
+        confirmButtonText:
+          'Ir al login'
       });
 
-      this.router.navigate(['/login']);
+      this.router.navigate([
+        '/login'
+      ]);
 
     } catch (err: any) {
 
-      console.error('ERROR REGISTRO:', err);
+      this.loading = false;
 
       Swal.fire({
         icon: 'error',
@@ -237,6 +230,10 @@ export class RegisterComponent implements OnInit {
           err?.error?.message ||
           'No fue posible crear la cuenta.'
       });
+
+    } finally {
+
+      this.loading = false;
 
     }
 

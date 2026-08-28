@@ -24,6 +24,7 @@ from api.notifications.services.notification_service import NotificationService
 def create_user(request):
 
     if request.method != "POST":
+
         return JsonResponse({
             "success": False,
             "message": "Método no permitido"
@@ -31,48 +32,90 @@ def create_user(request):
 
     try:
 
-        data = json.loads(request.body)
-
-        user = UserService.create_superadmin_user(data)
-
-        # ==========================================
-        # CREAR NOTIFICACIÓN
-        # ==========================================
-
-        NotificationService.create_notification(
-
-            uid=user.get("uid"),
-
-            title="Nuevo usuario creado",
-
-            message=(
-                f"El usuario {user.get('name', '')} "
-                f"fue creado correctamente."
-            ),
-
-            notification_type="user_created",
-
-            data={
-                "user_uid": user.get("uid"),
-                "email": user.get("email"),
-                "role": user.get("role")
-            }
-
+        data = json.loads(
+            request.body
         )
 
+        result = (
+            UserService
+            .create_superadmin_user(
+                data
+            )
+        )
+
+        # create_superadmin_user() NO devuelve el usuario
+        # directamente. Devuelve un objeto con "invitation".
+        invitation = (
+            result.get(
+                "invitation",
+                {}
+            )
+            or {}
+        )
+
+        uid = (
+            invitation.get(
+                "uid"
+            )
+            or ""
+        )
+
+        if not uid:
+
+            raise Exception(
+                "La invitación fue creada, pero el backend no devolvió el UID."
+            )
+
+        # IMPORTANTE:
+        # No creamos aquí otra notificación "user_created".
+        # create_superadmin_user() ya genera la notificación
+        # correspondiente a la invitación.
+        #
+        # Antes se hacía:
+        #
+        # NotificationService.create_notification(
+        #     uid=user.get("uid"),
+        #     ...
+        # )
+        #
+        # pero user.get("uid") era None porque el UID estaba
+        # dentro de user["invitation"]["uid"].
+        # Eso provocaba HTTP 400 aunque la invitación ya se
+        # hubiera creado correctamente.
+
         return JsonResponse({
-            "success": True,
-            "message": "Usuario creado correctamente",
-            "user": user
+
+            "success":
+                True,
+
+            "message":
+                result.get(
+                    "message",
+                    "Invitación creada y enviada correctamente."
+                ),
+
+            # El frontend del SuperAdmin espera response.user
+            "user":
+                invitation,
+
+            # También devolvemos invitation para mantener
+            # explícito el flujo actual.
+            "invitation":
+                invitation
+
         })
 
     except Exception as e:
 
         return JsonResponse({
-            "success": False,
-            "message": str(e)
-        }, status=400)
 
+            "success":
+                False,
+
+            "message":
+                str(e)
+
+        }, status=400)
 # ==========================================
 # LISTAR USUARIOS
 # ==========================================
