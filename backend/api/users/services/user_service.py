@@ -1031,6 +1031,84 @@ class UserService:
             )
 
         # ==========================================================
+        # HUELLA DIGITAL
+        # ==========================================================
+
+        if "fingerprint_id" in data:
+
+            raw_fingerprint_id = data.get(
+                "fingerprint_id"
+            )
+
+            if (
+                raw_fingerprint_id is None or
+                str(raw_fingerprint_id).strip() == ""
+            ):
+
+                # Permitir quitar la asociación enviando null o vacío.
+                firestore_data[
+                    "fingerprint_id"
+                ] = None
+
+            else:
+
+                try:
+
+                    fingerprint_id = int(
+                        raw_fingerprint_id
+                    )
+
+                except (
+                    TypeError,
+                    ValueError
+                ):
+
+                    raise Exception(
+                        "El ID de huella debe ser numérico."
+                    )
+
+                if fingerprint_id <= 0:
+
+                    raise Exception(
+                        "El ID de huella debe ser mayor que 0."
+                    )
+
+                # ======================================================
+                # EVITAR QUE DOS USUARIOS TENGAN LA MISMA HUELLA
+                # ======================================================
+
+                fingerprint_users = (
+                    db.collection("users")
+                    .where(
+                        "fingerprint_id",
+                        "==",
+                        fingerprint_id
+                    )
+                    .limit(2)
+                    .stream()
+                )
+
+                for fingerprint_user in fingerprint_users:
+
+                    if fingerprint_user.id != uid:
+
+                        existing_user = (
+                            fingerprint_user.to_dict()
+                            or {}
+                        )
+
+                        raise Exception(
+                            "La huella ID "
+                            f"{fingerprint_id} "
+                            "ya está asociada a "
+                            f"{existing_user.get('name', 'otro usuario')}."
+                        )
+
+                firestore_data[
+                    "fingerprint_id"
+                ] = fingerprint_id
+
+        # ==========================================================
         # GUARDAR CAMBIOS
         # ==========================================================
 
@@ -1065,7 +1143,9 @@ class UserService:
             "document",
             "phone",
             "address",
-            "active"
+            "photo",
+            "active",
+            "fingerprint_id"
         ]
 
         for field in tracked_fields:
@@ -1119,6 +1199,185 @@ class UserService:
 
             )
 
+
+        # ==========================================================
+        # NOTIFICAR AL USUARIO SOBRE CAMBIOS EN SU CUENTA
+        # ==========================================================
+
+        if changes:
+
+            try:
+
+                field_labels = {
+
+                    "name":
+                        "nombre",
+
+                    "email":
+                        "correo electrónico",
+
+                    "role":
+                        "rol",
+
+                    "document_type":
+                        "tipo de documento",
+
+                    "document":
+                        "documento",
+
+                    "phone":
+                        "teléfono",
+
+                    "address":
+                        "dirección",
+
+                    "photo":
+                        "foto de perfil",
+
+                    "active":
+                        "estado de la cuenta",
+
+                    "fingerprint_id":
+                        "huella digital"
+                }
+
+                changed_labels = [
+
+                    field_labels.get(
+                        field,
+                        field
+                    )
+
+                    for field
+                    in changes.keys()
+
+                ]
+
+                actor_uid = (
+                    str(
+                        data.get(
+                            "actor_uid",
+                            ""
+                        )
+                        or ""
+                    )
+                    .strip()
+                )
+
+                actor_name = (
+                    "SegurEntry"
+                )
+
+                if actor_uid:
+
+                    actor_doc = (
+                        db.collection(
+                            "users"
+                        )
+                        .document(
+                            actor_uid
+                        )
+                        .get()
+                    )
+
+                    if actor_doc.exists:
+
+                        actor_data = (
+                            actor_doc.to_dict()
+                            or {}
+                        )
+
+                        actor_name = (
+                            actor_data.get(
+                                "name"
+                            )
+                            or actor_data.get(
+                                "email"
+                            )
+                            or "SegurEntry"
+                        )
+
+                changed_text = (
+                    ", ".join(
+                        changed_labels
+                    )
+                )
+
+                if (
+                    actor_uid
+                    and actor_uid != uid
+                ):
+
+                    message = (
+                        f"{actor_name} realizó cambios "
+                        f"en tu cuenta: {changed_text}."
+                    )
+
+                else:
+
+                    message = (
+                        "Se actualizaron datos de tu cuenta: "
+                        f"{changed_text}."
+                    )
+
+                NotificationService.create_notification(
+
+                    uid=
+                        uid,
+
+                    title=
+                        "Cambios en tu cuenta",
+
+                    message=
+                        message,
+
+                    notification_type=
+                        "account_updated",
+
+                    priority=
+                        "normal",
+
+                    category=
+                        "account",
+
+                    source=
+                        "user-management",
+
+                    actor_uid=
+                        actor_uid,
+
+                    event_key=(
+                        "account:"
+                        f"{uid}:"
+                        f"{datetime.utcnow().isoformat()}"
+                    ),
+
+                    data={
+
+                        "uid":
+                            uid,
+
+                        "changed_fields":
+                            list(
+                                changes.keys()
+                            ),
+
+                        "actor_uid":
+                            actor_uid
+                    }
+
+                )
+
+            except Exception as notification_error:
+
+                # La actualización de la cuenta ya se realizó.
+                # Un fallo en notificaciones no debe revertirla.
+                print(
+                    "ERROR CREANDO NOTIFICACIÓN DE CUENTA:",
+                    notification_error
+                )
+
+
         # ==========================================================
         # RESPUESTA
         # ==========================================================
@@ -1132,6 +1391,90 @@ class UserService:
     @staticmethod
     def delete_user(uid):
 
+        user_ref = (
+            db.collection("users")
+            .document(uid)
+        )
+
+        user_doc = (
+            user_ref.get()
+        )
+
+        user_data = (
+            user_doc.to_dict()
+            if user_doc.exists
+            else {}
+        ) or {}
+
+        raw_fingerprint_id = (
+            user_data.get(
+                "fingerprint_id"
+            )
+        )
+
+        fingerprint_id = None
+
+        if (
+            raw_fingerprint_id is not None
+            and
+            str(raw_fingerprint_id).strip() != ""
+        ):
+
+            try:
+
+                fingerprint_id = int(
+                    raw_fingerprint_id
+                )
+
+            except (
+                TypeError,
+                ValueError
+            ):
+
+                fingerprint_id = None
+
+        cleanup_job = None
+
+        # ======================================================
+        # LIBERAR HUELLA DEL AS608
+        # ======================================================
+        #
+        # Antes de borrar al usuario se crea un trabajo
+        # biométrico "delete". El usuario puede borrarse
+        # inmediatamente, pero el ID no se vuelve a reutilizar
+        # hasta que el ESP32 confirme que la plantilla fue
+        # eliminada físicamente del AS608.
+        #
+        # Si el ESP32 está apagado, el trabajo queda pendiente
+        # y se ejecutará cuando el dispositivo vuelva a conectarse.
+        # ======================================================
+
+        if (
+            fingerprint_id is not None
+            and
+            fingerprint_id > 0
+        ):
+
+            from api.biometrics.services.biometric_service import (
+                BiometricService
+            )
+
+            cleanup_job = (
+                BiometricService
+                .create_deletion_job(
+                    uid=uid,
+                    actor_uid="",
+                    device=(
+                        BiometricService
+                        .DEFAULT_DEVICE
+                    )
+                )
+            )
+
+        # ======================================================
+        # ELIMINAR DE FIREBASE AUTH
+        # ======================================================
+
         try:
 
             auth.delete_user(uid)
@@ -1140,13 +1483,26 @@ class UserService:
 
             pass
 
-        (
-            db.collection("users")
-            .document(uid)
-            .delete()
-        )
+        # ======================================================
+        # ELIMINAR DE FIRESTORE
+        # ======================================================
 
-        return True
+        user_ref.delete()
+
+        return {
+            "success":
+                True,
+
+            "biometric_cleanup_queued":
+                cleanup_job is not None,
+
+            "released_fingerprint_id":
+                (
+                    fingerprint_id
+                    if cleanup_job
+                    else None
+                )
+        }
 
     # ==========================================================
     # ACTUALIZAR PERFIL

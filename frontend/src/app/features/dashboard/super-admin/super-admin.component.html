@@ -1854,6 +1854,487 @@
 
             </ng-container>
 
+            <!-- =====================================================
+     BIOMETRÍA
+     Pegar este bloque dentro de <div [ngSwitch]="activeSection">
+     justo ANTES del bloque *ngSwitchCase="'roles'".
+===================================================== -->
+
+            <ng-container *ngSwitchCase="'biometrics'">
+
+                <section class="biometric-section">
+
+                    <!-- ENCABEZADO -->
+                    <div class="biometric-page-header">
+
+                        <div class="biometric-title">
+
+                            <div class="biometric-title-icon">
+                                <i class="fas fa-fingerprint"></i>
+                            </div>
+
+                            <div>
+                                <h3>Gestión biométrica</h3>
+
+                                <p>
+                                    Registra y consulta las huellas digitales
+                                    asociadas a los usuarios de SegurEntry.
+                                </p>
+                            </div>
+
+                        </div>
+
+
+                        <button type="button" class="secondary-btn"
+                            (click)="loadBiometricUsers(); loadBiometricDeviceStatus()">
+
+                            <i class="fas fa-rotate"></i>
+
+                            Actualizar
+
+                        </button>
+
+                    </div>
+
+
+                    <!-- ESTADO DEL DISPOSITIVO -->
+                    <div class="biometric-device-card" [class.online]="biometricDevice.online"
+                        [class.offline]="!biometricDevice.online">
+
+                        <div class="biometric-device-main">
+
+                            <div class="biometric-device-icon">
+
+                                <i class="fas" [ngClass]="
+                            biometricDevice.online
+                            ? 'fa-microchip'
+                            : 'fa-triangle-exclamation'
+                        ">
+                                </i>
+
+                            </div>
+
+                            <div>
+
+                                <div class="biometric-device-title-row">
+
+                                    <h4>
+                                        {{ biometricDevice.device }}
+                                    </h4>
+
+                                    <span class="biometric-online-badge" [class.online]="biometricDevice.online">
+
+                                        <span class="biometric-status-dot"></span>
+
+                                        {{
+                                        biometricDevice.online
+                                        ? 'En línea'
+                                        : 'Desconectado'
+                                        }}
+
+                                    </span>
+
+                                </div>
+
+                                <p>
+                                    {{
+                                    biometricDevice.online
+                                    ? 'ESP32 conectado y disponible para biometría.'
+                                    : 'Enciende el ESP32 y verifica la conexión con Django.'
+                                    }}
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="biometric-device-metrics">
+
+                            <div class="biometric-metric">
+
+                                <span>Sensor AS608</span>
+
+                                <strong>
+                                    {{
+                                    biometricDevice.sensor_available
+                                    ? 'Disponible'
+                                    : 'No disponible'
+                                    }}
+                                </strong>
+
+                            </div>
+
+
+                            <div class="biometric-metric">
+
+                                <span>Huellas en sensor</span>
+
+                                <strong>
+                                    {{
+                                    biometricDevice.template_count === null
+                                    ? '—'
+                                    : biometricDevice.template_count
+                                    }}
+                                </strong>
+
+                            </div>
+
+
+                            <div class="biometric-metric">
+
+                                <span>IP del ESP32</span>
+
+                                <strong>
+                                    {{ biometricDevice.ip || '—' }}
+                                </strong>
+
+                            </div>
+
+
+                            <div class="biometric-metric">
+
+                                <span>Última conexión</span>
+
+                                <strong>
+                                    {{ formatBiometricLastSeen() }}
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- RESUMEN -->
+                    <div class="biometric-stats">
+
+                        <article class="biometric-stat-card">
+
+                            <div>
+                                <span>Usuarios</span>
+
+                                <strong>
+                                    {{ biometricUsers.length }}
+                                </strong>
+                            </div>
+
+                            <i class="fas fa-users"></i>
+
+                        </article>
+
+
+                        <article class="biometric-stat-card">
+
+                            <div>
+                                <span>Con huella</span>
+
+                                <strong>
+                                    {{ biometricRegisteredCount }}
+                                </strong>
+                            </div>
+
+                            <i class="fas fa-fingerprint"></i>
+
+                        </article>
+
+
+                        <article class="biometric-stat-card">
+
+                            <div>
+                                <span>Sin huella</span>
+
+                                <strong>
+                                    {{
+                                    biometricUsers.length -
+                                    biometricRegisteredCount
+                                    }}
+                                </strong>
+                            </div>
+
+                            <i class="fas fa-user-clock"></i>
+
+                        </article>
+
+
+                        <article class="biometric-stat-card">
+
+                            <div>
+                                <span>En proceso</span>
+
+                                <strong>
+                                    {{ biometricPendingCount }}
+                                </strong>
+                            </div>
+
+                            <i class="fas fa-spinner"></i>
+
+                        </article>
+
+                    </div>
+
+
+                    <!-- BUSCADOR -->
+                    <div class="biometric-toolbar">
+
+                        <div class="biometric-search">
+
+                            <i class="fas fa-search"></i>
+
+                            <input type="text" [(ngModel)]="biometricSearch"
+                                placeholder="Buscar por nombre, correo, documento, rol o ID de huella...">
+
+                            <button type="button" *ngIf="biometricSearch" (click)="biometricSearch = ''"
+                                title="Limpiar búsqueda">
+
+                                <i class="fas fa-xmark"></i>
+
+                            </button>
+
+                        </div>
+
+
+                        <span class="biometric-results-count">
+
+                            {{ filteredBiometricUsers.length }}
+
+                            {{
+                            filteredBiometricUsers.length === 1
+                            ? 'resultado'
+                            : 'resultados'
+                            }}
+
+                        </span>
+
+                    </div>
+
+
+                    <!-- CARGANDO -->
+                    <div class="biometric-loading" *ngIf="biometricLoading">
+
+                        <i class="fas fa-spinner fa-spin"></i>
+
+                        <span>
+                            Cargando usuarios biométricos...
+                        </span>
+
+                    </div>
+
+
+                    <!-- SIN USUARIOS -->
+                    <div class="biometric-empty" *ngIf="
+                !biometricLoading &&
+                filteredBiometricUsers.length === 0
+            ">
+
+                        <i class="fas fa-fingerprint"></i>
+
+                        <h4>
+                            No se encontraron usuarios
+                        </h4>
+
+                        <p>
+                            Cambia el término de búsqueda o actualiza la información.
+                        </p>
+
+                    </div>
+
+
+                    <!-- USUARIOS -->
+                    <div class="biometric-users-grid" *ngIf="
+                !biometricLoading &&
+                filteredBiometricUsers.length > 0
+            ">
+
+                        <article class="biometric-user-card" *ngFor="
+                    let user of filteredBiometricUsers;
+                    trackBy: trackByBiometricUser
+                " [class.registered]="user.biometric_registered" [class.inactive-user]="!user.active">
+
+                            <div class="biometric-user-top">
+
+                                <div class="biometric-user-avatar">
+
+                                    <i class="fas fa-user"></i>
+
+                                </div>
+
+                                <div class="biometric-user-identity">
+
+                                    <h4>
+                                        {{ user.name }}
+                                    </h4>
+
+                                    <p>
+                                        {{ user.email }}
+                                    </p>
+
+                                </div>
+
+
+                                <span class="biometric-user-state" [class.registered]="user.biometric_registered"
+                                    [class.pending]="!!user.biometric_job">
+
+                                    <i class="fas" [ngClass]="{
+                                'fa-circle-check':
+                                    user.biometric_registered,
+
+                                'fa-spinner fa-spin':
+                                    !user.biometric_registered &&
+                                    !!user.biometric_job,
+
+                                'fa-circle-minus':
+                                    !user.biometric_registered &&
+                                    !user.biometric_job
+                            }">
+                                    </i>
+
+                                    {{ getBiometricStatusLabel(user) }}
+
+                                </span>
+
+                            </div>
+
+
+                            <div class="biometric-user-data">
+
+                                <div>
+                                    <span>Documento</span>
+
+                                    <strong>
+                                        {{
+                                        user.document_type ||
+                                        'Documento'
+                                        }}
+                                        {{ user.document || '—' }}
+                                    </strong>
+                                </div>
+
+
+                                <div>
+                                    <span>Rol</span>
+
+                                    <strong>
+                                        {{ formatRoleName(user.role) }}
+                                    </strong>
+                                </div>
+
+
+                                <div>
+                                    <span>Cuenta</span>
+
+                                    <strong [class.biometric-text-inactive]="!user.active">
+
+                                        {{
+                                        user.active
+                                        ? 'Activa'
+                                        : 'Inactiva'
+                                        }}
+
+                                    </strong>
+                                </div>
+
+
+                                <div>
+                                    <span>ID biométrico</span>
+
+                                    <strong>
+                                        {{
+                                        user.fingerprint_id === null
+                                        ? 'Sin asignar'
+                                        : user.fingerprint_id
+                                        }}
+                                    </strong>
+                                </div>
+
+                            </div>
+
+
+                            <div class="biometric-job-banner" *ngIf="user.biometric_job">
+
+                                <i class="fas fa-circle-notch fa-spin"></i>
+
+                                <div>
+
+                                    <strong>
+                                        {{
+                                        getBiometricJobLabel(
+                                        user.biometric_job
+                                        )
+                                        }}
+                                    </strong>
+
+                                    <span>
+                                        {{
+                                        user.biometric_job.message ||
+                                        'Proceso biométrico en curso.'
+                                        }}
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="biometric-user-actions">
+
+                                <!-- SIN HUELLA -->
+                                <button type="button" class="primary-btn biometric-register-btn"
+                                    *ngIf="!user.biometric_registered" [disabled]="!canRegisterFingerprint(user)"
+                                    (click)="startBiometricEnrollment(user)">
+
+                                    <i class="fas fa-fingerprint"></i>
+
+                                    {{
+                                    user.biometric_job
+                                    ? 'Registro en curso'
+                                    : 'Registrar huella'
+                                    }}
+
+                                </button>
+
+
+                                <!-- CON HUELLA -->
+                                <ng-container *ngIf="user.biometric_registered">
+
+                                    <button type="button" class="biometric-action-btn biometric-change-btn" [disabled]="
+                                biometricActionInProgress ||
+                                !biometricDevice.online ||
+                                !biometricDevice.sensor_available
+                            " (click)="replaceBiometricFingerprint(user)">
+
+                                        <i class="fas fa-rotate"></i>
+
+                                        Cambiar huella
+
+                                    </button>
+
+
+                                    <button type="button" class="biometric-action-btn biometric-delete-btn" [disabled]="
+                                biometricActionInProgress ||
+                                !biometricDevice.online ||
+                                !biometricDevice.sensor_available
+                            " (click)="deleteBiometricFingerprint(user)">
+
+                                        <i class="fas fa-trash-can"></i>
+
+                                        Eliminar huella
+
+                                    </button>
+
+                                </ng-container>
+
+                            </div>
+
+                        </article>
+
+                    </div>
+
+                </section>
+
+            </ng-container>
+
             <ng-container *ngSwitchCase="'roles'">
 
                 <section class="card roles-section">
@@ -2786,42 +3267,74 @@
 
             </ng-container>
 
+            <!-- =========================================================
+     NOTIFICACIONES — SUPERADMIN
+     Reemplaza el ng-container actual de notifications por este.
+========================================================= -->
+
             <ng-container *ngSwitchCase="'notifications'">
 
-                <section class="card">
+                <section class="notifications-center">
 
-                    <div class="table-header">
+                    <!-- CABECERA -->
+                    <div class="notifications-header">
 
-                        <div class="header-left">
+                        <div class="notifications-heading">
+
+                            <div class="notifications-heading-icon">
+
+                                <i class="fas fa-bell"></i>
+
+                                <span class="notifications-heading-dot" *ngIf="unreadNotifications > 0">
+                                </span>
+
+                            </div>
 
                             <div>
 
                                 <h3>
-                                    Notificaciones
+                                    Centro de notificaciones
                                 </h3>
 
-                                <p class="section-description">
-                                    Actividad importante del sistema y solicitudes de acceso temporal.
+                                <p>
+                                    Revisa la actividad importante de SegurEntry
+                                    y gestiona las acciones pendientes.
                                 </p>
 
                             </div>
 
-                            <span class="badge-total" *ngIf="unreadNotifications > 0">
-
-                                {{ unreadNotifications }} sin leer
-
-                            </span>
-
                         </div>
 
-                        <div>
 
-                            <button type="button" class="secondary-btn" *ngIf="unreadNotifications > 0"
+                        <div class="notifications-header-actions">
+
+                            <button type="button" class="notification-secondary-btn" (click)="loadNotifications()"
+                                [disabled]="notificationLoading">
+
+                                <i class="fas fa-rotate" [class.fa-spin]="notificationLoading">
+                                </i>
+
+                                Actualizar
+
+                            </button>
+
+
+                            <button type="button" class="notification-secondary-btn" *ngIf="unreadNotifications > 0"
                                 (click)="markAllNotificationsAsRead()">
 
                                 <i class="fas fa-check-double"></i>
 
-                                Marcar todas como leídas
+                                Marcar todas leídas
+
+                            </button>
+
+
+                            <button type="button" class="notification-danger-soft-btn"
+                                *ngIf="readNotificationsCount > 0" (click)="clearReadNotifications()">
+
+                                <i class="fas fa-trash-can"></i>
+
+                                Eliminar leídas
 
                             </button>
 
@@ -2830,84 +3343,529 @@
                     </div>
 
 
-                    <div class="notification-list">
+                    <!-- RESUMEN -->
+                    <div class="notification-stats-grid">
 
-                        <!-- SIN NOTIFICACIONES -->
+                        <article class="notification-stat-card">
 
-                        <div class="empty-state" *ngIf="notifications.length === 0">
+                            <div class="notification-stat-icon total">
+                                <i class="fas fa-bell"></i>
+                            </div>
 
-                            <i class="fas fa-bell-slash"></i>
+                            <div>
 
-                            <p>
-                                No tienes notificaciones.
-                            </p>
+                                <span>
+                                    Total
+                                </span>
+
+                                <strong>
+                                    {{ notifications.length }}
+                                </strong>
+
+                            </div>
+
+                        </article>
+
+
+                        <article class="notification-stat-card">
+
+                            <div class="notification-stat-icon unread">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+
+                            <div>
+
+                                <span>
+                                    Sin leer
+                                </span>
+
+                                <strong>
+                                    {{ unreadNotifications }}
+                                </strong>
+
+                            </div>
+
+                        </article>
+
+
+                        <article class="notification-stat-card">
+
+                            <div class="notification-stat-icon actionable">
+                                <i class="fas fa-bolt"></i>
+                            </div>
+
+                            <div>
+
+                                <span>
+                                    Requieren acción
+                                </span>
+
+                                <strong>
+                                    {{ actionableNotificationsCount }}
+                                </strong>
+
+                            </div>
+
+                        </article>
+
+
+                        <article class="notification-stat-card">
+
+                            <div class="notification-stat-icon today">
+                                <i class="fas fa-calendar-day"></i>
+                            </div>
+
+                            <div>
+
+                                <span>
+                                    Hoy
+                                </span>
+
+                                <strong>
+                                    {{ todayNotificationsCount }}
+                                </strong>
+
+                            </div>
+
+                        </article>
+
+                    </div>
+
+
+                    <!-- FILTROS -->
+                    <div class="notifications-toolbar">
+
+                        <div class="notifications-search">
+
+                            <i class="fas fa-magnifying-glass"></i>
+
+                            <input type="text" [(ngModel)]="notificationSearch" placeholder="Buscar notificaciones...">
+
+                            <button type="button" *ngIf="notificationSearch" (click)="notificationSearch = ''"
+                                title="Limpiar búsqueda">
+
+                                <i class="fas fa-xmark"></i>
+
+                            </button>
 
                         </div>
 
 
-                        <!-- NOTIFICACIONES -->
+                        <div class="notification-filter-tabs">
 
-                        <div class="notification-item" *ngFor="let n of notifications" [class.unread]="!n.read"
-                            (click)="markNotificationAsRead(n)">
+                            <button type="button" [class.active]="notificationFilter === 'all'"
+                                (click)="setNotificationFilter('all')">
 
-                            <div class="notification-icon">
+                                Todas
 
-                                <i class="fas" [ngClass]="getNotificationIcon(n)">
+                                <span>
+                                    {{ notifications.length }}
+                                </span>
+
+                            </button>
+
+
+                            <button type="button" [class.active]="notificationFilter === 'unread'"
+                                (click)="setNotificationFilter('unread')">
+
+                                Sin leer
+
+                                <span>
+                                    {{ unreadNotifications }}
+                                </span>
+
+                            </button>
+
+
+                            <button type="button" [class.active]="notificationFilter === 'actionable'"
+                                (click)="setNotificationFilter('actionable')">
+
+                                Pendientes
+
+                                <span>
+                                    {{ actionableNotificationsCount }}
+                                </span>
+
+                            </button>
+
+
+                            <button type="button" [class.active]="notificationFilter === 'biometric'"
+                                (click)="setNotificationFilter('biometric')">
+
+                                Biometría
+
+                                <span>
+                                    {{ biometricNotificationsCount }}
+                                </span>
+
+                            </button>
+
+
+                            <button type="button" [class.active]="notificationFilter === 'reports'"
+                                (click)="setNotificationFilter('reports')">
+
+                                Reportes
+
+                                <span>
+                                    {{ reportNotificationsCount }}
+                                </span>
+
+                            </button>
+
+
+                            <button type="button" [class.active]="notificationFilter === 'read'"
+                                (click)="setNotificationFilter('read')">
+
+                                Leídas
+
+                                <span>
+                                    {{ readNotificationsCount }}
+                                </span>
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- CARGANDO INICIAL -->
+                    <div class="notifications-loading" *ngIf="
+                notificationLoading &&
+                notifications.length === 0
+            ">
+
+                        <i class="fas fa-circle-notch fa-spin"></i>
+
+                        <span>
+                            Cargando notificaciones...
+                        </span>
+
+                    </div>
+
+
+                    <!-- VACÍO -->
+                    <div class="notifications-empty" *ngIf="
+                !notificationLoading &&
+                filteredNotifications.length === 0
+            ">
+
+                        <div class="notifications-empty-icon">
+                            <i class="fas fa-bell-slash"></i>
+                        </div>
+
+                        <h4>
+                            No hay notificaciones
+                        </h4>
+
+                        <p *ngIf="!notificationSearch && notificationFilter === 'all'">
+                            Cuando ocurra algo importante en SegurEntry,
+                            aparecerá en este centro.
+                        </p>
+
+                        <p *ngIf="notificationSearch || notificationFilter !== 'all'">
+                            No hay resultados para los filtros seleccionados.
+                        </p>
+
+                    </div>
+
+
+                    <!-- LISTA -->
+                    <div class="notification-list-pro" *ngIf="filteredNotifications.length > 0">
+
+                        <article class="notification-pro-item" *ngFor="
+                    let notification of filteredNotifications;
+                    trackBy: trackByNotification
+                " [class.unread]="!notification.read" [ngClass]="getNotificationToneClass(notification)"
+                            (click)="markNotificationAsRead(notification)">
+
+                            <!-- ICONO -->
+                            <div class="notification-pro-icon">
+
+                                <i class="fas" [ngClass]="getNotificationIcon(notification)">
                                 </i>
 
                             </div>
 
 
-                            <div class="notification-content">
+                            <!-- CONTENIDO -->
+                            <div class="notification-pro-content">
 
-                                <strong>
-                                    {{ n.title || 'Notificación' }}
-                                </strong>
+                                <div class="notification-pro-top">
 
-                                <p>
-                                    {{ n.message }}
+                                    <div class="notification-pro-title-row">
+
+                                        <strong>
+                                            {{ notification.title || 'Notificación' }}
+                                        </strong>
+
+                                        <span class="notification-type-chip"
+                                            [ngClass]="getNotificationToneClass(notification)">
+
+                                            {{
+                                            getNotificationTypeLabel(
+                                            notification
+                                            )
+                                            }}
+
+                                        </span>
+
+                                        <span class="notification-new-chip" *ngIf="!notification.read">
+
+                                            Nueva
+
+                                        </span>
+
+                                    </div>
+
+
+                                    <time>
+                                        {{
+                                        formatNotificationDate(
+                                        notification
+                                        )
+                                        }}
+                                    </time>
+
+                                </div>
+
+
+                                <p class="notification-pro-message">
+                                    {{ notification.message }}
                                 </p>
 
-                                <small>
-                                    {{ formatNotificationDate(n) }}
-                                </small>
+
+                                <!-- DETALLE BIOMÉTRICO -->
+                                <div class="notification-event-details biometric"
+                                    *ngIf="isBiometricNotification(notification)">
+
+                                    <div>
+
+                                        <span>
+                                            Usuario
+                                        </span>
+
+                                        <strong>
+                                            {{
+                                            notification.data?.user_name ||
+                                            'Usuario'
+                                            }}
+                                        </strong>
+
+                                    </div>
 
 
-                                <!-- ESTADO SOLICITUD TEMPORAL -->
+                                    <div>
 
-                                <div class="temporary-request-status" *ngIf="
-                            n.type === 'temporary_request' ||
-                            n.type === 'temporary_request_approved' ||
-                            n.type === 'temporary_request_rejected'
+                                        <span>
+                                            ID huella
+                                        </span>
+
+                                        <strong>
+                                            {{
+                                            notification.data?.fingerprint_id ??
+                                            '—'
+                                            }}
+                                        </strong>
+
+                                    </div>
+
+
+                                    <div>
+
+                                        <span>
+                                            Dispositivo
+                                        </span>
+
+                                        <strong>
+                                            {{
+                                            notification.data?.device ||
+                                            'AS608'
+                                            }}
+                                        </strong>
+
+                                    </div>
+
+
+                                    <div>
+
+                                        <span>
+                                            Operación
+                                        </span>
+
+                                        <strong>
+                                            {{
+                                            notification.type === 'fingerprint_enrolled'
+                                            ? 'Registro'
+                                            : notification.type === 'fingerprint_deleted'
+                                            ? 'Eliminación'
+                                            : 'Error'
+                                            }}
+                                        </strong>
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- DETALLE REPORTE PDF -->
+                                <div class="notification-event-details report"
+                                    *ngIf="isReportNotification(notification)">
+
+                                    <div>
+
+                                        <span>
+                                            Generado por
+                                        </span>
+
+                                        <strong>
+                                            {{
+                                            notification.data?.actor_name ||
+                                            'Super Administrador'
+                                            }}
+                                        </strong>
+
+                                    </div>
+
+
+                                    <div>
+
+                                        <span>
+                                            Registros
+                                        </span>
+
+                                        <strong>
+                                            {{
+                                            notification.data?.records ??
+                                            0
+                                            }}
+                                        </strong>
+
+                                    </div>
+
+
+                                    <div>
+
+                                        <span>
+                                            Permitidos
+                                        </span>
+
+                                        <strong class="event-success">
+                                            {{
+                                            notification.data?.allowed ??
+                                            0
+                                            }}
+                                        </strong>
+
+                                    </div>
+
+
+                                    <div>
+
+                                        <span>
+                                            Denegados
+                                        </span>
+
+                                        <strong class="event-danger">
+                                            {{
+                                            notification.data?.denied ??
+                                            0
+                                            }}
+                                        </strong>
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- INFORMACIÓN DE SOLICITUD TEMPORAL -->
+                                <div class="temporary-request-summary" *ngIf="
+                            notification.type === 'temporary_request' &&
+                            notification.data
                         ">
 
-                                    <span class="request-status-badge"
-                                        [class.pending]="getTemporaryRequestStatus(n) === 'Pendiente'"
-                                        [class.approved]="getTemporaryRequestStatus(n) === 'Aprobada'"
-                                        [class.rejected]="getTemporaryRequestStatus(n) === 'Rechazada'">
+                                    <div *ngIf="notification.data?.name">
 
-                                        {{ getTemporaryRequestStatus(n) }}
+                                        <span>
+                                            Usuario
+                                        </span>
 
-                                    </span>
+                                        <strong>
+                                            {{ notification.data.name }}
+                                        </strong>
+
+                                    </div>
+
+
+                                    <div *ngIf="notification.data?.role">
+
+                                        <span>
+                                            Rol
+                                        </span>
+
+                                        <strong>
+                                            {{ notification.data.role }}
+                                        </strong>
+
+                                    </div>
+
+
+                                    <div *ngIf="notification.data?.duration_hours">
+
+                                        <span>
+                                            Duración
+                                        </span>
+
+                                        <strong>
+                                            {{ notification.data.duration_hours }} h
+                                        </strong>
+
+                                    </div>
+
+
+                                    <div>
+
+                                        <span>
+                                            Estado
+                                        </span>
+
+                                        <strong [class.status-pending]="
+                                    getTemporaryRequestStatus(notification) === 'Pendiente'
+                                " [class.status-approved]="
+                                    getTemporaryRequestStatus(notification) === 'Aprobada'
+                                " [class.status-rejected]="
+                                    getTemporaryRequestStatus(notification) === 'Rechazada'
+                                ">
+
+                                            {{
+                                            getTemporaryRequestStatus(
+                                            notification
+                                            )
+                                            }}
+
+                                        </strong>
+
+                                    </div>
 
                                 </div>
 
 
                                 <!-- ACCIONES SOLICITUD TEMPORAL -->
-
-                                <div class="temporary-request-actions" *ngIf="canProcessTemporaryRequest(n)"
+                                <div class="notification-action-panel" *ngIf="canProcessTemporaryRequest(notification)"
                                     (click)="$event.stopPropagation()">
 
-                                    <button type="button" class="primary-btn" (click)="approveTemporaryRequest(n)">
+                                    <button type="button" class="notification-approve-btn"
+                                        (click)="approveTemporaryRequest(notification)">
 
                                         <i class="fas fa-check"></i>
 
-                                        Aprobar
+                                        Aprobar solicitud
 
                                     </button>
 
 
-                                    <button type="button" class="danger-btn" (click)="rejectTemporaryRequest(n)">
+                                    <button type="button" class="notification-reject-btn"
+                                        (click)="rejectTemporaryRequest(notification)">
 
                                         <i class="fas fa-xmark"></i>
 
@@ -2917,48 +3875,40 @@
 
                                 </div>
 
+                            </div>
 
-                                <!-- SOLICITUD PROCESADA -->
 
-                                <div class="temporary-request-processed" *ngIf="
-                            (
-                                n.type === 'temporary_request' ||
-                                n.type === 'temporary_request_approved' ||
-                                n.type === 'temporary_request_rejected'
-                            ) &&
-                            !canProcessTemporaryRequest(n) &&
-                            getTemporaryRequestStatus(n) !== 'Pendiente'
-                        ">
+                            <!-- ACCIONES LATERALES -->
+                            <div class="notification-pro-actions" (click)="$event.stopPropagation()">
 
-                                    <i class="fas" [class.fa-circle-check]="
-                                getTemporaryRequestStatus(n) === 'Aprobada'
-                            " [class.fa-circle-xmark]="
-                                getTemporaryRequestStatus(n) === 'Rechazada'
-                            ">
-                                    </i>
+                                <button type="button" class="notification-read-btn" *ngIf="!notification.read"
+                                    (click)="markNotificationAsRead(notification)" title="Marcar como leída">
 
-                                    Solicitud
-                                    {{ getTemporaryRequestStatus(n) | lowercase }}.
+                                    <i class="fas fa-check"></i>
 
-                                </div>
+                                </button>
+
+
+                                <button type="button" class="notification-delete-btn"
+                                    (click)="deleteNotification(notification, $event)" title="Eliminar notificación">
+
+                                    <i class="fas fa-trash-can"></i>
+
+                                </button>
 
                             </div>
 
 
-                            <div class="notification-status" *ngIf="!n.read">
+                            <span class="notification-unread-indicator" *ngIf="!notification.read">
+                            </span>
 
-                                <span></span>
-
-                            </div>
-
-                        </div>
+                        </article>
 
                     </div>
 
                 </section>
 
             </ng-container>
-
             <!-- =====================================================
      AUDITORÍA
      ===================================================== -->

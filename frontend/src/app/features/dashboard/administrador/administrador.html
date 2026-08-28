@@ -1,146 +1,109 @@
-<!-- ====================== SIDEBAR ====================== -->
+<!-- SIDEBAR ADMINISTRADOR — ESTILO SUPERADMIN + BIOMETRÍA -->
 
-<aside class="sidebar" [class.collapsed]="!menuOpen">
+<aside class="sidebar admin-sidebar" [class.collapsed]="!menuOpen">
 
-    <div class="profile-card">
+    <div>
 
-        <!-- FOTO DE PERFIL -->
+        <div class="profile-card">
 
-        <div class="avatar">
+            <div class="avatar">
+                <img *ngIf="profile.photo" [src]="profile.photo" alt="Foto de perfil">
 
-            <img *ngIf="profile.photo" [src]="profile.photo" alt="Foto de perfil">
+                <i *ngIf="!profile.photo" class="fas fa-user-shield">
+                </i>
+            </div>
 
-            <i *ngIf="!profile.photo" class="fas fa-user">
-            </i>
+            <h3 *ngIf="menuOpen">{{ getProfileName() }}</h3>
 
-        </div>
+            <p *ngIf="menuOpen" class="profile-role">
+                {{ getProfileRole() }}
+            </p>
 
-        <!-- NOMBRE -->
+            <div *ngIf="menuOpen" class="profile-status">
+                <span class="status-dot" [class.inactive]="!isProfileActive()">
+                </span>
 
-        <h3 *ngIf="menuOpen">
-            {{ getProfileName() }}
-        </h3>
-
-        <!-- CARGO -->
-
-        <p *ngIf="menuOpen" class="profile-role">
-
-            {{ getProfileRole() }}
-
-        </p>
-
-        <!-- ESTADO -->
-
-        <div *ngIf="menuOpen" class="profile-status">
-
-            <span class="status-dot" [class.inactive]="!isProfileActive()">
-            </span>
-
-            <span>
-                {{ isProfileActive() ? 'Activo' : 'Inactivo' }}
-            </span>
+                <span>
+                    {{ isProfileActive() ? 'Activo' : 'Inactivo' }}
+                </span>
+            </div>
 
         </div>
 
+
+        <div class="logo">
+            <i class="fas fa-shield-halved"></i>
+            <span *ngIf="menuOpen">SegurEntry</span>
+        </div>
+
+
+        <nav>
+
+            <button type="button" [class.active]="activeRoute === 'dashboard'" (click)="goTo('dashboard')">
+
+                <i class="fas fa-house"></i>
+                <span *ngIf="menuOpen">Dashboard</span>
+
+            </button>
+
+            <button type="button" [class.active]="activeRoute === 'usuarios'" (click)="goTo('usuarios')">
+
+                <i class="fas fa-users"></i>
+                <span *ngIf="menuOpen">Usuarios</span>
+
+            </button>
+
+            <button type="button" [class.active]="activeRoute === 'biometria'" (click)="goTo('biometria')">
+
+                <i class="fas fa-fingerprint"></i>
+                <span *ngIf="menuOpen">Biometría</span>
+
+            </button>
+
+            <button type="button" [class.active]="activeRoute === 'accesos'" (click)="goTo('accesos')">
+
+                <i class="fas fa-door-open"></i>
+                <span *ngIf="menuOpen">Accesos</span>
+
+            </button>
+
+
+            <button type="button" [class.active]="activeRoute === 'reportes'" (click)="goTo('reportes')">
+
+                <i class="fas fa-chart-column"></i>
+                <span *ngIf="menuOpen">Reportes</span>
+
+            </button>
+
+            <button type="button" [class.active]="activeRoute === 'notificaciones'" (click)="goTo('notificaciones')">
+
+                <i class="fas fa-bell"></i>
+                <span *ngIf="menuOpen">Notificaciones</span>
+
+                <span class="badge" *ngIf="menuOpen && unreadNotifications > 0">
+                    {{ unreadNotifications }}
+                </span>
+
+            </button>
+
+            <button type="button" [class.active]="activeRoute === 'perfil'" (click)="goTo('perfil')">
+
+                <i class="fas fa-user"></i>
+                <span *ngIf="menuOpen">Perfil</span>
+
+            </button>
+
+        </nav>
+
     </div>
 
-
-    <!-- ====================== LOGO ====================== -->
-
-    <div class="logo">
-
-        <i class="fas fa-shield-alt"></i>
-
-        <span *ngIf="menuOpen">
-            SegurEntry
-        </span>
-
-    </div>
-
-
-    <!-- ====================== NAV ====================== -->
-
-    <nav>
-
-        <button [class.active]="activeRoute === 'dashboard'" (click)="goTo('dashboard')">
-
-            <i class="fas fa-home"></i>
-
-            <span *ngIf="menuOpen">
-                Dashboard
-            </span>
-
-        </button>
-
-
-        <button [class.active]="activeRoute === 'usuarios'" (click)="goTo('usuarios')">
-
-            <i class="fas fa-users"></i>
-
-            <span *ngIf="menuOpen">
-                Usuarios
-            </span>
-
-        </button>
-
-
-        <button [class.active]="activeRoute === 'reportes'" (click)="goTo('reportes')">
-
-            <i class="fas fa-chart-line"></i>
-
-            <span *ngIf="menuOpen">
-                Reportes
-            </span>
-
-        </button>
-
-
-        <button [class.active]="activeRoute === 'notificaciones'" (click)="goTo('notificaciones')">
-
-            <i class="fas fa-bell"></i>
-
-            <span *ngIf="menuOpen">
-                Notificaciones
-            </span>
-
-        </button>
-
-
-        <button [class.active]="activeRoute === 'perfil'" (click)="goTo('perfil')">
-
-            <i class="fas fa-user-circle"></i>
-
-            <span *ngIf="menuOpen">
-                Perfil
-            </span>
-
-        </button>
-
-        <button [class.active]="activeRoute === 'biometria'" (click)="goTo('biometria')">
-
-            <i class="fas fa-fingerprint"></i>
-
-            <span *ngIf="menuOpen">
-                Biometría
-            </span>
-
-        </button>
-
-
-    </nav>
-
-
-    <!-- ====================== LOGOUT ====================== -->
 
     <div class="sidebar-bottom">
 
-        <button class="logout" (click)="logout()">
+        <button type="button" class="logout" (click)="logout()">
 
-            <i class="fas fa-sign-out-alt"></i>
-
-            <span *ngIf="menuOpen">
-                Cerrar sesión
-            </span>
+            <i class="fas fa-right-from-bracket"></i>
+            <span *ngIf="menuOpen">Cerrar sesión</span>
 
         </button>
 
@@ -485,62 +448,1011 @@
 
     </section>
 
-
     <!-- =====================================================
-         REPORTES
-         ===================================================== -->
+     BIOMETRÍA — ADMINISTRADOR
+===================================================== -->
 
-    <section *ngIf="activeRoute === 'reportes'" class="card">
+    <section *ngIf="activeRoute === 'biometria'" class="admin-biometric-section">
 
-        <h3>
-            Reportes
-        </h3>
+        <div class="admin-biometric-header">
 
-        <p>
-            Próximamente estadísticas del sistema.
-        </p>
+            <div class="admin-biometric-title">
 
-    </section>
+                <div class="admin-biometric-title-icon">
+                    <i class="fas fa-fingerprint"></i>
+                </div>
+
+                <div>
+                    <span class="admin-biometric-eyebrow">
+                        CONTROL BIOMÉTRICO
+                    </span>
+
+                    <h3>Gestión de huellas</h3>
+
+                    <p>
+                        Registra, consulta, cambia y elimina huellas
+                        mediante el ESP32 y el sensor AS608.
+                    </p>
+                </div>
+
+            </div>
+
+            <button type="button" class="admin-biometric-refresh-btn"
+                (click)="loadBiometricUsers(); loadBiometricDeviceStatus()">
+
+                <i class="fas fa-rotate"></i>
+                Actualizar
+
+            </button>
+
+        </div>
 
 
-    <!-- =====================================================
-     NOTIFICACIONES
-     ===================================================== -->
+        <div class="admin-biometric-policy">
 
-    <section *ngIf="activeRoute === 'notificaciones'" class="card">
+            <i class="fas fa-shield-halved"></i>
 
-        <div class="table-header">
+            <div>
+                <strong>Protección de huellas privilegiadas</strong>
 
-            <div class="header-left">
+                <p>
+                    Puedes visualizar todas las huellas. Las huellas
+                    de Administradores y Super Administradores son
+                    de solo lectura: no pueden cambiarse ni eliminarse
+                    desde este rol.
+                </p>
+            </div>
+
+        </div>
+
+
+        <div class="admin-biometric-device" [class.online]="biometricDevice.online"
+            [class.offline]="!biometricDevice.online">
+
+            <div class="admin-biometric-device-main">
+
+                <div class="admin-biometric-device-icon">
+
+                    <i class="fas" [ngClass]="
+                        biometricDevice.online
+                            ? 'fa-microchip'
+                            : 'fa-triangle-exclamation'
+                    ">
+                    </i>
+
+                </div>
 
                 <div>
 
-                    <h3>
-                        Notificaciones
-                    </h3>
+                    <div class="admin-biometric-device-title">
 
-                    <p class="section-description">
-                        Actividad importante del sistema y solicitudes de acceso temporal.
+                        <h4>{{ biometricDevice.device }}</h4>
+
+                        <span class="admin-biometric-online-badge" [class.online]="biometricDevice.online">
+
+                            <span></span>
+
+                            {{
+                            biometricDevice.online
+                            ? 'En línea'
+                            : 'Desconectado'
+                            }}
+
+                        </span>
+
+                    </div>
+
+                    <p>
+                        {{
+                        biometricDevice.online
+                        ? 'ESP32 conectado y disponible para operaciones biométricas.'
+                        : 'Verifica que el ESP32 esté encendido y conectado al backend.'
+                        }}
                     </p>
 
                 </div>
 
-                <span class="badge-total" *ngIf="unreadNotifications > 0">
+            </div>
 
-                    {{ unreadNotifications }} sin leer
+
+            <div class="admin-biometric-device-metrics">
+
+                <div>
+                    <span>Sensor AS608</span>
+                    <strong>
+                        {{
+                        biometricDevice.sensor_available
+                        ? 'Disponible'
+                        : 'No disponible'
+                        }}
+                    </strong>
+                </div>
+
+                <div>
+                    <span>Huellas en sensor</span>
+                    <strong>
+                        {{
+                        biometricDevice.template_count === null
+                        ? '—'
+                        : biometricDevice.template_count
+                        }}
+                    </strong>
+                </div>
+
+                <div>
+                    <span>IP ESP32</span>
+                    <strong>{{ biometricDevice.ip || '—' }}</strong>
+                </div>
+
+                <div>
+                    <span>Última conexión</span>
+                    <strong>{{ formatBiometricLastSeen() }}</strong>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="admin-biometric-stats">
+
+            <article class="admin-biometric-stat">
+
+                <div>
+                    <span>Usuarios</span>
+                    <strong>{{ biometricUsers.length }}</strong>
+                </div>
+
+                <i class="fas fa-users"></i>
+
+            </article>
+
+            <article class="admin-biometric-stat registered">
+
+                <div>
+                    <span>Con huella</span>
+                    <strong>{{ biometricRegisteredCount }}</strong>
+                </div>
+
+                <i class="fas fa-fingerprint"></i>
+
+            </article>
+
+            <article class="admin-biometric-stat empty">
+
+                <div>
+                    <span>Sin huella</span>
+                    <strong>
+                        {{
+                        biometricUsers.length -
+                        biometricRegisteredCount
+                        }}
+                    </strong>
+                </div>
+
+                <i class="fas fa-user-clock"></i>
+
+            </article>
+
+            <article class="admin-biometric-stat protected">
+
+                <div>
+                    <span>Protegidas</span>
+                    <strong>{{ biometricProtectedCount }}</strong>
+                </div>
+
+                <i class="fas fa-lock"></i>
+
+            </article>
+
+        </div>
+
+
+        <div class="admin-biometric-toolbar">
+
+            <div class="admin-biometric-search">
+
+                <i class="fas fa-magnifying-glass"></i>
+
+                <input type="text" [(ngModel)]="biometricSearch"
+                    placeholder="Buscar por nombre, correo, documento, rol o ID de huella...">
+
+                <button type="button" *ngIf="biometricSearch" (click)="biometricSearch = ''" title="Limpiar">
+
+                    <i class="fas fa-xmark"></i>
+
+                </button>
+
+            </div>
+
+            <span class="admin-biometric-results">
+
+                {{ filteredBiometricUsers.length }}
+
+                {{
+                filteredBiometricUsers.length === 1
+                ? 'resultado'
+                : 'resultados'
+                }}
+
+            </span>
+
+        </div>
+
+
+        <div class="admin-biometric-state" *ngIf="biometricLoading">
+
+            <i class="fas fa-circle-notch fa-spin"></i>
+            <span>Cargando información biométrica...</span>
+
+        </div>
+
+
+        <div class="admin-biometric-state empty-state" *ngIf="
+            !biometricLoading &&
+            filteredBiometricUsers.length === 0
+        ">
+
+            <i class="fas fa-fingerprint"></i>
+            <strong>No se encontraron usuarios</strong>
+            <span>Cambia la búsqueda o actualiza la información.</span>
+
+        </div>
+
+
+        <div class="admin-biometric-users" *ngIf="
+            !biometricLoading &&
+            filteredBiometricUsers.length > 0
+        ">
+
+            <article class="admin-biometric-user-card" *ngFor="
+                let user of filteredBiometricUsers;
+                trackBy: trackByBiometricUser
+            " [class.registered]="user.biometric_registered" [class.protected]="isBiometricProtectedUser(user)"
+                [class.inactive-user]="!user.active">
+
+                <div class="admin-biometric-user-top">
+
+                    <div class="admin-biometric-user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+
+                    <div class="admin-biometric-user-identity">
+
+                        <div class="admin-biometric-name-row">
+
+                            <h4>{{ user.name }}</h4>
+
+                            <span class="admin-biometric-protected-badge" *ngIf="isBiometricProtectedUser(user)">
+
+                                <i class="fas fa-lock"></i>
+                                Protegida
+
+                            </span>
+
+                        </div>
+
+                        <p>{{ user.email }}</p>
+
+                    </div>
+
+                    <span class="admin-biometric-status" [class.registered]="user.biometric_registered"
+                        [class.pending]="!!user.biometric_job">
+
+                        <i class="fas" [ngClass]="{
+                            'fa-circle-check':
+                                user.biometric_registered &&
+                                !user.biometric_job,
+                            'fa-spinner fa-spin':
+                                !!user.biometric_job,
+                            'fa-circle-minus':
+                                !user.biometric_registered &&
+                                !user.biometric_job
+                        }">
+                        </i>
+
+                        {{ getBiometricStatusLabel(user) }}
+
+                    </span>
+
+                </div>
+
+
+                <div class="admin-biometric-user-data">
+
+                    <div>
+                        <span>Documento</span>
+                        <strong>
+                            {{
+                            user.document_type ||
+                            'Documento'
+                            }}
+                            {{ user.document || '—' }}
+                        </strong>
+                    </div>
+
+                    <div>
+                        <span>Rol</span>
+                        <strong>{{ formatRoleName(user.role) }}</strong>
+                    </div>
+
+                    <div>
+                        <span>Cuenta</span>
+                        <strong [class.inactive-text]="!user.active">
+                            {{ user.active ? 'Activa' : 'Inactiva' }}
+                        </strong>
+                    </div>
+
+                    <div>
+                        <span>ID biométrico</span>
+                        <strong>
+                            {{
+                            user.fingerprint_id === null
+                            ? 'Sin asignar'
+                            : user.fingerprint_id
+                            }}
+                        </strong>
+                    </div>
+
+                </div>
+
+
+                <div class="admin-biometric-job" *ngIf="user.biometric_job">
+
+                    <i class="fas fa-circle-notch fa-spin"></i>
+
+                    <div>
+                        <strong>
+                            {{
+                            getBiometricJobLabel(
+                            user.biometric_job
+                            )
+                            }}
+                        </strong>
+
+                        <span>
+                            {{
+                            user.biometric_job.message ||
+                            'Proceso biométrico en curso.'
+                            }}
+                        </span>
+                    </div>
+
+                </div>
+
+
+                <div class="admin-biometric-lock-info" *ngIf="
+                    isBiometricProtectedUser(user) &&
+                    user.biometric_registered
+                ">
+
+                    <i class="fas fa-lock"></i>
+
+                    <span>
+                        Puedes consultar esta huella, pero no
+                        modificarla ni eliminarla.
+                    </span>
+
+                </div>
+
+
+                <div class="admin-biometric-actions">
+
+                    <button type="button" class="admin-biometric-primary-btn" *ngIf="!user.biometric_registered"
+                        [disabled]="!canRegisterFingerprint(user)" (click)="startBiometricEnrollment(user)">
+
+                        <i class="fas fa-fingerprint"></i>
+
+                        {{
+                        user.biometric_job
+                        ? 'Proceso en curso'
+                        : 'Registrar huella'
+                        }}
+
+                    </button>
+
+
+                    <ng-container *ngIf="
+                        user.biometric_registered &&
+                        !isBiometricProtectedUser(user)
+                    ">
+
+                        <button type="button" class="admin-biometric-action-btn change"
+                            [disabled]="!canModifyFingerprint(user)" (click)="replaceBiometricFingerprint(user)">
+
+                            <i class="fas fa-arrows-rotate"></i>
+                            Cambiar huella
+
+                        </button>
+
+                        <button type="button" class="admin-biometric-action-btn delete"
+                            [disabled]="!canDeleteFingerprint(user)" (click)="deleteBiometricFingerprint(user)">
+
+                            <i class="fas fa-trash-can"></i>
+                            Eliminar huella
+
+                        </button>
+
+                    </ng-container>
+
+                </div>
+
+            </article>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         ACCESOS — ADMINISTRADOR
+         Historial completo con lógica Ingreso / Salida
+         ===================================================== -->
+
+    <section
+        *ngIf="activeRoute === 'accesos'"
+        class="admin-access-section">
+
+        <!-- HEADER -->
+
+        <div class="admin-access-header">
+
+            <div class="admin-access-title">
+
+                <div class="admin-access-title-icon">
+                    <i class="fas fa-door-open"></i>
+                </div>
+
+                <div>
+
+                    <span class="admin-access-eyebrow">
+                        CONTROL DE ACCESOS
+                    </span>
+
+                    <h3>
+                        Historial de accesos
+                    </h3>
+
+                    <p>
+                        Consulta todos los movimientos registrados
+                        y diferencia cada ingreso y salida del sistema.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="admin-access-refresh-btn"
+                (click)="loadReportAccessLogs()"
+                [disabled]="reportLoading">
+
+                <i
+                    class="fas fa-rotate"
+                    [class.fa-spin]="reportLoading">
+                </i>
+
+                Actualizar
+
+            </button>
+
+        </div>
+
+
+        <!-- MÉTRICAS -->
+
+        <div class="admin-access-stats">
+
+            <article class="admin-access-stat total">
+
+                <div class="admin-access-stat-icon">
+                    <i class="fas fa-list-check"></i>
+                </div>
+
+                <div>
+                    <span>Total</span>
+                    <strong>{{ filteredAdminAccessLogs.length }}</strong>
+                </div>
+
+            </article>
+
+
+            <article class="admin-access-stat entry">
+
+                <div class="admin-access-stat-icon">
+                    <i class="fas fa-arrow-right-to-bracket"></i>
+                </div>
+
+                <div>
+                    <span>Ingresos</span>
+                    <strong>{{ adminAccessEntries }}</strong>
+                </div>
+
+            </article>
+
+
+            <article class="admin-access-stat exit">
+
+                <div class="admin-access-stat-icon">
+                    <i class="fas fa-arrow-right-from-bracket"></i>
+                </div>
+
+                <div>
+                    <span>Salidas</span>
+                    <strong>{{ adminAccessExits }}</strong>
+                </div>
+
+            </article>
+
+
+            <article class="admin-access-stat allowed">
+
+                <div class="admin-access-stat-icon">
+                    <i class="fas fa-circle-check"></i>
+                </div>
+
+                <div>
+                    <span>Permitidos</span>
+                    <strong>{{ adminAccessAllowed }}</strong>
+                </div>
+
+            </article>
+
+
+            <article class="admin-access-stat denied">
+
+                <div class="admin-access-stat-icon">
+                    <i class="fas fa-circle-xmark"></i>
+                </div>
+
+                <div>
+                    <span>Denegados</span>
+                    <strong>{{ adminAccessDenied }}</strong>
+                </div>
+
+            </article>
+
+        </div>
+
+
+        <!-- FILTROS -->
+
+        <div class="admin-access-toolbar">
+
+            <div class="admin-access-search">
+
+                <i class="fas fa-magnifying-glass"></i>
+
+                <input
+                    type="text"
+                    [(ngModel)]="adminAccessSearch"
+                    placeholder="Buscar usuario, documento, rol, método o dispositivo...">
+
+                <button
+                    type="button"
+                    *ngIf="adminAccessSearch"
+                    (click)="adminAccessSearch = ''"
+                    title="Limpiar búsqueda">
+
+                    <i class="fas fa-xmark"></i>
+
+                </button>
+
+            </div>
+
+
+            <select [(ngModel)]="adminAccessMovement">
+
+                <option value="todos">
+                    Todos los movimientos
+                </option>
+
+                <option value="entrada">
+                    Ingresos
+                </option>
+
+                <option value="salida">
+                    Salidas
+                </option>
+
+            </select>
+
+
+            <select [(ngModel)]="adminAccessStatus">
+
+                <option value="todos">
+                    Todos los estados
+                </option>
+
+                <option value="permitido">
+                    Permitidos
+                </option>
+
+                <option value="denegado">
+                    Denegados
+                </option>
+
+            </select>
+
+
+            <input
+                type="date"
+                [(ngModel)]="adminAccessDate"
+                title="Filtrar por fecha">
+
+
+            <button
+                type="button"
+                class="admin-access-clear-btn"
+                (click)="resetAdminAccessFilters()">
+
+                <i class="fas fa-broom"></i>
+
+                Limpiar
+
+            </button>
+
+        </div>
+
+
+        <!-- LOADING -->
+
+        <div
+            class="admin-access-state"
+            *ngIf="reportLoading">
+
+            <i class="fas fa-circle-notch fa-spin"></i>
+
+            <span>
+                Cargando historial de accesos...
+            </span>
+
+        </div>
+
+
+        <!-- SIN DATOS -->
+
+        <div
+            class="admin-access-state empty"
+            *ngIf="
+                !reportLoading &&
+                filteredAdminAccessLogs.length === 0
+            ">
+
+            <i class="fas fa-door-closed"></i>
+
+            <strong>
+                No hay accesos para mostrar
+            </strong>
+
+            <span>
+                Modifica los filtros o espera nuevos registros.
+            </span>
+
+        </div>
+
+
+        <!-- TABLA -->
+
+        <div
+            class="admin-access-table-card"
+            *ngIf="
+                !reportLoading &&
+                filteredAdminAccessLogs.length > 0
+            ">
+
+            <div class="admin-access-table-heading">
+
+                <div>
+
+                    <strong>
+                        Movimientos registrados
+                    </strong>
+
+                    <span>
+                        {{ filteredAdminAccessLogs.length }}
+                        registro{{
+                            filteredAdminAccessLogs.length === 1
+                                ? ''
+                                : 's'
+                        }}
+                    </span>
+
+                </div>
+
+
+                <span
+                    class="admin-access-live-chip"
+                    title="La lista consulta nuevos accesos automáticamente cada segundo">
+
+                    <span></span>
+
+                    En vivo · 1 s
 
                 </span>
 
             </div>
 
-            <div>
 
-                <button type="button" class="secondary-btn" *ngIf="unreadNotifications > 0"
-                    (click)="markAllNotificationsAsRead()">
+            <div class="admin-access-table-wrapper">
 
-                    <i class="fas fa-check-double"></i>
+                <table class="admin-access-table">
 
-                    Marcar todas como leídas
+                    <thead>
+
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Usuario</th>
+                            <th>Documento</th>
+                            <th>Rol</th>
+                            <th>Movimiento</th>
+                            <th>Método</th>
+                            <th>Dispositivo</th>
+                            <th>Estado</th>
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        <tr
+                            *ngFor="let access of filteredAdminAccessLogs">
+
+                            <!-- FECHA -->
+
+                            <td
+                                data-label="Fecha"
+                                class="admin-access-date">
+
+                                {{
+                                    formatReportDate(
+                                        access.date
+                                    )
+                                }}
+
+                            </td>
+
+
+                            <!-- USUARIO -->
+
+                            <td data-label="Usuario">
+
+                                <div class="admin-access-user">
+
+                                    <div class="admin-access-avatar">
+
+                                        {{
+                                            (
+                                                access.user ||
+                                                'U'
+                                            )
+                                            .charAt(0)
+                                            .toUpperCase()
+                                        }}
+
+                                    </div>
+
+                                    <div>
+
+                                        <strong>
+                                            {{ access.user }}
+                                        </strong>
+
+                                        <span *ngIf="access.email">
+                                            {{ access.email }}
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                            </td>
+
+
+                            <!-- DOCUMENTO -->
+
+                            <td data-label="Documento">
+
+                                {{
+                                    access.document ||
+                                    '—'
+                                }}
+
+                            </td>
+
+
+                            <!-- ROL -->
+
+                            <td data-label="Rol">
+
+                                <span class="admin-access-role">
+
+                                    {{
+                                        formatRoleName(
+                                            access.role
+                                        )
+                                    }}
+
+                                </span>
+
+                            </td>
+
+
+                            <!-- MOVIMIENTO -->
+
+                            <td data-label="Movimiento">
+
+                                <span
+                                    class="admin-access-movement"
+                                    [class.entry]="access.type === 'entrada'"
+                                    [class.exit]="access.type === 'salida'">
+
+                                    <i
+                                        class="fas"
+                                        [class.fa-arrow-right-to-bracket]="
+                                            access.type === 'entrada'
+                                        "
+                                        [class.fa-arrow-right-from-bracket]="
+                                            access.type === 'salida'
+                                        ">
+                                    </i>
+
+                                    {{
+                                        access.type === 'salida'
+                                            ? 'Salida'
+                                            : 'Ingreso'
+                                    }}
+
+                                </span>
+
+                            </td>
+
+
+                            <!-- MÉTODO -->
+
+                            <td data-label="Método">
+
+                                <span class="admin-access-method">
+
+                                    <i
+                                        class="fas"
+                                        [ngClass]="
+                                            getAccessMethodIcon(
+                                                access.method
+                                            )
+                                        ">
+                                    </i>
+
+                                    {{
+                                        access.method ||
+                                        'No especificado'
+                                    }}
+
+                                </span>
+
+                            </td>
+
+
+                            <!-- DISPOSITIVO -->
+
+                            <td data-label="Dispositivo">
+
+                                {{
+                                    access.device ||
+                                    '—'
+                                }}
+
+                            </td>
+
+
+                            <!-- ESTADO -->
+
+                            <td data-label="Estado">
+
+                                <span
+                                    class="admin-access-status"
+                                    [class.denied]="!access.allowed">
+
+                                    <i
+                                        class="fas"
+                                        [class.fa-circle-check]="access.allowed"
+                                        [class.fa-circle-xmark]="!access.allowed">
+                                    </i>
+
+                                    {{
+                                        access.allowed
+                                            ? 'Permitido'
+                                            : 'Denegado'
+                                    }}
+
+                                </span>
+
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+     REPORTES — ADMINISTRADOR
+     Reemplaza el bloque actual de REPORTES por este.
+===================================================== -->
+
+    <section *ngIf="activeRoute === 'reportes'" class="admin-reports-section">
+
+        <!-- =================================================
+         CABECERA
+    ================================================== -->
+        <div class="admin-report-header">
+
+            <div class="admin-report-title">
+
+                <div class="admin-report-title-icon">
+                    <i class="fas fa-chart-column"></i>
+                </div>
+
+                <div>
+
+                    <span class="admin-report-eyebrow">
+                        ANALÍTICA DE ACCESOS
+                    </span>
+
+                    <h3>
+                        Reportes del sistema
+                    </h3>
+
+                    <p>
+                        Consulta, filtra y exporta el historial
+                        de accesos registrado en SegurEntry.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="admin-report-header-actions">
+
+                <button type="button" class="admin-report-secondary-btn" (click)="loadReportAccessLogs()"
+                    [disabled]="reportLoading">
+
+                    <i class="fas fa-rotate" [class.fa-spin]="reportLoading">
+                    </i>
+
+                    Actualizar
+
+                </button>
+
+
+                <button type="button" class="admin-report-secondary-btn csv" (click)="exportReportCsv()"
+                    [disabled]="reportLoading">
+
+                    <i class="fas fa-file-csv"></i>
+
+                    Exportar CSV
+
+                </button>
+
+
+                <button type="button" class="admin-report-primary-btn" (click)="printReport()"
+                    [disabled]="reportLoading">
+
+                    <i class="fas fa-file-pdf"></i>
+
+                    Generar PDF
 
                 </button>
 
@@ -549,61 +1461,890 @@
         </div>
 
 
-        <div class="notification-list">
+        <!-- =================================================
+         MÉTRICAS
+    ================================================== -->
+        <div class="admin-report-stats">
 
-            <!-- SIN NOTIFICACIONES -->
+            <article class="admin-report-stat total">
 
-            <div class="empty-state" *ngIf="notifications.length === 0">
+                <div class="admin-report-stat-icon">
+                    <i class="fas fa-list-check"></i>
+                </div>
 
-                <i class="fas fa-bell-slash"></i>
+                <div>
 
-                <p>
-                    No tienes notificaciones.
-                </p>
+                    <span>
+                        Registros
+                    </span>
+
+                    <strong>
+                        {{ filteredReportLogs.length }}
+                    </strong>
+
+                </div>
+
+            </article>
+
+
+            <article class="admin-report-stat allowed">
+
+                <div class="admin-report-stat-icon">
+                    <i class="fas fa-circle-check"></i>
+                </div>
+
+                <div>
+
+                    <span>
+                        Permitidos
+                    </span>
+
+                    <strong>
+                        {{ reportAllowed }}
+                    </strong>
+
+                </div>
+
+            </article>
+
+
+            <article class="admin-report-stat denied">
+
+                <div class="admin-report-stat-icon">
+                    <i class="fas fa-circle-xmark"></i>
+                </div>
+
+                <div>
+
+                    <span>
+                        Denegados
+                    </span>
+
+                    <strong>
+                        {{ reportDenied }}
+                    </strong>
+
+                </div>
+
+            </article>
+
+
+            <article class="admin-report-stat entry">
+
+                <div class="admin-report-stat-icon">
+                    <i class="fas fa-arrow-right-to-bracket"></i>
+                </div>
+
+                <div>
+
+                    <span>
+                        Entradas
+                    </span>
+
+                    <strong>
+                        {{ reportEntries }}
+                    </strong>
+
+                </div>
+
+            </article>
+
+
+            <article class="admin-report-stat exit">
+
+                <div class="admin-report-stat-icon">
+                    <i class="fas fa-arrow-right-from-bracket"></i>
+                </div>
+
+                <div>
+
+                    <span>
+                        Salidas
+                    </span>
+
+                    <strong>
+                        {{ reportExits }}
+                    </strong>
+
+                </div>
+
+            </article>
+
+
+            <article class="admin-report-stat rate">
+
+                <div class="admin-report-stat-icon">
+                    <i class="fas fa-percent"></i>
+                </div>
+
+                <div>
+
+                    <span>
+                        Tasa permitida
+                    </span>
+
+                    <strong>
+                        {{ reportSuccessRate }}%
+                    </strong>
+
+                </div>
+
+            </article>
+
+        </div>
+
+
+        <!-- =================================================
+         FILTROS
+    ================================================== -->
+        <div class="admin-report-filter-card">
+
+            <div class="admin-report-filter-heading">
+
+                <div>
+                    <i class="fas fa-filter"></i>
+
+                    <strong>
+                        Filtros del reporte
+                    </strong>
+                </div>
+
+                <button type="button" class="admin-report-clear-btn" (click)="resetReportFilters()">
+
+                    <i class="fas fa-broom"></i>
+
+                    Limpiar filtros
+
+                </button>
 
             </div>
 
 
-            <!-- NOTIFICACIONES -->
+            <div class="admin-report-filters">
 
-            <div class="notification-item" *ngFor="let n of notifications" [class.unread]="!n.read"
+                <div class="admin-report-field search">
+
+                    <label>
+                        Buscar
+                    </label>
+
+                    <div class="admin-report-search">
+
+                        <i class="fas fa-magnifying-glass"></i>
+
+                        <input type="text" [(ngModel)]="reportSearch" placeholder="Usuario, documento, rol, método...">
+
+                    </div>
+
+                </div>
+
+
+                <div class="admin-report-field">
+
+                    <label>
+                        Desde
+                    </label>
+
+                    <input type="date" [(ngModel)]="reportFrom">
+
+                </div>
+
+
+                <div class="admin-report-field">
+
+                    <label>
+                        Hasta
+                    </label>
+
+                    <input type="date" [(ngModel)]="reportTo">
+
+                </div>
+
+
+                <div class="admin-report-field">
+
+                    <label>
+                        Estado
+                    </label>
+
+                    <select [(ngModel)]="reportStatus">
+
+                        <option value="todos">
+                            Todos
+                        </option>
+
+                        <option value="permitido">
+                            Permitido
+                        </option>
+
+                        <option value="denegado">
+                            Denegado
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="admin-report-field">
+
+                    <label>
+                        Movimiento
+                    </label>
+
+                    <select [(ngModel)]="reportType">
+
+                        <option value="todos">
+                            Todos
+                        </option>
+
+                        <option value="entrada">
+                            Entrada
+                        </option>
+
+                        <option value="salida">
+                            Salida
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="admin-report-field">
+
+                    <label>
+                        Rol
+                    </label>
+
+                    <select [(ngModel)]="reportRole">
+
+                        <option value="todos">
+                            Todos
+                        </option>
+
+                        <option *ngFor="let role of reportRoles" [value]="role">
+
+                            {{ formatRoleName(role) }}
+
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+         CARGANDO
+    ================================================== -->
+        <div class="admin-report-state" *ngIf="reportLoading">
+
+            <i class="fas fa-circle-notch fa-spin"></i>
+
+            <span>
+                Cargando información de accesos...
+            </span>
+
+        </div>
+
+
+        <!-- =================================================
+         SIN REGISTROS
+    ================================================== -->
+        <div class="admin-report-state empty" *ngIf="
+            !reportLoading &&
+            filteredReportLogs.length === 0
+        ">
+
+            <i class="fas fa-chart-bar"></i>
+
+            <strong>
+                No hay registros para mostrar
+            </strong>
+
+            <span>
+                Modifica los filtros o espera nuevos accesos.
+            </span>
+
+        </div>
+
+
+        <!-- =================================================
+         TABLA
+    ================================================== -->
+        <div class="admin-report-table-card" *ngIf="
+            !reportLoading &&
+            filteredReportLogs.length > 0
+        ">
+
+            <div class="admin-report-table-header">
+
+                <div>
+
+                    <strong>
+                        Historial filtrado
+                    </strong>
+
+                    <span>
+                        {{ filteredReportLogs.length }}
+                        registro{{
+                        filteredReportLogs.length === 1
+                        ? ''
+                        : 's'
+                        }}
+                    </span>
+
+                </div>
+
+                <div class="admin-report-result-chip">
+                    <i class="fas fa-shield-halved"></i>
+                    Datos de SegurEntry
+                </div>
+
+            </div>
+
+
+            <div class="admin-report-table-wrapper">
+
+                <table class="admin-report-table">
+
+                    <thead>
+
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Usuario</th>
+                            <th>Documento</th>
+                            <th>Rol</th>
+                            <th>Movimiento</th>
+                            <th>Método</th>
+                            <th>Dispositivo</th>
+                            <th>Estado</th>
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        <tr *ngFor="let log of filteredReportLogs">
+
+                            <td data-label="Fecha" class="report-date-cell">
+
+                                {{
+                                formatReportDate(
+                                log.date
+                                )
+                                }}
+
+                            </td>
+
+
+                            <td data-label="Usuario">
+
+                                <div class="report-user-cell">
+
+                                    <div class="report-user-avatar">
+                                        {{
+                                        (
+                                        log.user ||
+                                        'U'
+                                        )
+                                        .charAt(0)
+                                        .toUpperCase()
+                                        }}
+                                    </div>
+
+                                    <div>
+
+                                        <strong>
+                                            {{ log.user }}
+                                        </strong>
+
+                                        <span *ngIf="log.email">
+                                            {{ log.email }}
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                            </td>
+
+
+                            <td data-label="Documento">
+                                {{ log.document || '—' }}
+                            </td>
+
+
+                            <td data-label="Rol">
+
+                                <span class="report-role-badge">
+                                    {{ formatRoleName(log.role) }}
+                                </span>
+
+                            </td>
+
+
+                            <td data-label="Movimiento">
+
+                                <span class="report-movement-badge" [class.exit]="log.type === 'salida'">
+
+                                    <i class="fas" [class.fa-arrow-right-to-bracket]="
+                                        log.type === 'entrada'
+                                    " [class.fa-arrow-right-from-bracket]="
+                                        log.type === 'salida'
+                                    ">
+                                    </i>
+
+                                    {{
+                                    log.type === 'salida'
+                                    ? 'Salida'
+                                    : 'Entrada'
+                                    }}
+
+                                </span>
+
+                            </td>
+
+
+                            <td data-label="Método">
+
+                                <span class="report-method">
+
+                                    <i class="fas" [ngClass]="
+                                        getAccessMethodIcon(
+                                            log.method
+                                        )
+                                    ">
+                                    </i>
+
+                                    {{
+                                    log.method ||
+                                    'No especificado'
+                                    }}
+
+                                </span>
+
+                            </td>
+
+
+                            <td data-label="Dispositivo">
+                                {{ log.device || '—' }}
+                            </td>
+
+
+                            <td data-label="Estado">
+
+                                <span class="report-status-badge" [class.denied]="!log.allowed">
+
+                                    <i class="fas" [class.fa-circle-check]="log.allowed"
+                                        [class.fa-circle-xmark]="!log.allowed">
+                                    </i>
+
+                                    {{
+                                    log.allowed
+                                    ? 'Permitido'
+                                    : 'Denegado'
+                                    }}
+
+                                </span>
+
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         NOTIFICACIONES — ADMINISTRADOR
+         ===================================================== -->
+
+    <section
+        *ngIf="activeRoute === 'notificaciones'"
+        class="admin-notification-section">
+
+        <div class="admin-notification-header">
+
+            <div class="admin-notification-title">
+
+                <div class="admin-notification-title-icon">
+                    <i class="fas fa-bell"></i>
+                </div>
+
+                <div>
+
+                    <span class="admin-notification-eyebrow">
+                        CENTRO DE ACTIVIDAD
+                    </span>
+
+                    <h3>
+                        Notificaciones
+                    </h3>
+
+                    <p>
+                        Revisa eventos del sistema, solicitudes
+                        pendientes y actividad importante de SegurEntry.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="admin-notification-header-actions">
+
+                <button
+                    type="button"
+                    class="admin-notification-secondary-btn"
+                    (click)="loadNotifications()">
+
+                    <i class="fas fa-rotate"></i>
+
+                    Actualizar
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="admin-notification-secondary-btn read"
+                    *ngIf="adminNotificationUnread > 0"
+                    (click)="markAllNotificationsAsRead()">
+
+                    <i class="fas fa-check-double"></i>
+
+                    Marcar todas
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="admin-notification-secondary-btn delete"
+                    *ngIf="adminNotificationRead > 0"
+                    (click)="deleteReadAdminNotifications()">
+
+                    <i class="fas fa-trash-can"></i>
+
+                    Eliminar leídas
+
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- MÉTRICAS -->
+
+        <div class="admin-notification-stats">
+
+            <article class="admin-notification-stat total">
+
+                <div class="admin-notification-stat-icon">
+                    <i class="fas fa-bell"></i>
+                </div>
+
+                <div>
+                    <span>Total</span>
+                    <strong>{{ adminNotificationTotal }}</strong>
+                </div>
+
+            </article>
+
+
+            <article class="admin-notification-stat unread">
+
+                <div class="admin-notification-stat-icon">
+                    <i class="fas fa-envelope"></i>
+                </div>
+
+                <div>
+                    <span>Sin leer</span>
+                    <strong>{{ adminNotificationUnread }}</strong>
+                </div>
+
+            </article>
+
+
+            <article class="admin-notification-stat action">
+
+                <div class="admin-notification-stat-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+
+                <div>
+                    <span>Requieren acción</span>
+                    <strong>{{ adminNotificationActionRequired }}</strong>
+                </div>
+
+            </article>
+
+
+            <article class="admin-notification-stat today">
+
+                <div class="admin-notification-stat-icon">
+                    <i class="fas fa-calendar-day"></i>
+                </div>
+
+                <div>
+                    <span>Hoy</span>
+                    <strong>{{ adminNotificationToday }}</strong>
+                </div>
+
+            </article>
+
+        </div>
+
+
+        <!-- FILTROS -->
+
+        <div class="admin-notification-toolbar">
+
+            <div class="admin-notification-search">
+
+                <i class="fas fa-magnifying-glass"></i>
+
+                <input
+                    type="text"
+                    [(ngModel)]="notificationSearch"
+                    placeholder="Buscar título, mensaje, usuario o evento...">
+
+                <button
+                    type="button"
+                    *ngIf="notificationSearch"
+                    (click)="notificationSearch = ''">
+
+                    <i class="fas fa-xmark"></i>
+
+                </button>
+
+            </div>
+
+
+            <div class="admin-notification-filters">
+
+                <button
+                    type="button"
+                    [class.active]="notificationFilter === 'todas'"
+                    (click)="notificationFilter = 'todas'">
+                    Todas
+                </button>
+
+                <button
+                    type="button"
+                    [class.active]="notificationFilter === 'no-leidas'"
+                    (click)="notificationFilter = 'no-leidas'">
+
+                    Sin leer
+
+                    <span *ngIf="adminNotificationUnread > 0">
+                        {{ adminNotificationUnread }}
+                    </span>
+
+                </button>
+
+                <button
+                    type="button"
+                    [class.active]="notificationFilter === 'accion'"
+                    (click)="notificationFilter = 'accion'">
+
+                    Requieren acción
+
+                    <span *ngIf="adminNotificationActionRequired > 0">
+                        {{ adminNotificationActionRequired }}
+                    </span>
+
+                </button>
+
+                <button
+                    type="button"
+                    [class.active]="notificationFilter === 'biometria'"
+                    (click)="notificationFilter = 'biometria'">
+                    Biometría
+                </button>
+
+                <button
+                    type="button"
+                    [class.active]="notificationFilter === 'accesos'"
+                    (click)="notificationFilter = 'accesos'">
+                    Accesos
+                </button>
+
+                <button
+                    type="button"
+                    [class.active]="notificationFilter === 'reportes'"
+                    (click)="notificationFilter = 'reportes'">
+                    Reportes
+                </button>
+
+                <button
+                    type="button"
+                    [class.active]="notificationFilter === 'leidas'"
+                    (click)="notificationFilter = 'leidas'">
+                    Leídas
+                </button>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="admin-notification-clear-btn"
+                *ngIf="
+                    notificationSearch ||
+                    notificationFilter !== 'todas'
+                "
+                (click)="resetAdminNotificationFilters()">
+
+                <i class="fas fa-broom"></i>
+
+                Limpiar
+
+            </button>
+
+        </div>
+
+
+        <!-- VACÍO -->
+
+        <div
+            class="admin-notification-state empty"
+            *ngIf="filteredAdminNotifications.length === 0">
+
+            <i class="fas fa-bell-slash"></i>
+
+            <strong>
+                No hay notificaciones para mostrar
+            </strong>
+
+            <span>
+                {{
+                    notificationSearch ||
+                    notificationFilter !== 'todas'
+                        ? 'Prueba cambiando los filtros.'
+                        : 'Cuando ocurra una actividad importante aparecerá aquí.'
+                }}
+            </span>
+
+        </div>
+
+
+        <!-- LISTA -->
+
+        <div
+            class="admin-notification-list"
+            *ngIf="filteredAdminNotifications.length > 0">
+
+            <article
+                class="admin-notification-item"
+                *ngFor="let n of filteredAdminNotifications"
+                [class.unread]="n.read !== true"
+                [ngClass]="getAdminNotificationTone(n)"
                 (click)="markNotificationAsRead(n)">
 
-                <div class="notification-icon">
+                <div class="admin-notification-icon">
 
-                    <i class="fas" [ngClass]="getNotificationIcon(n)">
+                    <i
+                        class="fas"
+                        [ngClass]="getNotificationIcon(n)">
                     </i>
 
                 </div>
 
 
-                <div class="notification-content">
+                <div class="admin-notification-content">
 
-                    <strong>
+                    <div class="admin-notification-topline">
+
+                        <div class="admin-notification-badges">
+
+                            <span class="admin-notification-category">
+                                {{
+                                    getAdminNotificationCategoryLabel(
+                                        n
+                                    )
+                                }}
+                            </span>
+
+
+                            <span
+                                class="admin-notification-new"
+                                *ngIf="n.read !== true">
+                                Nueva
+                            </span>
+
+
+                            <span
+                                class="admin-notification-action-chip"
+                                *ngIf="adminNotificationRequiresAction(n)">
+
+                                <i class="fas fa-bolt"></i>
+
+                                Requiere acción
+
+                            </span>
+
+                        </div>
+
+
+                        <span class="admin-notification-date">
+
+                            <i class="far fa-clock"></i>
+
+                            {{ formatNotificationDate(n) }}
+
+                        </span>
+
+                    </div>
+
+
+                    <h4>
                         {{ n.title || 'Notificación' }}
-                    </strong>
+                    </h4>
+
 
                     <p>
-                        {{ n.message }}
+                        {{
+                            n.message ||
+                            'Se registró una nueva actividad en SegurEntry.'
+                        }}
                     </p>
 
-                    <small>
-                        {{ formatNotificationDate(n) }}
-                    </small>
 
+                    <!-- SOLICITUD TEMPORAL -->
 
-                    <!-- ESTADO DE SOLICITUD TEMPORAL -->
+                    <div
+                        class="admin-notification-request-status"
+                        *ngIf="
+                            n.type === 'temporary_request' ||
+                            n.type === 'temporary_request_approved' ||
+                            n.type === 'temporary_request_rejected'
+                        ">
 
-                    <div class="temporary-request-status" *ngIf="
-                        n.type === 'temporary_request' ||
-                        n.type === 'temporary_request_approved' ||
-                        n.type === 'temporary_request_rejected'
-                    ">
-
-                        <span class="request-status-badge"
-                            [class.pending]="getTemporaryRequestStatus(n) === 'Pendiente'"
-                            [class.approved]="getTemporaryRequestStatus(n) === 'Aprobada'"
-                            [class.rejected]="getTemporaryRequestStatus(n) === 'Rechazada'">
+                        <span
+                            [class.pending]="
+                                getTemporaryRequestStatus(n) === 'Pendiente'
+                            "
+                            [class.approved]="
+                                getTemporaryRequestStatus(n) === 'Aprobada'
+                            "
+                            [class.rejected]="
+                                getTemporaryRequestStatus(n) === 'Rechazada'
+                            ">
 
                             {{ getTemporaryRequestStatus(n) }}
 
@@ -612,12 +2353,15 @@
                     </div>
 
 
-                    <!-- BOTONES SOLO SI SIGUE PENDIENTE -->
-
-                    <div class="temporary-request-actions" *ngIf="canProcessTemporaryRequest(n)"
+                    <div
+                        class="admin-notification-request-actions"
+                        *ngIf="canProcessTemporaryRequest(n)"
                         (click)="$event.stopPropagation()">
 
-                        <button type="button" class="primary-btn" (click)="approveTemporaryRequest(n)">
+                        <button
+                            type="button"
+                            class="admin-notification-approve-btn"
+                            (click)="approveTemporaryRequest(n)">
 
                             <i class="fas fa-check"></i>
 
@@ -626,7 +2370,10 @@
                         </button>
 
 
-                        <button type="button" class="danger-btn" (click)="rejectTemporaryRequest(n)">
+                        <button
+                            type="button"
+                            class="admin-notification-reject-btn"
+                            (click)="rejectTemporaryRequest(n)">
 
                             <i class="fas fa-xmark"></i>
 
@@ -637,23 +2384,26 @@
                     </div>
 
 
-                    <!-- SOLICITUD YA PROCESADA -->
-
-                    <div class="temporary-request-processed" *ngIf="
-                        (
-                            n.type === 'temporary_request' ||
-                            n.type === 'temporary_request_approved' ||
-                            n.type === 'temporary_request_rejected'
-                        ) &&
-                        !canProcessTemporaryRequest(n) &&
-                        getTemporaryRequestStatus(n) !== 'Pendiente'
-                    ">
-
-                        <i class="fas" [class.fa-circle-check]="
-                            getTemporaryRequestStatus(n) === 'Aprobada'
-                        " [class.fa-circle-xmark]="
-                            getTemporaryRequestStatus(n) === 'Rechazada'
+                    <div
+                        class="admin-notification-processed"
+                        *ngIf="
+                            (
+                                n.type === 'temporary_request' ||
+                                n.type === 'temporary_request_approved' ||
+                                n.type === 'temporary_request_rejected'
+                            ) &&
+                            !canProcessTemporaryRequest(n) &&
+                            getTemporaryRequestStatus(n) !== 'Pendiente'
                         ">
+
+                        <i
+                            class="fas"
+                            [class.fa-circle-check]="
+                                getTemporaryRequestStatus(n) === 'Aprobada'
+                            "
+                            [class.fa-circle-xmark]="
+                                getTemporaryRequestStatus(n) === 'Rechazada'
+                            ">
                         </i>
 
                         Solicitud
@@ -664,17 +2414,32 @@
                 </div>
 
 
-                <div class="notification-status" *ngIf="!n.read">
+                <div class="admin-notification-side">
 
-                    <span></span>
+                    <span
+                        class="admin-notification-unread-dot"
+                        *ngIf="n.read !== true">
+                    </span>
+
+
+                    <button
+                        type="button"
+                        class="admin-notification-delete-btn"
+                        (click)="deleteAdminNotification(n, $event)"
+                        title="Eliminar">
+
+                        <i class="fas fa-trash-can"></i>
+
+                    </button>
 
                 </div>
 
-            </div>
+            </article>
 
         </div>
 
     </section>
+
 
     <!-- =====================================================
      PERFIL
@@ -961,261 +2726,6 @@
 
 
 
-    <!-- =====================================================
-         BIOMETRÍA
-         Vista preparada para futura conexión ESP32 + AS608
-         ===================================================== -->
-
-    <section *ngIf="activeRoute === 'biometria'" class="biometric-section">
-
-        <div class="biometric-page-header">
-
-            <div>
-                <span class="biometric-eyebrow">
-                    <i class="fas fa-fingerprint"></i>
-                    Gestión biométrica
-                </span>
-
-                <h2>Registro de huellas</h2>
-
-                <p>
-                    Busca un usuario registrado y prepara su enrolamiento biométrico.
-                    La captura real se habilitará cuando el ESP32 y el sensor AS608 estén conectados.
-                </p>
-            </div>
-
-            <div class="biometric-device-status offline">
-
-                <span class="device-status-dot"></span>
-
-                <div>
-                    <strong>Sensor no conectado</strong>
-                    <small>ESP32 + AS608 pendientes de integración</small>
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <div class="biometric-summary-grid">
-
-            <div class="card biometric-summary-card">
-
-                <div class="biometric-summary-icon">
-                    <i class="fas fa-users"></i>
-                </div>
-
-                <div>
-                    <strong>{{ accesses.length }}</strong>
-                    <span>Usuarios disponibles</span>
-                </div>
-
-            </div>
-
-
-            <div class="card biometric-summary-card">
-
-                <div class="biometric-summary-icon success">
-                    <i class="fas fa-fingerprint"></i>
-                </div>
-
-                <div>
-                    <strong>0</strong>
-                    <span>Huellas registradas</span>
-                </div>
-
-            </div>
-
-
-            <div class="card biometric-summary-card">
-
-                <div class="biometric-summary-icon pending">
-                    <i class="fas fa-user-clock"></i>
-                </div>
-
-                <div>
-                    <strong>{{ accesses.length }}</strong>
-                    <span>Pendientes de enrolamiento</span>
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <section class="card biometric-users-card">
-
-            <div class="biometric-table-header">
-
-                <div>
-                    <h3>Usuarios registrados</h3>
-
-                    <p>
-                        Selecciona el usuario al que deseas asociar una huella.
-                    </p>
-                </div>
-
-
-                <div class="biometric-search-box">
-
-                    <i class="fas fa-search"></i>
-
-                    <input type="text" [(ngModel)]="biometricSearch"
-                        placeholder="Buscar por nombre, correo, documento o rol"
-                        aria-label="Buscar usuario para registrar huella">
-
-                    <button type="button" *ngIf="biometricSearch" (click)="biometricSearch = ''"
-                        title="Limpiar búsqueda" aria-label="Limpiar búsqueda">
-
-                        <i class="fas fa-xmark"></i>
-
-                    </button>
-
-                </div>
-
-            </div>
-
-
-            <div class="biometric-info-banner">
-
-                <i class="fas fa-circle-info"></i>
-
-                <div>
-                    <strong>Vista preparada para el hardware</strong>
-
-                    <p>
-                        Por ahora ninguna huella se guarda. El botón Registrar huella abre
-                        el flujo visual y muestra el usuario seleccionado.
-                    </p>
-                </div>
-
-            </div>
-
-
-            <div class="biometric-table-container">
-
-                <table class="biometric-table">
-
-                    <thead>
-
-                        <tr>
-                            <th>Usuario</th>
-                            <th>Tipo</th>
-                            <th>Documento</th>
-                            <th>Rol</th>
-                            <th>Estado biométrico</th>
-                            <th class="biometric-actions-column">Acción</th>
-                        </tr>
-
-                    </thead>
-
-
-                    <tbody>
-
-                        <tr *ngFor="let user of filteredBiometricUsers()">
-
-                            <td>
-
-                                <div class="biometric-user-cell">
-
-                                    <div class="biometric-user-avatar">
-                                        {{ user.name.charAt(0).toUpperCase() || 'U' }}
-                                    </div>
-
-                                    <div>
-                                        <strong>{{ user.name || 'Usuario' }}</strong>
-                                        <small>{{ user.email || 'Sin correo registrado' }}</small>
-                                    </div>
-
-                                </div>
-
-                            </td>
-
-
-                            <td>
-
-                                <span class="document-type-badge">
-
-                                    {{ user.document_type || user.documentType || '-' }}
-
-                                </span>
-
-                            </td>
-
-
-                            <td>
-                                {{ user.document || 'No registrado' }}
-                            </td>
-
-
-                            <td>
-
-                                <span class="biometric-role-badge">
-                                    {{ user.role || 'Usuario' }}
-                                </span>
-
-                            </td>
-
-
-                            <td>
-
-                                <span class="biometric-status-badge not-registered">
-
-                                    <i class="fas fa-circle-minus"></i>
-
-                                    No registrada
-
-                                </span>
-
-                            </td>
-
-
-                            <td class="biometric-actions-column">
-
-                                <button type="button" class="biometric-register-btn"
-                                    (click)="openFingerprintEnrollment(user)">
-
-                                    <i class="fas fa-fingerprint"></i>
-
-                                    Registrar huella
-
-                                </button>
-
-                            </td>
-
-                        </tr>
-
-
-                        <tr *ngIf="filteredBiometricUsers().length === 0">
-
-                            <td colspan="6">
-
-                                <div class="biometric-empty-state">
-
-                                    <i class="fas fa-user-slash"></i>
-
-                                    <h4>No encontramos usuarios</h4>
-
-                                    <p>
-                                        Prueba con otro nombre, correo, documento o rol.
-                                    </p>
-
-                                </div>
-
-                            </td>
-
-                        </tr>
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        </section>
-
-    </section>
 
 </main>
 
@@ -1474,137 +2984,6 @@
                 ? 'Guardar cambios'
                 : 'Crear usuario'
                 }}
-
-            </button>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-<!-- =========================================================
-     MODAL BIOMETRÍA — SOLO VISTA
-     ========================================================= -->
-
-<div class="biometric-modal-backdrop" *ngIf="showBiometricModal" (click)="closeFingerprintEnrollment()">
-
-    <div class="biometric-modal" role="dialog" aria-modal="true" aria-labelledby="biometricModalTitle"
-        (click)="$event.stopPropagation()">
-
-        <button type="button" class="biometric-modal-close" (click)="closeFingerprintEnrollment()" title="Cerrar"
-            aria-label="Cerrar">
-
-            <i class="fas fa-xmark"></i>
-
-        </button>
-
-
-        <div class="biometric-modal-icon">
-
-            <i class="fas fa-fingerprint"></i>
-
-        </div>
-
-
-        <div class="biometric-modal-heading">
-
-            <span>Enrolamiento biométrico</span>
-
-            <h2 id="biometricModalTitle">
-                Registrar huella
-            </h2>
-
-            <p>
-                La interfaz está lista. La lectura física se habilitará
-                cuando conectemos el ESP32 DevKit V1 y el AS608.
-            </p>
-
-        </div>
-
-
-        <div class="biometric-selected-user" *ngIf="selectedBiometricUser">
-
-            <div class="biometric-selected-avatar">
-                {{ selectedBiometricUser.name.charAt(0).toUpperCase() || 'U' }}
-            </div>
-
-            <div>
-                <strong>
-                    {{ selectedBiometricUser.name || 'Usuario' }}
-                </strong>
-
-                <span>
-                    {{ selectedBiometricUser.document_type || selectedBiometricUser.documentType || '-' }}
-                    {{ selectedBiometricUser.document || 'Documento no registrado' }}
-                    ·
-                    {{ selectedBiometricUser.role || 'Usuario' }}
-                </span>
-
-                <small>
-                    {{ selectedBiometricUser.email || 'Sin correo registrado' }}
-                </small>
-            </div>
-
-        </div>
-
-
-        <div class="biometric-hardware-state">
-
-            <div class="hardware-state-icon">
-                <i class="fas fa-microchip"></i>
-            </div>
-
-            <div>
-                <strong>Dispositivo biométrico desconectado</strong>
-
-                <p>
-                    No se enviará ni almacenará información biométrica en este momento.
-                </p>
-            </div>
-
-        </div>
-
-
-        <div class="biometric-future-flow">
-
-            <div class="future-step">
-                <span>1</span>
-                <p>Colocar el dedo sobre el AS608</p>
-            </div>
-
-            <div class="future-step">
-                <span>2</span>
-                <p>Retirar el dedo después de la primera lectura</p>
-            </div>
-
-            <div class="future-step">
-                <span>3</span>
-                <p>Colocar nuevamente el mismo dedo</p>
-            </div>
-
-            <div class="future-step">
-                <span>4</span>
-                <p>Asociar la plantilla biométrica con este usuario</p>
-            </div>
-
-        </div>
-
-
-        <div class="biometric-modal-actions">
-
-            <button type="button" class="biometric-close-btn" (click)="closeFingerprintEnrollment()">
-
-                Cerrar
-
-            </button>
-
-            <button type="button" class="biometric-disabled-btn" disabled>
-
-                <i class="fas fa-fingerprint"></i>
-
-                Esperando sensor
 
             </button>
 

@@ -1,135 +1,803 @@
 <div class="layout">
 
-    <!-- ===================== SIDEBAR ===================== -->
+    <!-- =========================================================
+         SIDEBAR
+         ========================================================= -->
+    <aside
+        class="sidebar"
+        [class.collapsed]="!menuOpen">
 
-    <aside class="sidebar" [class.collapsed]="!menuOpen">
+        <div class="sidebar-content">
 
-        <!-- PERFIL -->
-        <div class="profile-card">
-            <div class="avatar">
-                <i class="fas fa-user"></i>
+            <!-- PERFIL -->
+            <div class="profile-card">
+
+                <div class="avatar">
+
+                    <img
+                        *ngIf="profile.photo"
+                        [src]="profile.photo"
+                        alt="Foto de perfil">
+
+                    <i
+                        *ngIf="!profile.photo"
+                        class="fas fa-user-graduate">
+                    </i>
+
+                </div>
+
+
+                <div
+                    class="profile-text"
+                    *ngIf="menuOpen">
+
+                    <h3>
+                        {{ profile.name || 'Aprendiz' }}
+                    </h3>
+
+                    <p class="profile-role">
+                        {{ currentUser?.role || 'aprendiz' }}
+                    </p>
+
+                    <div class="profile-status">
+
+                        <span class="status-dot"></span>
+
+                        <span>
+                            Cuenta activa
+                        </span>
+
+                    </div>
+
+                </div>
+
             </div>
 
-            <h3 *ngIf="menuOpen">Aprendiz</h3>
-            <p *ngIf="menuOpen">Usuario del Sistema</p>
+
+            <!-- LOGO -->
+            <div class="logo">
+
+                <div class="logo-icon">
+                    <i class="fas fa-shield-halved"></i>
+                </div>
+
+                <div
+                    class="logo-text"
+                    *ngIf="menuOpen">
+
+                    <strong>
+                        SegurEntry
+                    </strong>
+
+                    <span>
+                        Control de acceso
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- NAVEGACIÓN -->
+            <nav>
+
+                <button
+                    type="button"
+                    *ngFor="let item of menuItems"
+                    [class.active]="isActive(item.key)"
+                    (click)="setSection(item.key)"
+                    [title]="item.label">
+
+                    <i
+                        class="fas"
+                        [ngClass]="item.icon">
+                    </i>
+
+                    <span *ngIf="menuOpen">
+                        {{ item.label }}
+                    </span>
+
+                    <span
+                        class="nav-notification-badge"
+                        *ngIf="
+                            item.key === 'notifications' &&
+                            unreadNotifications > 0
+                        ">
+
+                        {{
+                            unreadNotifications > 99
+                                ? '99+'
+                                : unreadNotifications
+                        }}
+
+                    </span>
+
+                </button>
+
+            </nav>
+
         </div>
 
-        <!-- LOGO -->
-        <div class="logo">
-            <i class="fas fa-shield-alt"></i>
-            <span *ngIf="menuOpen">SegurEntry</span>
-        </div>
 
-        <!-- MENÚ DINÁMICO -->
-        <nav>
-            <button *ngFor="let item of menuItems" [class.active]="isActive(item.key)" (click)="setSection(item.key)">
-                <i class="fas" [ngClass]="item.icon"></i>
+        <!-- LOGOUT -->
+        <div class="sidebar-bottom">
+
+            <button
+                type="button"
+                class="logout"
+                (click)="logout()">
+
+                <i class="fas fa-right-from-bracket"></i>
 
                 <span *ngIf="menuOpen">
-                    {{ item.label }}
+                    Cerrar sesión
                 </span>
-            </button>
-        </nav>
 
-        <!-- FOOTER -->
-        <div class="sidebar-bottom">
-            <button class="logout" (click)="logout()">
-                <i class="fas fa-sign-out-alt"></i>
-                <span *ngIf="menuOpen">Cerrar sesión</span>
             </button>
+
         </div>
 
     </aside>
 
-    <!-- ===================== CONTENIDO ===================== -->
 
+    <!-- =========================================================
+         CONTENIDO PRINCIPAL
+         ========================================================= -->
     <main class="main">
 
         <!-- HEADER -->
-        <header>
-            <button class="menu-btn" (click)="toggleMenu()">
-                <i class="fas fa-bars"></i>
-            </button>
+        <header class="main-header">
 
-            <div>
-                <h2>Panel del Aprendiz</h2>
-                <p class="header-subtitle">
-                    Consulta de registros personales.
-                </p>
+            <div class="header-left">
+
+                <button
+                    type="button"
+                    class="menu-btn"
+                    (click)="toggleMenu()"
+                    aria-label="Abrir o cerrar menú">
+
+                    <i class="fas fa-bars"></i>
+
+                </button>
+
+
+                <div>
+
+                    <span class="header-eyebrow">
+                        PANEL DEL APRENDIZ
+                    </span>
+
+                    <h2>
+                        {{
+                            activeSection === 'dashboard'
+                                ? 'Resumen personal'
+                                : activeSection === 'access'
+                                ? 'Mis accesos'
+                                : activeSection === 'notifications'
+                                ? 'Notificaciones'
+                                : 'Mi perfil'
+                        }}
+                    </h2>
+
+                    <p class="header-subtitle">
+
+                        {{
+                            activeSection === 'dashboard'
+                                ? 'Consulta rápida de tu actividad en SegurEntry.'
+                                : activeSection === 'access'
+                                ? 'Revisa tu historial personal de ingresos y salidas.'
+                                : activeSection === 'notifications'
+                                ? 'Mantente al día con la actividad importante de tu cuenta.'
+                                : 'Consulta y actualiza la información permitida de tu perfil.'
+                        }}
+
+                    </p>
+
+                </div>
+
             </div>
+
+
+            <div class="header-user-chip">
+
+                <div class="header-user-avatar">
+
+                    <img
+                        *ngIf="profile.photo"
+                        [src]="profile.photo"
+                        alt="Foto de perfil">
+
+                    <i
+                        *ngIf="!profile.photo"
+                        class="fas fa-user-graduate">
+                    </i>
+
+                </div>
+
+                <div>
+                    <strong>
+                        {{ profile.name || 'Aprendiz' }}
+                    </strong>
+
+                    <span>
+                        {{ currentUser?.role || 'aprendiz' }}
+                    </span>
+                </div>
+
+            </div>
+
         </header>
 
-        <!-- ===================== DASHBOARD ===================== -->
+
+        <!-- =====================================================
+             DASHBOARD
+             ===================================================== -->
         <ng-container *ngIf="activeSection === 'dashboard'">
+
+            <section class="dashboard-hero">
+
+                <div class="dashboard-hero-content">
+
+                    <span class="section-eyebrow">
+                        TU ACTIVIDAD
+                    </span>
+
+                    <h3>
+                        Bienvenido a SegurEntry
+                    </h3>
+
+                    <p>
+                        Consulta tus ingresos, salidas y actividad reciente
+                        desde un solo lugar.
+                    </p>
+
+                </div>
+
+
+                <div class="dashboard-hero-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+
+            </section>
+
 
             <section class="stats full-width">
 
-                <div class="card">
-                    <h2>22</h2>
-                    <p>Ingresos este mes</p>
-                </div>
+                <article class="stat-card entries">
 
-                <div class="card">
-                    <h2>07:45</h2>
-                    <p>Último ingreso</p>
-                </div>
+                    <div class="stat-top">
 
-                <div class="card">
-                    <h2>22</h2>
-                    <p>Accesos permitidos</p>
-                </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-arrow-right-to-bracket"></i>
+                        </div>
 
-                <div class="card">
-                    <h2>0</h2>
-                    <p>Accesos denegados</p>
-                </div>
+                        <span>
+                            Este mes
+                        </span>
+
+                    </div>
+
+                    <strong class="stat-value">
+                        {{ monthEntries }}
+                    </strong>
+
+                    <p>
+                        Ingresos registrados
+                    </p>
+
+                </article>
+
+
+                <article class="stat-card last-entry">
+
+                    <div class="stat-top">
+
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+
+                        <span>
+                            Último acceso
+                        </span>
+
+                    </div>
+
+                    <strong class="stat-value">
+                        {{ lastAccessTime }}
+                    </strong>
+
+                    <p>
+                        {{
+                            lastAccess
+                                ? (
+                                    lastAccess.type === 'salida'
+                                        ? 'Hora de la última salida'
+                                        : 'Hora del último ingreso'
+                                  )
+                                : 'Aún no hay registros'
+                        }}
+                    </p>
+
+                </article>
+
+
+                <article class="stat-card allowed">
+
+                    <div class="stat-top">
+
+                        <div class="stat-icon">
+                            <i class="fas fa-circle-check"></i>
+                        </div>
+
+                        <span>
+                            Permitidos
+                        </span>
+
+                    </div>
+
+                    <strong class="stat-value">
+                        {{ allowedAccessCount }}
+                    </strong>
+
+                    <p>
+                        Accesos autorizados
+                    </p>
+
+                </article>
+
+
+                <article class="stat-card denied">
+
+                    <div class="stat-top">
+
+                        <div class="stat-icon">
+                            <i class="fas fa-circle-xmark"></i>
+                        </div>
+
+                        <span>
+                            Denegados
+                        </span>
+
+                    </div>
+
+                    <strong class="stat-value">
+                        {{ deniedAccessCount }}
+                    </strong>
+
+                    <p>
+                        Intentos rechazados
+                    </p>
+
+                </article>
+
+            </section>
+
+
+            <section class="dashboard-panels">
+
+                <article class="panel-card">
+
+                    <div class="panel-header">
+
+                        <div>
+                            <span class="section-eyebrow">
+                                ACTIVIDAD RECIENTE
+                            </span>
+
+                            <h3>
+                                Últimos movimientos
+                            </h3>
+                        </div>
+
+                        <button
+                            type="button"
+                            class="ghost-btn"
+                            (click)="setSection('access')">
+
+                            Ver historial
+
+                            <i class="fas fa-arrow-right"></i>
+
+                        </button>
+
+                    </div>
+
+
+                    <div class="activity-preview">
+
+                        <div
+                            class="activity-empty"
+                            *ngIf="recentPersonalAccessLogs.length === 0">
+
+                            <i class="fas fa-clock-rotate-left"></i>
+
+                            <span>
+                                Aún no tienes registros de acceso.
+                            </span>
+
+                        </div>
+
+
+                        <div
+                            class="activity-row"
+                            *ngFor="let access of recentPersonalAccessLogs">
+
+                            <div
+                                class="activity-icon"
+                                [class.entry]="access.type === 'entrada'"
+                                [class.exit]="access.type === 'salida'">
+
+                                <i
+                                    class="fas"
+                                    [class.fa-arrow-right-to-bracket]="
+                                        access.type === 'entrada'
+                                    "
+                                    [class.fa-arrow-right-from-bracket]="
+                                        access.type === 'salida'
+                                    ">
+                                </i>
+
+                            </div>
+
+                            <div class="activity-info">
+
+                                <strong>
+                                    {{
+                                        access.type === 'salida'
+                                            ? 'Salida'
+                                            : 'Ingreso'
+                                    }}
+                                </strong>
+
+                                <span>
+                                    {{ formatAccessDate(access.date) }}
+                                    ·
+                                    {{ formatAccessTime(access.date) }}
+                                </span>
+
+                            </div>
+
+                            <span
+                                class="access-state"
+                                [class.success]="access.allowed"
+                                [class.denied]="!access.allowed">
+
+                                {{
+                                    access.allowed
+                                        ? 'Permitido'
+                                        : 'Denegado'
+                                }}
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+
+                <article class="panel-card account-card">
+
+                    <div class="panel-header">
+
+                        <div>
+                            <span class="section-eyebrow">
+                                MI CUENTA
+                            </span>
+
+                            <h3>
+                                Estado personal
+                            </h3>
+                        </div>
+
+                    </div>
+
+
+                    <div class="account-state">
+
+                        <div class="account-state-icon">
+                            <i class="fas fa-shield-check"></i>
+                        </div>
+
+                        <div>
+                            <strong>
+                                Cuenta activa
+                            </strong>
+
+                            <p>
+                                Tu usuario se encuentra habilitado
+                                para utilizar SegurEntry.
+                            </p>
+                        </div>
+
+                    </div>
+
+                </article>
 
             </section>
 
         </ng-container>
 
-        <!-- ===================== MIS ACCESOS ===================== -->
+
+        <!-- =====================================================
+             MIS ACCESOS — TIEMPO REAL
+             ===================================================== -->
         <ng-container *ngIf="activeSection === 'access'">
 
-            <section class="card list-card">
+            <section class="content-card list-card">
 
                 <div class="table-header">
+
                     <div>
-                        <h3>Mis Registros de Acceso</h3>
-                        <p>Historial personal de ingresos y salidas.</p>
+
+                        <span class="section-eyebrow">
+                            HISTORIAL PERSONAL
+                        </span>
+
+                        <h3>
+                            Mis ingresos y salidas
+                        </h3>
+
+                        <p>
+                            La lista se actualiza automáticamente
+                            cuando utilizas el sensor.
+                        </p>
+
                     </div>
+
+
+                    <div class="access-header-actions">
+
+                        <span class="live-chip">
+
+                            <span></span>
+
+                            En vivo · 1 s
+
+                        </span>
+
+
+                        <button
+                            type="button"
+                            class="ghost-btn"
+                            (click)="loadPersonalAccessLogs()">
+
+                            <i class="fas fa-rotate"></i>
+
+                            Actualizar
+
+                        </button>
+
+                    </div>
+
                 </div>
 
-                <div class="table-container">
+
+                <!-- FILTROS -->
+
+                <div class="access-toolbar">
+
+                    <div class="access-search">
+
+                        <i class="fas fa-magnifying-glass"></i>
+
+                        <input
+                            type="text"
+                            [(ngModel)]="accessSearch"
+                            placeholder="Buscar por movimiento, método o dispositivo...">
+
+                    </div>
+
+
+                    <select [(ngModel)]="accessMovement">
+
+                        <option value="todos">
+                            Todos
+                        </option>
+
+                        <option value="entrada">
+                            Ingresos
+                        </option>
+
+                        <option value="salida">
+                            Salidas
+                        </option>
+
+                    </select>
+
+
+                    <select [(ngModel)]="accessStatus">
+
+                        <option value="todos">
+                            Todos los estados
+                        </option>
+
+                        <option value="permitido">
+                            Permitidos
+                        </option>
+
+                        <option value="denegado">
+                            Denegados
+                        </option>
+
+                    </select>
+
+
+                    <input
+                        type="date"
+                        [(ngModel)]="accessDate">
+
+
+                    <button
+                        type="button"
+                        class="clear-filter-btn"
+                        (click)="resetAccessFilters()">
+
+                        <i class="fas fa-broom"></i>
+
+                        Limpiar
+
+                    </button>
+
+                </div>
+
+
+                <!-- CARGANDO -->
+
+                <div
+                    class="access-empty-state"
+                    *ngIf="accessLoading">
+
+                    <i class="fas fa-circle-notch fa-spin"></i>
+
+                    <span>
+                        Cargando tus accesos...
+                    </span>
+
+                </div>
+
+
+                <!-- SIN REGISTROS -->
+
+                <div
+                    class="access-empty-state"
+                    *ngIf="
+                        !accessLoading &&
+                        filteredPersonalAccessLogs.length === 0
+                    ">
+
+                    <i class="fas fa-door-closed"></i>
+
+                    <strong>
+                        No hay registros para mostrar
+                    </strong>
+
+                    <span>
+                        Cuando utilices el sensor,
+                        tus ingresos y salidas aparecerán aquí.
+                    </span>
+
+                </div>
+
+
+                <!-- TABLA -->
+
+                <div
+                    class="table-container"
+                    *ngIf="
+                        !accessLoading &&
+                        filteredPersonalAccessLogs.length > 0
+                    ">
 
                     <table>
 
                         <thead>
+
                             <tr>
                                 <th>Fecha</th>
                                 <th>Hora</th>
-                                <th>Tipo</th>
+                                <th>Movimiento</th>
                                 <th>Resultado</th>
                                 <th>Método</th>
+                                <th>Dispositivo</th>
                             </tr>
+
                         </thead>
+
 
                         <tbody>
 
-                            <tr>
-                                <td>25/06/2026</td>
-                                <td>07:45</td>
-                                <td>Ingreso</td>
-                                <td><span class="badge success">Permitido</span></td>
-                                <td>Huella</td>
-                            </tr>
+                            <tr
+                                *ngFor="
+                                    let access
+                                    of filteredPersonalAccessLogs
+                                ">
 
-                            <tr>
-                                <td>25/06/2026</td>
-                                <td>12:03</td>
-                                <td>Salida</td>
-                                <td><span class="badge success">Permitido</span></td>
-                                <td>Huella</td>
+                                <td>
+                                    {{ formatAccessDate(access.date) }}
+                                </td>
+
+                                <td>
+                                    {{ formatAccessTime(access.date) }}
+                                </td>
+
+                                <td>
+
+                                    <span
+                                        class="movement-badge"
+                                        [class.entry]="access.type === 'entrada'"
+                                        [class.exit]="access.type === 'salida'">
+
+                                        <i
+                                            class="fas"
+                                            [class.fa-arrow-right-to-bracket]="
+                                                access.type === 'entrada'
+                                            "
+                                            [class.fa-arrow-right-from-bracket]="
+                                                access.type === 'salida'
+                                            ">
+                                        </i>
+
+                                        {{
+                                            access.type === 'salida'
+                                                ? 'Salida'
+                                                : 'Ingreso'
+                                        }}
+
+                                    </span>
+
+                                </td>
+
+                                <td>
+
+                                    <span
+                                        class="badge"
+                                        [class.success]="access.allowed"
+                                        [class.denied]="!access.allowed">
+
+                                        <i
+                                            class="fas"
+                                            [class.fa-circle-check]="access.allowed"
+                                            [class.fa-circle-xmark]="!access.allowed">
+                                        </i>
+
+                                        {{
+                                            access.allowed
+                                                ? 'Permitido'
+                                                : 'Denegado'
+                                        }}
+
+                                    </span>
+
+                                </td>
+
+                                <td>
+
+                                    <span class="method-badge">
+
+                                        <i
+                                            class="fas"
+                                            [ngClass]="
+                                                getAccessMethodIcon(
+                                                    access.method
+                                                )
+                                            ">
+                                        </i>
+
+                                        {{
+                                            access.method ||
+                                            'No especificado'
+                                        }}
+
+                                    </span>
+
+                                </td>
+
+                                <td>
+                                    {{ access.device || '—' }}
+                                </td>
+
                             </tr>
 
                         </tbody>
@@ -142,158 +810,623 @@
 
         </ng-container>
 
-        <!-- ===================== NOTIFICACIONES ===================== -->
+
+        <!-- =====================================================
+             NOTIFICACIONES — TIEMPO REAL
+             ===================================================== -->
         <ng-container *ngIf="activeSection === 'notifications'">
 
-            <section class="card">
+            <section class="content-card notification-section">
 
-                <h3>Notificaciones</h3>
+                <div class="notification-page-header">
 
-                <div class="notification warning">
-                    ⚠️ Llegada tardía registrada
+                    <div>
+
+                        <span class="section-eyebrow">
+                            CENTRO PERSONAL
+                        </span>
+
+                        <h3>
+                            Mis notificaciones
+                        </h3>
+
+                        <p>
+                            Recibe avisos de tus ingresos, salidas
+                            y cambios realizados en tu cuenta.
+                        </p>
+
+                    </div>
+
+
+                    <div class="notification-header-actions">
+
+                        <span class="notification-live-chip">
+
+                            <span></span>
+
+                            En vivo · 1 s
+
+                        </span>
+
+
+                        <button
+                            type="button"
+                            class="ghost-btn"
+                            (click)="loadNotifications()">
+
+                            <i class="fas fa-rotate"></i>
+
+                            Actualizar
+
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="ghost-btn"
+                            *ngIf="unreadNotifications > 0"
+                            (click)="markAllNotificationsAsRead()">
+
+                            <i class="fas fa-check-double"></i>
+
+                            Marcar leídas
+
+                        </button>
+
+                    </div>
+
                 </div>
 
-                <div class="notification info">
-                    📢 Recordatorio de asistencia
+
+                <!-- MÉTRICAS -->
+
+                <div class="notification-stats">
+
+                    <article class="notification-stat">
+
+                        <i class="fas fa-bell"></i>
+
+                        <div>
+                            <span>Total</span>
+                            <strong>{{ notificationTotal }}</strong>
+                        </div>
+
+                    </article>
+
+
+                    <article class="notification-stat unread">
+
+                        <i class="fas fa-envelope"></i>
+
+                        <div>
+                            <span>Sin leer</span>
+                            <strong>{{ unreadNotifications }}</strong>
+                        </div>
+
+                    </article>
+
+
+                    <article class="notification-stat access">
+
+                        <i class="fas fa-door-open"></i>
+
+                        <div>
+                            <span>Accesos</span>
+                            <strong>{{ notificationAccessCount }}</strong>
+                        </div>
+
+                    </article>
+
+
+                    <article class="notification-stat account">
+
+                        <i class="fas fa-user-pen"></i>
+
+                        <div>
+                            <span>Cambios de cuenta</span>
+                            <strong>{{ notificationAccountCount }}</strong>
+                        </div>
+
+                    </article>
+
+                </div>
+
+
+                <!-- FILTROS -->
+
+                <div class="notification-filters">
+
+                    <button
+                        type="button"
+                        [class.active]="notificationFilter === 'todas'"
+                        (click)="notificationFilter = 'todas'">
+                        Todas
+                    </button>
+
+                    <button
+                        type="button"
+                        [class.active]="notificationFilter === 'no-leidas'"
+                        (click)="notificationFilter = 'no-leidas'">
+
+                        Sin leer
+
+                        <span *ngIf="unreadNotifications > 0">
+                            {{ unreadNotifications }}
+                        </span>
+
+                    </button>
+
+                    <button
+                        type="button"
+                        [class.active]="notificationFilter === 'accesos'"
+                        (click)="notificationFilter = 'accesos'">
+                        Ingresos / Salidas
+                    </button>
+
+                    <button
+                        type="button"
+                        [class.active]="notificationFilter === 'cuenta'"
+                        (click)="notificationFilter = 'cuenta'">
+                        Mi cuenta
+                    </button>
+
+                    <button
+                        type="button"
+                        [class.active]="notificationFilter === 'biometria'"
+                        (click)="notificationFilter = 'biometria'">
+                        Biometría
+                    </button>
+
+                </div>
+
+
+                <!-- CARGANDO -->
+
+                <div
+                    class="notification-empty-state"
+                    *ngIf="
+                        notificationLoading &&
+                        notifications.length === 0
+                    ">
+
+                    <i class="fas fa-circle-notch fa-spin"></i>
+
+                    <span>
+                        Cargando notificaciones...
+                    </span>
+
+                </div>
+
+
+                <!-- VACÍO -->
+
+                <div
+                    class="notification-empty-state"
+                    *ngIf="
+                        !notificationLoading &&
+                        filteredNotifications.length === 0
+                    ">
+
+                    <i class="fas fa-bell-slash"></i>
+
+                    <strong>
+                        No hay notificaciones
+                    </strong>
+
+                    <span>
+                        Tus nuevos ingresos, salidas y cambios
+                        de cuenta aparecerán aquí automáticamente.
+                    </span>
+
+                </div>
+
+
+                <!-- LISTA -->
+
+                <div
+                    class="personal-notification-list"
+                    *ngIf="filteredNotifications.length > 0">
+
+                    <article
+                        class="personal-notification"
+                        *ngFor="let notification of filteredNotifications"
+                        [class.unread]="notification.read !== true"
+                        [ngClass]="getNotificationTone(notification)"
+                        (click)="markNotificationAsRead(notification)">
+
+                        <div class="personal-notification-icon">
+
+                            <i
+                                class="fas"
+                                [ngClass]="getNotificationIcon(notification)">
+                            </i>
+
+                        </div>
+
+
+                        <div class="personal-notification-content">
+
+                            <div class="personal-notification-meta">
+
+                                <div>
+
+                                    <span class="notification-category">
+                                        {{
+                                            getNotificationCategoryLabel(
+                                                notification
+                                            )
+                                        }}
+                                    </span>
+
+
+                                    <span
+                                        class="notification-new-badge"
+                                        *ngIf="notification.read !== true">
+                                        Nueva
+                                    </span>
+
+                                </div>
+
+
+                                <span class="notification-date">
+                                    {{ formatNotificationDate(notification) }}
+                                </span>
+
+                            </div>
+
+
+                            <h4>
+                                {{
+                                    notification.title ||
+                                    'Notificación'
+                                }}
+                            </h4>
+
+
+                            <p>
+                                {{
+                                    notification.message ||
+                                    'Se registró una nueva actividad en tu cuenta.'
+                                }}
+                            </p>
+
+
+                            <div
+                                class="notification-access-detail"
+                                *ngIf="
+                                    getNotificationCategory(notification) ===
+                                    'accesos'
+                                ">
+
+                                <span>
+                                    <i class="fas fa-fingerprint"></i>
+
+                                    {{
+                                        notification?.data?.method ||
+                                        'Huella'
+                                    }}
+                                </span>
+
+
+                                <span *ngIf="notification?.data?.device">
+
+                                    <i class="fas fa-microchip"></i>
+
+                                    {{
+                                        notification.data.device
+                                    }}
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <span
+                            class="notification-unread-dot"
+                            *ngIf="notification.read !== true">
+                        </span>
+
+                    </article>
+
                 </div>
 
             </section>
 
         </ng-container>
 
+
+        <!-- =====================================================
+             PERFIL
+             ===================================================== -->
         <ng-container *ngIf="activeSection === 'profile'">
 
-            <section class="card profile-section">
+            <section class="content-card profile-section">
 
-                <div class="profile-header">
-                    <div class="profile-photo">
+                <div class="profile-page-header">
 
-                        <img [src]="profile.photo || 'assets/avatar.png'" alt="Foto de perfil">
+                    <div>
+
+                        <span class="section-eyebrow">
+                            MI CUENTA
+                        </span>
+
+                        <h3>
+                            Mi perfil
+                        </h3>
+
+                        <p>
+                            Consulta y actualiza la información permitida
+                            de tu cuenta.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="profile-identity">
+
+                    <div class="profile-photo-wrap">
+
+                        <div class="profile-photo">
+
+                            <img
+                                [src]="profile.photo || 'assets/avatar.png'"
+                                alt="Foto de perfil">
+
+                        </div>
+
 
                         <label class="upload-btn">
+
                             <i class="fas fa-camera"></i>
+
                             Cambiar foto
 
-                            <input type="file" accept="image/*" (change)="uploadPhoto($event)" hidden>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                (change)="uploadPhoto($event)"
+                                hidden>
+
                         </label>
 
                     </div>
 
+
                     <div class="profile-info">
 
-                        <h2>{{ profile.name || 'Aprendiz' }}</h2>
+                        <span class="profile-kicker">
+                            APRENDIZ
+                        </span>
+
+                        <h2>
+                            {{ profile.name || 'Aprendiz' }}
+                        </h2>
 
                         <span class="role-badge">
                             {{ currentUser?.role || 'aprendiz' }}
                         </span>
 
                     </div>
+
                 </div>
 
 
                 <div class="profile-form">
 
-                    <!-- ===================== -->
-                    <!-- NOMBRE -->
-                    <!-- ===================== -->
+                    <!-- NOMBRE — PROTEGIDO -->
+                    <div class="form-group readonly-group">
 
-                    <div class="form-group">
+                        <label>
+                            Nombre completo
+                        </label>
 
-                        <label>Nombre</label>
+                        <div class="readonly-control">
 
-                        <input type="text" [(ngModel)]="profile.name" name="profileName">
+                            <input
+                                type="text"
+                                [value]="profile.name || 'No registrado'"
+                                readonly
+                                class="readonly-input">
 
-                    </div>
+                            <i
+                                class="fas fa-lock"
+                                title="Campo protegido">
+                            </i>
 
+                        </div>
 
-                    <!-- ===================== -->
-                    <!-- DOCUMENTO -->
-                    <!-- ===================== -->
-
-                    <div class="form-group">
-
-                        <label>Documento</label>
-
-                        <input type="text" [(ngModel)]="profile.document" name="profileDocument">
-
-                    </div>
-
-
-                    <!-- ===================== -->
-                    <!-- CORREO -->
-                    <!-- ===================== -->
-
-                    <div class="form-group">
-
-                        <label>Correo electrónico</label>
-
-                        <input type="email" [(ngModel)]="profile.email" name="profileEmail">
+                        <small class="protected-help">
+                            Tu nombre no puede modificarse desde el perfil.
+                        </small>
 
                     </div>
 
 
-                    <!-- ===================== -->
-                    <!-- TELÉFONO -->
-                    <!-- ===================== -->
+                    <!-- TIPO DE DOCUMENTO — PROTEGIDO -->
+                    <div class="form-group readonly-group">
 
-                    <div class="form-group">
+                        <label>
+                            Tipo de documento
+                        </label>
 
-                        <label>Teléfono</label>
+                        <div class="readonly-control">
 
-                        <input type="text" [(ngModel)]="profile.phone" name="profilePhone">
+                            <input
+                                type="text"
+                                [value]="profile.documentType || 'No registrado'"
+                                readonly
+                                class="readonly-input">
 
-                    </div>
+                            <i
+                                class="fas fa-lock"
+                                title="Campo protegido">
+                            </i>
 
+                        </div>
 
-                    <!-- ===================== -->
-                    <!-- DIRECCIÓN -->
-                    <!-- ===================== -->
-
-                    <div class="form-group">
-
-                        <label>Dirección</label>
-
-                        <input type="text" [(ngModel)]="profile.address" name="profileAddress">
-
-                    </div>
-
-
-                    <!-- ===================== -->
-                    <!-- ROL -->
-                    <!-- ===================== -->
-
-                    <div class="form-group">
-
-                        <label>Rol</label>
-
-                        <input type="text" [value]="currentUser?.role || 'aprendiz'" readonly class="readonly-input">
+                        <small class="protected-help">
+                            El tipo de documento no puede modificarse.
+                        </small>
 
                     </div>
 
 
-                    <!-- ===================== -->
-                    <!-- UID -->
-                    <!-- ===================== -->
+                    <!-- DOCUMENTO — PROTEGIDO -->
+                    <div class="form-group readonly-group">
 
-                    <div class="form-group">
+                        <label>
+                            Número de documento
+                        </label>
 
-                        <label>Identificador</label>
+                        <div class="readonly-control">
 
-                        <input type="text" [value]="currentUser?.uid || currentUser?.id || ''" readonly
-                            class="readonly-input">
+                            <input
+                                type="text"
+                                [value]="profile.document || 'No registrado'"
+                                readonly
+                                class="readonly-input">
+
+                            <i
+                                class="fas fa-lock"
+                                title="Campo protegido">
+                            </i>
+
+                        </div>
+
+                        <small class="protected-help">
+                            El número de documento no puede modificarse.
+                        </small>
 
                     </div>
 
 
-                    <!-- ===================== -->
-                    <!-- BOTÓN -->
-                    <!-- ===================== -->
+                    <!-- CORREO — EDITABLE -->
+                    <div class="form-group">
+
+                        <label>
+                            Correo electrónico
+                        </label>
+
+                        <input
+                            type="email"
+                            [(ngModel)]="profile.email"
+                            name="profileEmail">
+
+                    </div>
+
+
+                    <!-- TELÉFONO — EDITABLE -->
+                    <div class="form-group">
+
+                        <label>
+                            Teléfono
+                        </label>
+
+                        <input
+                            type="text"
+                            [(ngModel)]="profile.phone"
+                            name="profilePhone">
+
+                    </div>
+
+
+                    <!-- DIRECCIÓN — EDITABLE -->
+                    <div class="form-group form-group-full">
+
+                        <label>
+                            Dirección
+                        </label>
+
+                        <input
+                            type="text"
+                            [(ngModel)]="profile.address"
+                            name="profileAddress">
+
+                    </div>
+
+
+                    <!-- ROL — PROTEGIDO -->
+                    <div class="form-group readonly-group">
+
+                        <label>
+                            Rol
+                        </label>
+
+                        <div class="readonly-control">
+
+                            <input
+                                type="text"
+                                [value]="currentUser?.role || 'aprendiz'"
+                                readonly
+                                class="readonly-input">
+
+                            <i
+                                class="fas fa-lock"
+                                title="Campo protegido">
+                            </i>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- UID — PROTEGIDO -->
+                    <div class="form-group readonly-group">
+
+                        <label>
+                            Identificador
+                        </label>
+
+                        <div class="readonly-control">
+
+                            <input
+                                type="text"
+                                [value]="currentUser?.uid || currentUser?.id || ''"
+                                readonly
+                                class="readonly-input">
+
+                            <i
+                                class="fas fa-lock"
+                                title="Campo protegido">
+                            </i>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="profile-security-note">
+
+                        <i class="fas fa-shield-halved"></i>
+
+                        <div>
+
+                            <strong>
+                                Datos de identidad protegidos
+                            </strong>
+
+                            <p>
+                                Tu nombre, tipo de documento, número de documento
+                                y rol solo pueden ser gestionados por personal autorizado.
+                            </p>
+
+                        </div>
+
+                    </div>
+
 
                     <div class="profile-actions">
 
-                        <button class="primary-btn" (click)="updateProfile()">
+                        <button
+                            type="button"
+                            class="primary-btn"
+                            (click)="updateProfile()">
 
-                            <i class="fas fa-save"></i>
+                            <i class="fas fa-floppy-disk"></i>
 
                             Guardar cambios
 

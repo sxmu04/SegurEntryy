@@ -1,8 +1,9 @@
-import { Component, OnInit, NgZone } from '@angular/core';
+import { Component, OnInit, OnDestroy, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
+import { Subscription } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
 
 import { DashboardService } from '../../../core/services/dashboard.service';
@@ -89,6 +90,39 @@ interface AccessLog {
   status: string;
 }
 
+
+interface BiometricJob {
+  id: string;
+  status: 'pending' | 'processing' | 'completed' | 'failed' | string;
+  action?: string;
+  message?: string;
+  error?: string;
+  fingerprint_id?: number | null;
+}
+
+interface BiometricUser {
+  uid: string;
+  name: string;
+  email: string;
+  document: string;
+  document_type?: string;
+  role: string;
+  active: boolean;
+  fingerprint_id: number | null;
+  biometric_registered: boolean;
+  biometric_job: BiometricJob | null;
+}
+
+interface BiometricDeviceStatus {
+  device: string;
+  online: boolean;
+  last_seen: string | null;
+  wifi_connected?: boolean;
+  sensor_available?: boolean;
+  template_count?: number | null;
+  ip?: string;
+}
+
 @Component({
   selector: 'app-super-admin',
   standalone: true,
@@ -96,7 +130,21 @@ interface AccessLog {
   templateUrl: './super-admin.component.html',
   styleUrls: ['./super-admin.component.css']
 })
-export class SuperAdminComponent implements OnInit {
+export class SuperAdminComponent implements OnInit, OnDestroy {
+
+  private accessRefreshTimer: ReturnType<typeof setInterval> | null = null;
+  private accessRefreshInProgress = false;
+
+  private biometricRefreshTimer: ReturnType<typeof setInterval> | null = null;
+  private biometricJobTimer: ReturnType<typeof setInterval> | null = null;
+  private biometricJobRequestInProgress = false;
+  private activeBiometricJobId: string | null = null;
+
+  private notificationRefreshTimer: ReturnType<typeof setInterval> | null = null;
+  private notificationListSubscription: Subscription | null = null;
+  private notificationUnreadSubscription: Subscription | null = null;
+  private notificationLoadingSubscription: Subscription | null = null;
+  private notificationSubscriptionsReady = false;
 
   constructor(
     private dashboardService: DashboardService,
@@ -146,6 +194,7 @@ export class SuperAdminComponent implements OnInit {
     { key: 'users', label: 'Usuarios', icon: 'fa-users' },
     { key: 'admins', label: 'Admins', icon: 'fa-user-shield' },
     { key: 'access', label: 'Accesos', icon: 'fa-door-open' },
+    { key: 'biometrics', label: 'Biometría', icon: 'fa-fingerprint' },
     { key: 'roles', label: 'Roles', icon: 'fa-id-badge' },
     { key: 'invitations', label: 'Invitaciones', icon: 'fa-envelope' },
     { key: 'reports', label: 'Reportes', icon: 'fa-chart-bar' },
@@ -164,6 +213,23 @@ export class SuperAdminComponent implements OnInit {
     ) {
 
       this.loadAccessLogs();
+
+    }
+
+    if (
+      section === 'biometrics'
+    ) {
+
+      this.loadBiometricUsers();
+      this.loadBiometricDeviceStatus();
+
+    }
+
+    if (
+      section === 'notifications'
+    ) {
+
+      this.loadNotifications();
 
     }
 
@@ -212,6 +278,25 @@ export class SuperAdminComponent implements OnInit {
   accessLogs: AccessLog[] = [];
 
   // ==========================================================
+  // BIOMETRÍA
+  // ==========================================================
+
+  biometricUsers: BiometricUser[] = [];
+  biometricSearch = '';
+  biometricLoading = false;
+  biometricActionInProgress = false;
+
+  biometricDevice: BiometricDeviceStatus = {
+    device: 'SEGURENTRY-ESP32',
+    online: false,
+    last_seen: null,
+    wifi_connected: false,
+    sensor_available: false,
+    template_count: null,
+    ip: ''
+  };
+
+  // ==========================================================
   // ACCESOS - FILTROS Y PAGINACIÓN
   // ==========================================================
 
@@ -258,6 +343,16 @@ export class SuperAdminComponent implements OnInit {
   invitations: Invitation[] = [];
   notifications: any[] = [];
   unreadNotifications = 0;
+
+  notificationSearch = '';
+  notificationFilter:
+    'all' |
+    'unread' |
+    'read' |
+    'actionable' |
+    'biometric' |
+    'reports' = 'all';
+  notificationLoading = false;
   auditLogs: AuditLog[] = [];
 
   auditSearch = '';
@@ -689,69 +784,2279 @@ export class SuperAdminComponent implements OnInit {
     this.loadProfile();
     this.loadAccessLogs();
     this.loadAuditLogs();
+
+    // Actualización automática de accesos del hardware.
+    this.startAccessAutoRefresh();
+
+    // Estado del ESP32 / módulo biométrico.
+    this.startBiometricAutoRefresh();
+
+    // Badge y centro de notificaciones.
+    this.startNotificationAutoRefresh();
   }
 
-  // ==========================
-  //  NOTIFICACIONES
-  // ==========================
+  // ==========================================================
+  // DESTRUIR COMPONENTE
+  // ==========================================================
 
-  loadNotifications(): void {
+  ngOnDestroy(): void {
+    this.stopAccessAutoRefresh();
+    this.stopBiometricAutoRefresh();
+    this.stopBiometricJobWatch();
+    this.stopNotificationAutoRefresh();
+    this.destroyNotificationSubscriptions();
+  }
 
-    this.notificationService
-      .getNotifications()
+  // ==========================================================
+  // ACCESOS - ACTUALIZACIÓN AUTOMÁTICA
+  // ==========================================================
+
+  private startAccessAutoRefresh(): void {
+
+    if (this.accessRefreshTimer) {
+      return;
+    }
+
+    this.accessRefreshTimer = setInterval(() => {
+
+      if (
+        this.activeSection === 'access' ||
+        this.activeSection === 'reports' ||
+        this.activeSection === 'dashboard'
+      ) {
+
+        this.loadAccessLogs(true);
+
+      }
+
+    }, 3000);
+
+  }
+
+
+  private stopAccessAutoRefresh(): void {
+
+    if (!this.accessRefreshTimer) {
+      return;
+    }
+
+    clearInterval(
+      this.accessRefreshTimer
+    );
+
+    this.accessRefreshTimer = null;
+
+  }
+
+
+  // ==========================================================
+  // BIOMETRÍA - ACTUALIZACIÓN AUTOMÁTICA
+  // ==========================================================
+
+  private startBiometricAutoRefresh(): void {
+
+    if (this.biometricRefreshTimer) {
+      return;
+    }
+
+    this.biometricRefreshTimer = setInterval(() => {
+
+      if (this.activeSection === 'biometrics') {
+
+        this.loadBiometricUsers(true);
+        this.loadBiometricDeviceStatus(true);
+
+      }
+
+    }, 5000);
+
+  }
+
+
+  private stopBiometricAutoRefresh(): void {
+
+    if (!this.biometricRefreshTimer) {
+      return;
+    }
+
+    clearInterval(
+      this.biometricRefreshTimer
+    );
+
+    this.biometricRefreshTimer = null;
+
+  }
+
+
+  // ==========================================================
+  // BIOMETRÍA - CARGAR USUARIOS
+  // ==========================================================
+
+  loadBiometricUsers(
+    silent: boolean = false
+  ): void {
+
+    if (!silent) {
+      this.biometricLoading = true;
+    }
+
+    this.dashboardService
+      .getBiometricUsers()
       .subscribe({
 
-        next: (notifications: any[]) => {
+        next: (res: any) => {
 
-          console.log(
-            '🔔 NOTIFICACIONES:',
-            notifications
-          );
+          const users =
+            res?.users ||
+            [];
 
-          this.notifications =
-            notifications || [];
+          this.biometricUsers =
+            Array.isArray(users)
+              ? users.map(
+                (user: any): BiometricUser => ({
 
-          this.unreadNotifications =
-            this.notifications.filter(
-              n =>
-                n.read === false ||
-                n.read === undefined
-            ).length;
+                  uid:
+                    user?.uid ||
+                    user?.id ||
+                    '',
+
+                  name:
+                    user?.name ||
+                    'Usuario',
+
+                  email:
+                    user?.email ||
+                    '',
+
+                  document:
+                    String(
+                      user?.document ||
+                      ''
+                    ),
+
+                  document_type:
+                    user?.document_type ||
+                    user?.documentType ||
+                    '',
+
+                  role:
+                    user?.role ||
+                    'usuario',
+
+                  active:
+                    user?.active !== false,
+
+                  fingerprint_id:
+                    user?.fingerprint_id === null ||
+                      user?.fingerprint_id === undefined
+                      ? null
+                      : Number(
+                        user.fingerprint_id
+                      ),
+
+                  biometric_registered:
+                    user?.biometric_registered === true ||
+                    (
+                      user?.fingerprint_id !== null &&
+                      user?.fingerprint_id !== undefined
+                    ),
+
+                  biometric_job:
+                    user?.biometric_job
+                      ? {
+                        id:
+                          user.biometric_job.id ||
+                          '',
+
+                        status:
+                          user.biometric_job.status ||
+                          '',
+
+                        action:
+                          user.biometric_job.action ||
+                          '',
+
+                        message:
+                          user.biometric_job.message ||
+                          '',
+
+                        error:
+                          user.biometric_job.error ||
+                          '',
+
+                        fingerprint_id:
+                          user.biometric_job.fingerprint_id ??
+                          null
+                      }
+                      : null
+
+                })
+              )
+              : [];
+
+          if (!silent) {
+            this.biometricLoading = false;
+          }
 
         },
 
-        error: (error: any) => {
+        error: (err: any) => {
 
           console.error(
-            ' ERROR CARGANDO NOTIFICACIONES:',
-            error
+            'ERROR CARGANDO BIOMETRÍA:',
+            err
+          );
+
+          if (!silent) {
+
+            this.biometricLoading = false;
+
+            Swal.fire(
+              'No se pudo cargar',
+              err?.error?.message ||
+              'No fue posible obtener los usuarios biométricos.',
+              'error'
+            );
+
+          }
+
+        }
+
+      });
+
+  }
+
+
+  // ==========================================================
+  // BIOMETRÍA - ESTADO DEL ESP32
+  // ==========================================================
+
+  loadBiometricDeviceStatus(
+    silent: boolean = false
+  ): void {
+
+    this.dashboardService
+      .getBiometricDeviceStatus(
+        'SEGURENTRY-ESP32'
+      )
+      .subscribe({
+
+        next: (res: any) => {
+
+          const device =
+            res?.device ||
+            {};
+
+          this.biometricDevice = {
+
+            device:
+              device?.device ||
+              'SEGURENTRY-ESP32',
+
+            online:
+              device?.online === true,
+
+            last_seen:
+              device?.last_seen ||
+              null,
+
+            wifi_connected:
+              device?.wifi_connected === true,
+
+            sensor_available:
+              device?.sensor_available === true,
+
+            template_count:
+              device?.template_count === null ||
+                device?.template_count === undefined
+                ? null
+                : Number(
+                  device.template_count
+                ),
+
+            ip:
+              device?.ip ||
+              ''
+
+          };
+
+        },
+
+        error: (err: any) => {
+
+          console.error(
+            'ERROR CONSULTANDO ESTADO BIOMÉTRICO:',
+            err
+          );
+
+          this.biometricDevice = {
+            ...this.biometricDevice,
+            online: false
+          };
+
+          if (!silent) {
+
+            Swal.fire(
+              'ESP32 no disponible',
+              'No fue posible consultar el estado del dispositivo biométrico.',
+              'warning'
+            );
+
+          }
+
+        }
+
+      });
+
+  }
+
+
+  // ==========================================================
+  // BIOMETRÍA - FILTRO Y CONTADORES
+  // ==========================================================
+
+  get filteredBiometricUsers(): BiometricUser[] {
+
+    const term =
+      this.biometricSearch
+        .trim()
+        .toLowerCase();
+
+    if (!term) {
+      return this.biometricUsers;
+    }
+
+    return this.biometricUsers.filter(
+      (user: BiometricUser) => {
+
+        const searchable =
+          [
+            user.name,
+            user.email,
+            user.document,
+            user.document_type,
+            user.role,
+            user.uid,
+            user.fingerprint_id
+          ]
+            .join(' ')
+            .toLowerCase();
+
+        return searchable.includes(
+          term
+        );
+
+      }
+    );
+
+  }
+
+
+  get biometricRegisteredCount(): number {
+
+    return this.biometricUsers.filter(
+      (user: BiometricUser) =>
+        user.biometric_registered
+    ).length;
+
+  }
+
+
+  get biometricPendingCount(): number {
+
+    return this.biometricUsers.filter(
+      (user: BiometricUser) =>
+        !!user.biometric_job
+    ).length;
+
+  }
+
+
+  canRegisterFingerprint(
+    user: BiometricUser
+  ): boolean {
+
+    return (
+      this.biometricDevice.online === true &&
+      this.biometricDevice.sensor_available === true &&
+      user.active === true &&
+      user.biometric_registered === false &&
+      !user.biometric_job &&
+      this.biometricActionInProgress === false
+    );
+
+  }
+
+
+  getBiometricStatusLabel(
+    user: BiometricUser
+  ): string {
+
+    if (
+      user.biometric_registered &&
+      user.fingerprint_id !== null
+    ) {
+
+      return (
+        'Huella ID ' +
+        String(
+          user.fingerprint_id
+        )
+      );
+
+    }
+
+    if (user.biometric_job) {
+
+      if (
+        user.biometric_job.status ===
+        'processing'
+      ) {
+        return 'Registrando...';
+      }
+
+      return 'Esperando dispositivo';
+
+    }
+
+    return 'Sin registrar';
+
+  }
+
+
+  getBiometricJobLabel(
+    job: BiometricJob | null
+  ): string {
+
+    if (!job) {
+      return '';
+    }
+
+    switch (job.status) {
+
+      case 'pending':
+        return 'Esperando al ESP32';
+
+      case 'processing':
+        return 'Capturando huella';
+
+      case 'completed':
+        return 'Completado';
+
+      case 'failed':
+        return 'Falló';
+
+      default:
+        return job.status || '';
+
+    }
+
+  }
+
+
+  // ==========================================================
+  // BIOMETRÍA - INICIAR REGISTRO
+  // ==========================================================
+
+  startBiometricEnrollment(
+    user: BiometricUser
+  ): void {
+
+    if (user.biometric_registered) {
+
+      Swal.fire(
+        'Huella registrada',
+        'Este usuario ya tiene una huella asociada.',
+        'info'
+      );
+
+      return;
+
+    }
+
+    if (!user.active) {
+
+      Swal.fire(
+        'Usuario inactivo',
+        'Activa la cuenta antes de registrar una huella.',
+        'warning'
+      );
+
+      return;
+
+    }
+
+    if (
+      !this.biometricDevice.online ||
+      !this.biometricDevice.sensor_available
+    ) {
+
+      Swal.fire(
+        'ESP32 no disponible',
+        'Verifica que el ESP32 esté encendido, conectado al WiFi y que el AS608 esté disponible.',
+        'warning'
+      );
+
+      this.loadBiometricDeviceStatus();
+
+      return;
+
+    }
+
+    if (this.biometricActionInProgress) {
+      return;
+    }
+
+    Swal.fire({
+
+      title:
+        'Registrar huella',
+
+      text:
+        'Se iniciará el registro biométrico de ' +
+        user.name +
+        '. Sigue las instrucciones de la pantalla OLED.',
+
+      icon:
+        'question',
+
+      showCancelButton:
+        true,
+
+      confirmButtonText:
+        'Iniciar registro',
+
+      cancelButtonText:
+        'Cancelar'
+
+    }).then(result => {
+
+      if (!result.isConfirmed) {
+        return;
+      }
+
+      this.biometricActionInProgress =
+        true;
+
+      const actorUid =
+        this.currentUser?.uid ||
+        this.profile.uid ||
+        '';
+
+      this.dashboardService
+        .createBiometricEnrollment(
+          user.uid,
+          actorUid,
+          'SEGURENTRY-ESP32'
+        )
+        .subscribe({
+
+          next: (res: any) => {
+
+            const jobId =
+              res?.job?.id ||
+              '';
+
+            if (!jobId) {
+
+              this.biometricActionInProgress =
+                false;
+
+              Swal.fire(
+                'Error',
+                'Django no devolvió el ID del proceso biométrico.',
+                'error'
+              );
+
+              return;
+
+            }
+
+            Swal.fire({
+
+              title:
+                'Registro en curso',
+
+              text:
+                'Ve al lector AS608 y sigue las instrucciones mostradas en la OLED.',
+
+              allowOutsideClick:
+                false,
+
+              allowEscapeKey:
+                false,
+
+              showConfirmButton:
+                false,
+
+              didOpen:
+                () => {
+                  Swal.showLoading();
+                }
+
+            });
+
+            this.watchBiometricJob(
+              jobId,
+              user
+            );
+
+            this.loadBiometricUsers(
+              true
+            );
+
+          },
+
+          error: (err: any) => {
+
+            this.biometricActionInProgress =
+              false;
+
+            console.error(
+              'ERROR INICIANDO REGISTRO BIOMÉTRICO:',
+              err
+            );
+
+            Swal.fire(
+              'No se pudo iniciar',
+              err?.error?.message ||
+              'No fue posible crear el proceso biométrico.',
+              'error'
+            );
+
+            this.loadBiometricUsers(
+              true
+            );
+
+          }
+
+        });
+
+    });
+
+  }
+
+
+  // ==========================================================
+  // BIOMETRÍA - SEGUIR EL JOB
+  // ==========================================================
+
+  private watchBiometricJob(
+    jobId: string,
+    user: BiometricUser
+  ): void {
+
+    this.stopBiometricJobWatch();
+
+    this.activeBiometricJobId =
+      jobId;
+
+    this.checkBiometricJob(
+      jobId,
+      user
+    );
+
+    this.biometricJobTimer =
+      setInterval(() => {
+
+        this.checkBiometricJob(
+          jobId,
+          user
+        );
+
+      }, 1500);
+
+  }
+
+
+  private checkBiometricJob(
+    jobId: string,
+    user: BiometricUser
+  ): void {
+
+    if (
+      this.biometricJobRequestInProgress
+    ) {
+      return;
+    }
+
+    this.biometricJobRequestInProgress =
+      true;
+
+    this.dashboardService
+      .getBiometricJob(
+        jobId
+      )
+      .subscribe({
+
+        next: (res: any) => {
+
+          this.biometricJobRequestInProgress =
+            false;
+
+          const job =
+            res?.job ||
+            {};
+
+          const status =
+            String(
+              job?.status ||
+              ''
+            )
+              .trim()
+              .toLowerCase();
+
+          if (status === 'completed') {
+
+            this.stopBiometricJobWatch();
+
+            this.biometricActionInProgress =
+              false;
+
+            Swal.fire({
+
+              icon:
+                'success',
+
+              title:
+                'Huella registrada',
+
+              text:
+                'La huella de ' +
+                user.name +
+                ' fue registrada y sincronizada correctamente.',
+
+              timer:
+                2200,
+
+              showConfirmButton:
+                false
+
+            });
+
+            this.loadBiometricUsers(
+              true
+            );
+
+            this.loadBiometricDeviceStatus(
+              true
+            );
+
+            return;
+
+          }
+
+          if (status === 'failed') {
+
+            this.stopBiometricJobWatch();
+
+            this.biometricActionInProgress =
+              false;
+
+            Swal.fire(
+              'Registro fallido',
+              job?.error ||
+              job?.message ||
+              'El ESP32 no pudo completar el registro biométrico.',
+              'error'
+            );
+
+            this.loadBiometricUsers(
+              true
+            );
+
+            this.loadBiometricDeviceStatus(
+              true
+            );
+
+            return;
+
+          }
+
+          this.loadBiometricUsers(
+            true
+          );
+
+        },
+
+        error: (err: any) => {
+
+          this.biometricJobRequestInProgress =
+            false;
+
+          console.error(
+            'ERROR CONSULTANDO JOB BIOMÉTRICO:',
+            err
           );
 
         }
 
       });
 
-    // También cargamos el contador
+  }
 
-    this.notificationService
-      .getUnreadCount()
+
+  private stopBiometricJobWatch(): void {
+
+    if (this.biometricJobTimer) {
+
+      clearInterval(
+        this.biometricJobTimer
+      );
+
+      this.biometricJobTimer =
+        null;
+
+    }
+
+    this.activeBiometricJobId =
+      null;
+
+    this.biometricJobRequestInProgress =
+      false;
+
+  }
+
+
+
+  // ==========================================================
+  // BIOMETRÍA - ELIMINAR HUELLA
+  // ==========================================================
+
+  deleteBiometricFingerprint(
+    user: BiometricUser
+  ): void {
+
+    if (
+      !user.biometric_registered ||
+      user.fingerprint_id === null
+    ) {
+
+      Swal.fire(
+        'Sin huella',
+        'Este usuario no tiene una huella registrada.',
+        'info'
+      );
+
+      return;
+
+    }
+
+    if (
+      !this.biometricDevice.online ||
+      !this.biometricDevice.sensor_available
+    ) {
+
+      Swal.fire(
+        'ESP32 no disponible',
+        'Para eliminar la huella física, el ESP32 y el AS608 deben estar disponibles.',
+        'warning'
+      );
+
+      return;
+
+    }
+
+    if (this.biometricActionInProgress) {
+      return;
+    }
+
+    Swal.fire({
+
+      title:
+        'Eliminar huella',
+
+      text:
+        'Se eliminará la huella ID ' +
+        String(user.fingerprint_id) +
+        ' de ' +
+        user.name +
+        '. El usuario seguirá existiendo en SegurEntry.',
+
+      icon:
+        'warning',
+
+      showCancelButton:
+        true,
+
+      confirmButtonText:
+        'Eliminar huella',
+
+      cancelButtonText:
+        'Cancelar',
+
+      confirmButtonColor:
+        '#ef4444'
+
+    }).then(result => {
+
+      if (!result.isConfirmed) {
+        return;
+      }
+
+      this.startFingerprintDeletionJob(
+        user,
+        false
+      );
+
+    });
+
+  }
+
+
+  // ==========================================================
+  // BIOMETRÍA - CAMBIAR HUELLA
+  // ==========================================================
+
+  replaceBiometricFingerprint(
+    user: BiometricUser
+  ): void {
+
+    if (
+      !user.biometric_registered ||
+      user.fingerprint_id === null
+    ) {
+
+      this.startBiometricEnrollment(
+        user
+      );
+
+      return;
+
+    }
+
+    if (
+      !this.biometricDevice.online ||
+      !this.biometricDevice.sensor_available
+    ) {
+
+      Swal.fire(
+        'ESP32 no disponible',
+        'Para cambiar la huella, el ESP32 y el AS608 deben estar disponibles.',
+        'warning'
+      );
+
+      return;
+
+    }
+
+    if (this.biometricActionInProgress) {
+      return;
+    }
+
+    Swal.fire({
+
+      title:
+        'Cambiar huella',
+
+      text:
+        'Primero se liberará la huella ID ' +
+        String(user.fingerprint_id) +
+        ' y después el lector solicitará la nueva huella de ' +
+        user.name +
+        '.',
+
+      icon:
+        'question',
+
+      showCancelButton:
+        true,
+
+      confirmButtonText:
+        'Cambiar huella',
+
+      cancelButtonText:
+        'Cancelar'
+
+    }).then(result => {
+
+      if (!result.isConfirmed) {
+        return;
+      }
+
+      this.startFingerprintDeletionJob(
+        user,
+        true
+      );
+
+    });
+
+  }
+
+
+  // ==========================================================
+  // BIOMETRÍA - CREAR JOB DE ELIMINACIÓN
+  // ==========================================================
+
+  private startFingerprintDeletionJob(
+    user: BiometricUser,
+    replaceAfterDelete: boolean
+  ): void {
+
+    this.biometricActionInProgress =
+      true;
+
+    const actorUid =
+      this.currentUser?.uid ||
+      this.profile.uid ||
+      '';
+
+    Swal.fire({
+
+      title:
+        replaceAfterDelete
+          ? 'Preparando cambio'
+          : 'Eliminando huella',
+
+      text:
+        'El ESP32 está liberando la huella del sensor AS608.',
+
+      allowOutsideClick:
+        false,
+
+      allowEscapeKey:
+        false,
+
+      showConfirmButton:
+        false,
+
+      didOpen:
+        () => {
+          Swal.showLoading();
+        }
+
+    });
+
+    this.dashboardService
+      .deleteBiometricFingerprint(
+        user.uid,
+        actorUid,
+        'SEGURENTRY-ESP32'
+      )
       .subscribe({
 
-        next: (count: number) => {
+        next: (res: any) => {
 
-          this.unreadNotifications =
-            count;
+          const jobId =
+            res?.job?.id ||
+            '';
+
+          if (!jobId) {
+
+            this.biometricActionInProgress =
+              false;
+
+            Swal.fire(
+              'Sin huella',
+              'No existe una huella asociada que deba eliminarse.',
+              'info'
+            );
+
+            this.loadBiometricUsers(
+              true
+            );
+
+            return;
+
+          }
+
+          this.watchFingerprintDeletionJob(
+            jobId,
+            user,
+            replaceAfterDelete
+          );
+
+          this.loadBiometricUsers(
+            true
+          );
+
+        },
+
+        error: (err: any) => {
+
+          this.biometricActionInProgress =
+            false;
+
+          console.error(
+            'ERROR ELIMINANDO HUELLA:',
+            err
+          );
+
+          Swal.fire(
+            'No se pudo eliminar',
+            err?.error?.message ||
+            'No fue posible iniciar la eliminación biométrica.',
+            'error'
+          );
+
+          this.loadBiometricUsers(
+            true
+          );
 
         }
 
       });
 
-    // Ordenamos al servicio que consulte el backend
+  }
+
+
+  // ==========================================================
+  // BIOMETRÍA - SEGUIR ELIMINACIÓN
+  // ==========================================================
+
+  private watchFingerprintDeletionJob(
+    jobId: string,
+    user: BiometricUser,
+    replaceAfterDelete: boolean
+  ): void {
+
+    this.stopBiometricJobWatch();
+
+    this.activeBiometricJobId =
+      jobId;
+
+    const checkDeleteJob = () => {
+
+      if (
+        this.biometricJobRequestInProgress
+      ) {
+        return;
+      }
+
+      this.biometricJobRequestInProgress =
+        true;
+
+      this.dashboardService
+        .getBiometricJob(
+          jobId
+        )
+        .subscribe({
+
+          next: (res: any) => {
+
+            this.biometricJobRequestInProgress =
+              false;
+
+            const job =
+              res?.job ||
+              {};
+
+            const status =
+              String(
+                job?.status ||
+                ''
+              )
+                .trim()
+                .toLowerCase();
+
+            if (
+              status === 'completed'
+            ) {
+
+              this.stopBiometricJobWatch();
+
+              this.loadBiometricUsers(
+                true
+              );
+
+              this.loadBiometricDeviceStatus(
+                true
+              );
+
+              if (
+                replaceAfterDelete
+              ) {
+
+                this.startReplacementEnrollment(
+                  user
+                );
+
+              } else {
+
+                this.biometricActionInProgress =
+                  false;
+
+                Swal.fire({
+
+                  icon:
+                    'success',
+
+                  title:
+                    'Huella eliminada',
+
+                  text:
+                    'La huella de ' +
+                    user.name +
+                    ' fue eliminada del AS608 y el ID quedó disponible.',
+
+                  timer:
+                    2200,
+
+                  showConfirmButton:
+                    false
+
+                });
+
+              }
+
+              return;
+
+            }
+
+            if (
+              status === 'failed'
+            ) {
+
+              this.stopBiometricJobWatch();
+
+              this.biometricActionInProgress =
+                false;
+
+              Swal.fire(
+                'No se pudo eliminar',
+                job?.error ||
+                job?.message ||
+                'El AS608 no pudo liberar la huella.',
+                'error'
+              );
+
+              this.loadBiometricUsers(
+                true
+              );
+
+              return;
+
+            }
+
+            this.loadBiometricUsers(
+              true
+            );
+
+          },
+
+          error: (err: any) => {
+
+            this.biometricJobRequestInProgress =
+              false;
+
+            console.error(
+              'ERROR CONSULTANDO ELIMINACIÓN BIOMÉTRICA:',
+              err
+            );
+
+          }
+
+        });
+
+    };
+
+    checkDeleteJob();
+
+    this.biometricJobTimer =
+      setInterval(
+        checkDeleteJob,
+        1500
+      );
+
+  }
+
+
+  // ==========================================================
+  // BIOMETRÍA - REGISTRO NUEVO DESPUÉS DE CAMBIAR
+  // ==========================================================
+
+  private startReplacementEnrollment(
+    user: BiometricUser
+  ): void {
+
+    const actorUid =
+      this.currentUser?.uid ||
+      this.profile.uid ||
+      '';
+
+    Swal.fire({
+
+      title:
+        'Registra la nueva huella',
+
+      text:
+        'La huella anterior ya fue liberada. Sigue las instrucciones de la pantalla OLED para registrar la nueva huella de ' +
+        user.name +
+        '.',
+
+      allowOutsideClick:
+        false,
+
+      allowEscapeKey:
+        false,
+
+      showConfirmButton:
+        false,
+
+      didOpen:
+        () => {
+          Swal.showLoading();
+        }
+
+    });
+
+    this.dashboardService
+      .createBiometricEnrollment(
+        user.uid,
+        actorUid,
+        'SEGURENTRY-ESP32'
+      )
+      .subscribe({
+
+        next: (res: any) => {
+
+          const jobId =
+            res?.job?.id ||
+            '';
+
+          if (!jobId) {
+
+            this.biometricActionInProgress =
+              false;
+
+            Swal.fire(
+              'Error',
+              'Django no devolvió el ID del nuevo proceso biométrico.',
+              'error'
+            );
+
+            return;
+
+          }
+
+          this.watchReplacementEnrollmentJob(
+            jobId,
+            user
+          );
+
+          this.loadBiometricUsers(
+            true
+          );
+
+        },
+
+        error: (err: any) => {
+
+          this.biometricActionInProgress =
+            false;
+
+          Swal.fire(
+            'Huella anterior eliminada',
+            err?.error?.message ||
+            'La huella anterior fue eliminada, pero no fue posible iniciar el nuevo registro.',
+            'warning'
+          );
+
+          this.loadBiometricUsers(
+            true
+          );
+
+        }
+
+      });
+
+  }
+
+
+  // ==========================================================
+  // BIOMETRÍA - SEGUIR CAMBIO / NUEVO REGISTRO
+  // ==========================================================
+
+  private watchReplacementEnrollmentJob(
+    jobId: string,
+    user: BiometricUser
+  ): void {
+
+    this.stopBiometricJobWatch();
+
+    this.activeBiometricJobId =
+      jobId;
+
+    const checkReplacementJob = () => {
+
+      if (
+        this.biometricJobRequestInProgress
+      ) {
+        return;
+      }
+
+      this.biometricJobRequestInProgress =
+        true;
+
+      this.dashboardService
+        .getBiometricJob(
+          jobId
+        )
+        .subscribe({
+
+          next: (res: any) => {
+
+            this.biometricJobRequestInProgress =
+              false;
+
+            const job =
+              res?.job ||
+              {};
+
+            const status =
+              String(
+                job?.status ||
+                ''
+              )
+                .trim()
+                .toLowerCase();
+
+            if (
+              status === 'completed'
+            ) {
+
+              this.stopBiometricJobWatch();
+
+              this.biometricActionInProgress =
+                false;
+
+              Swal.fire({
+
+                icon:
+                  'success',
+
+                title:
+                  'Huella cambiada',
+
+                text:
+                  'La nueva huella de ' +
+                  user.name +
+                  ' fue registrada correctamente.',
+
+                timer:
+                  2300,
+
+                showConfirmButton:
+                  false
+
+              });
+
+              this.loadBiometricUsers(
+                true
+              );
+
+              this.loadBiometricDeviceStatus(
+                true
+              );
+
+              return;
+
+            }
+
+            if (
+              status === 'failed'
+            ) {
+
+              this.stopBiometricJobWatch();
+
+              this.biometricActionInProgress =
+                false;
+
+              Swal.fire(
+                'Registro fallido',
+                job?.error ||
+                job?.message ||
+                'No fue posible registrar la nueva huella.',
+                'error'
+              );
+
+              this.loadBiometricUsers(
+                true
+              );
+
+              return;
+
+            }
+
+            this.loadBiometricUsers(
+              true
+            );
+
+          },
+
+          error: (err: any) => {
+
+            this.biometricJobRequestInProgress =
+              false;
+
+            console.error(
+              'ERROR CONSULTANDO CAMBIO DE HUELLA:',
+              err
+            );
+
+          }
+
+        });
+
+    };
+
+    checkReplacementJob();
+
+    this.biometricJobTimer =
+      setInterval(
+        checkReplacementJob,
+        1500
+      );
+
+  }
+
+
+  // ==========================================================
+  // BIOMETRÍA - UTILIDADES
+  // ==========================================================
+
+  formatBiometricLastSeen(): string {
+
+    if (!this.biometricDevice.last_seen) {
+      return 'Sin conexión registrada';
+    }
+
+    const date =
+      new Date(
+        this.biometricDevice.last_seen
+      );
+
+    if (
+      isNaN(
+        date.getTime()
+      )
+    ) {
+
+      return String(
+        this.biometricDevice.last_seen
+      );
+
+    }
+
+    return date.toLocaleString(
+      'es-CO',
+      {
+        dateStyle:
+          'short',
+
+        timeStyle:
+          'medium'
+      }
+    );
+
+  }
+
+
+  trackByBiometricUser(
+    index: number,
+    user: BiometricUser
+  ): string {
+
+    return (
+      user.uid ||
+      String(index)
+    );
+
+  }
+
+
+  // ==========================================================
+  // NOTIFICACIONES
+  // ==========================================================
+
+  loadNotifications(): void {
+
+    this.initializeNotificationSubscriptions();
 
     this.notificationService
       .loadNotifications();
 
   }
+
+
+  private initializeNotificationSubscriptions(): void {
+
+    if (this.notificationSubscriptionsReady) {
+      return;
+    }
+
+    this.notificationSubscriptionsReady = true;
+
+    this.notificationListSubscription =
+      this.notificationService
+        .getNotifications()
+        .subscribe({
+
+          next: (notifications: any[]) => {
+
+            this.notifications =
+              Array.isArray(notifications)
+                ? [...notifications]
+                : [];
+
+          },
+
+          error: (error: any) => {
+
+            console.error(
+              'ERROR EN FLUJO DE NOTIFICACIONES:',
+              error
+            );
+
+          }
+
+        });
+
+    this.notificationUnreadSubscription =
+      this.notificationService
+        .getUnreadCount()
+        .subscribe({
+
+          next: (count: number) => {
+
+            this.unreadNotifications =
+              Number(count) || 0;
+
+          }
+
+        });
+
+    this.notificationLoadingSubscription =
+      this.notificationService
+        .loading$
+        .subscribe({
+
+          next: (loading: boolean) => {
+
+            this.notificationLoading =
+              loading === true;
+
+          }
+
+        });
+
+  }
+
+
+  private destroyNotificationSubscriptions(): void {
+
+    this.notificationListSubscription
+      ?.unsubscribe();
+
+    this.notificationUnreadSubscription
+      ?.unsubscribe();
+
+    this.notificationLoadingSubscription
+      ?.unsubscribe();
+
+    this.notificationListSubscription =
+      null;
+
+    this.notificationUnreadSubscription =
+      null;
+
+    this.notificationLoadingSubscription =
+      null;
+
+    this.notificationSubscriptionsReady =
+      false;
+
+  }
+
+
+  private startNotificationAutoRefresh(): void {
+
+    if (this.notificationRefreshTimer) {
+      return;
+    }
+
+    this.notificationRefreshTimer =
+      setInterval(() => {
+
+        // El contador del sidebar debe mantenerse actualizado
+        // aunque el usuario esté en otra sección.
+        this.notificationService
+          .loadNotifications();
+
+      }, 15000);
+
+  }
+
+
+  private stopNotificationAutoRefresh(): void {
+
+    if (!this.notificationRefreshTimer) {
+      return;
+    }
+
+    clearInterval(
+      this.notificationRefreshTimer
+    );
+
+    this.notificationRefreshTimer =
+      null;
+
+  }
+
+
+  get filteredNotifications(): any[] {
+
+    const search =
+      this.notificationSearch
+        .trim()
+        .toLowerCase();
+
+    return this.notifications.filter(
+      notification => {
+
+        const isRead =
+          notification?.read === true;
+
+        const actionable =
+          this.isActionableNotification(
+            notification
+          );
+
+        let matchesFilter = true;
+
+        if (
+          this.notificationFilter ===
+          'unread'
+        ) {
+
+          matchesFilter =
+            !isRead;
+
+        } else if (
+          this.notificationFilter ===
+          'read'
+        ) {
+
+          matchesFilter =
+            isRead;
+
+        } else if (
+          this.notificationFilter ===
+          'actionable'
+        ) {
+
+          matchesFilter =
+            actionable;
+
+        } else if (
+          this.notificationFilter ===
+          'biometric'
+        ) {
+
+          matchesFilter =
+            this.isBiometricNotification(
+              notification
+            );
+
+        } else if (
+          this.notificationFilter ===
+          'reports'
+        ) {
+
+          matchesFilter =
+            this.isReportNotification(
+              notification
+            );
+
+        }
+
+        if (!matchesFilter) {
+          return false;
+        }
+
+        if (!search) {
+          return true;
+        }
+
+        const searchable =
+          [
+            notification?.title,
+            notification?.message,
+            notification?.type,
+            notification?.data?.name,
+            notification?.data?.email,
+            notification?.data?.role,
+            notification?.data?.document
+          ]
+            .filter(Boolean)
+            .join(' ')
+            .toLowerCase();
+
+        return searchable.includes(
+          search
+        );
+
+      }
+    );
+
+  }
+
+
+  get readNotificationsCount(): number {
+
+    return this.notifications.filter(
+      notification =>
+        notification?.read === true
+    ).length;
+
+  }
+
+
+  get actionableNotificationsCount(): number {
+
+    return this.notifications.filter(
+      notification =>
+        this.isActionableNotification(
+          notification
+        )
+    ).length;
+
+  }
+
+
+  get biometricNotificationsCount(): number {
+
+    return this.notifications.filter(
+      notification =>
+        this.isBiometricNotification(
+          notification
+        )
+    ).length;
+
+  }
+
+
+  get reportNotificationsCount(): number {
+
+    return this.notifications.filter(
+      notification =>
+        this.isReportNotification(
+          notification
+        )
+    ).length;
+
+  }
+
+
+  isBiometricNotification(
+    notification: any
+  ): boolean {
+
+    return [
+      'fingerprint_enrolled',
+      'fingerprint_deleted',
+      'fingerprint_failed'
+    ].includes(
+      String(
+        notification?.type ||
+        ''
+      )
+    );
+
+  }
+
+
+  isReportNotification(
+    notification: any
+  ): boolean {
+
+    return (
+      notification?.type ===
+      'report_generated'
+    );
+
+  }
+
+
+  get todayNotificationsCount(): number {
+
+    const today =
+      new Date();
+
+    return this.notifications.filter(
+      notification => {
+
+        const rawDate =
+          notification?.created_at ||
+          notification?.createdAt ||
+          notification?.time;
+
+        if (!rawDate) {
+          return false;
+        }
+
+        const date =
+          new Date(rawDate);
+
+        if (
+          isNaN(
+            date.getTime()
+          )
+        ) {
+          return false;
+        }
+
+        return (
+          date.getFullYear() ===
+          today.getFullYear() &&
+          date.getMonth() ===
+          today.getMonth() &&
+          date.getDate() ===
+          today.getDate()
+        );
+
+      }
+    ).length;
+
+  }
+
+
+  setNotificationFilter(
+    filter:
+      'all' |
+      'unread' |
+      'read' |
+      'actionable' |
+      'biometric' |
+      'reports'
+  ): void {
+
+    this.notificationFilter =
+      filter;
+
+  }
+
+
+  isActionableNotification(
+    notification: any
+  ): boolean {
+
+    return (
+      notification?.type ===
+      'temporary_request' &&
+      this.canProcessTemporaryRequest(
+        notification
+      )
+    );
+
+  }
+
+
+  getNotificationTypeLabel(
+    notification: any
+  ): string {
+
+    switch (
+    notification?.type
+    ) {
+
+      case 'temporary_request':
+        return 'Solicitud temporal';
+
+      case 'temporary_request_approved':
+        return 'Solicitud aprobada';
+
+      case 'temporary_request_rejected':
+        return 'Solicitud rechazada';
+
+      case 'invitation_created':
+        return 'Invitación';
+
+      case 'invitation_accepted':
+        return 'Registro completado';
+
+      case 'user_created':
+        return 'Usuario creado';
+
+      case 'user_updated':
+        return 'Usuario actualizado';
+
+      case 'user_deleted':
+        return 'Usuario eliminado';
+
+      case 'role_changed':
+        return 'Cambio de rol';
+
+      case 'access_denied':
+        return 'Acceso denegado';
+
+      case 'access_granted':
+        return 'Acceso permitido';
+
+      case 'fingerprint_enrolled':
+        return 'Biometría';
+
+      case 'fingerprint_deleted':
+        return 'Biometría';
+
+      case 'fingerprint_failed':
+        return 'Error biométrico';
+
+      case 'report_generated':
+        return 'Reporte PDF';
+
+      default:
+        return 'Sistema';
+
+    }
+
+  }
+
+
+  getNotificationToneClass(
+    notification: any
+  ): string {
+
+    switch (
+    notification?.type
+    ) {
+
+      case 'access_denied':
+      case 'temporary_request_rejected':
+      case 'user_deleted':
+        return 'danger';
+
+      case 'temporary_request':
+      case 'invitation_created':
+        return 'warning';
+
+      case 'access_granted':
+      case 'temporary_request_approved':
+      case 'invitation_accepted':
+      case 'user_created':
+        return 'success';
+
+      case 'role_changed':
+      case 'user_updated':
+      case 'report_generated':
+        return 'info';
+
+      case 'fingerprint_enrolled':
+        return 'success';
+
+      case 'fingerprint_deleted':
+        return 'warning';
+
+      case 'fingerprint_failed':
+        return 'danger';
+
+      default:
+        return 'neutral';
+
+    }
+
+  }
+
+
+  trackByNotification(
+    index: number,
+    notification: any
+  ): string {
+
+    return (
+      notification?.id ||
+      String(index)
+    );
+
+  }
+
+
+  deleteNotification(
+    notification: any,
+    event?: Event
+  ): void {
+
+    event?.stopPropagation();
+
+    if (!notification?.id) {
+      return;
+    }
+
+    Swal.fire({
+
+      title:
+        'Eliminar notificación',
+
+      text:
+        'Esta notificación se eliminará de tu historial.',
+
+      icon:
+        'warning',
+
+      showCancelButton:
+        true,
+
+      confirmButtonText:
+        'Eliminar',
+
+      cancelButtonText:
+        'Cancelar',
+
+      confirmButtonColor:
+        '#ef4444'
+
+    }).then(result => {
+
+      if (!result.isConfirmed) {
+        return;
+      }
+
+      this.notificationService
+        .deleteNotification(
+          notification.id
+        )
+        .subscribe({
+
+          next: () => {
+
+            Swal.fire({
+
+              icon:
+                'success',
+
+              title:
+                'Notificación eliminada',
+
+              timer:
+                1300,
+
+              showConfirmButton:
+                false
+
+            });
+
+          },
+
+          error: (error: any) => {
+
+            console.error(
+              'ERROR ELIMINANDO NOTIFICACIÓN:',
+              error
+            );
+
+            Swal.fire(
+              'Error',
+              error?.error?.message ||
+              'No fue posible eliminar la notificación.',
+              'error'
+            );
+
+          }
+
+        });
+
+    });
+
+  }
+
+
+  clearReadNotifications(): void {
+
+    if (
+      this.readNotificationsCount === 0
+    ) {
+
+      Swal.fire(
+        'Sin notificaciones leídas',
+        'No hay notificaciones leídas para eliminar.',
+        'info'
+      );
+
+      return;
+
+    }
+
+    Swal.fire({
+
+      title:
+        'Eliminar notificaciones leídas',
+
+      text:
+        'Se eliminarán ' +
+        String(
+          this.readNotificationsCount
+        ) +
+        ' notificaciones leídas.',
+
+      icon:
+        'warning',
+
+      showCancelButton:
+        true,
+
+      confirmButtonText:
+        'Eliminar leídas',
+
+      cancelButtonText:
+        'Cancelar',
+
+      confirmButtonColor:
+        '#ef4444'
+
+    }).then(result => {
+
+      if (!result.isConfirmed) {
+        return;
+      }
+
+      this.notificationService
+        .deleteReadNotifications()
+        .subscribe({
+
+          next: () => {
+
+            Swal.fire({
+
+              icon:
+                'success',
+
+              title:
+                'Historial limpiado',
+
+              text:
+                'Las notificaciones leídas fueron eliminadas.',
+
+              timer:
+                1500,
+
+              showConfirmButton:
+                false
+
+            });
+
+          },
+
+          error: (error: any) => {
+
+            console.error(
+              'ERROR LIMPIANDO NOTIFICACIONES:',
+              error
+            );
+
+            Swal.fire(
+              'Error',
+              'No fue posible eliminar todas las notificaciones leídas.',
+              'error'
+            );
+
+          }
+
+        });
+
+    });
+
+  }
+
 
   // ==========================
   //  REALTIME SEGURO (FIX REAL)
@@ -1121,9 +3426,17 @@ export class SuperAdminComponent implements OnInit {
   // REPORTES - CARGAR ACCESOS
   // ==========================================================
 
-  loadAccessLogs(): void {
+  loadAccessLogs(silent: boolean = false): void {
 
-    this.reportLoading = true;
+    if (this.accessRefreshInProgress) {
+      return;
+    }
+
+    this.accessRefreshInProgress = true;
+
+    if (!silent) {
+      this.reportLoading = true;
+    }
 
     this.dashboardService
       .getAccesses()
@@ -1319,7 +3632,11 @@ export class SuperAdminComponent implements OnInit {
 
           this.calculateReportStats();
 
-          this.reportLoading = false;
+          this.accessRefreshInProgress = false;
+
+          if (!silent) {
+            this.reportLoading = false;
+          }
 
         },
 
@@ -1331,11 +3648,13 @@ export class SuperAdminComponent implements OnInit {
             err
           );
 
-          this.accessLogs = [];
+          if (!silent) {
+            this.accessLogs = [];
+            this.calculateReportStats();
+            this.reportLoading = false;
+          }
 
-          this.calculateReportStats();
-
-          this.reportLoading = false;
+          this.accessRefreshInProgress = false;
 
         }
 
@@ -2572,6 +4891,69 @@ export class SuperAdminComponent implements OnInit {
 
     printWindow.focus();
 
+    // ========================================================
+    // NOTIFICAR REPORTE PDF
+    // ========================================================
+
+    this.notificationService
+      .notifyReportGenerated({
+
+        report_type:
+          'Reporte general de accesos',
+
+        records:
+          logs.length,
+
+        allowed:
+          this.reportAllowed,
+
+        denied:
+          this.reportDenied,
+
+        filters: {
+          search:
+            this.reportSearch,
+
+          from:
+            this.reportFrom,
+
+          to:
+            this.reportTo,
+
+          status:
+            this.reportStatus,
+
+          movement:
+            this.reportType,
+
+          role:
+            this.reportRole
+        }
+
+      })
+      .subscribe({
+
+        next: () => {
+
+          console.log(
+            'Notificación de reporte PDF registrada.'
+          );
+
+        },
+
+        error: (error: any) => {
+
+          // La generación del reporte NO se bloquea si
+          // falla únicamente la notificación.
+          console.error(
+            'No fue posible registrar la notificación del reporte:',
+            error
+          );
+
+        }
+
+      });
+
 
     setTimeout(
       () => {
@@ -2987,6 +5369,21 @@ export class SuperAdminComponent implements OnInit {
           console.error(
             '❌ ERROR CREANDO:',
             err
+          );
+
+          console.error(
+            '📨 RESPUESTA DEL BACKEND:',
+            err?.error
+          );
+
+          console.error(
+            '💬 MENSAJE EXACTO:',
+            err?.error?.message
+          );
+
+          console.error(
+            '📊 STATUS:',
+            err?.status
           );
 
           Swal.fire({
@@ -4158,6 +6555,18 @@ export class SuperAdminComponent implements OnInit {
 
       case 'temporary_request_rejected':
         return 'fa-user-xmark';
+
+      case 'fingerprint_enrolled':
+        return 'fa-fingerprint';
+
+      case 'fingerprint_deleted':
+        return 'fa-fingerprint';
+
+      case 'fingerprint_failed':
+        return 'fa-triangle-exclamation';
+
+      case 'report_generated':
+        return 'fa-file-pdf';
 
       default:
         return 'fa-bell';

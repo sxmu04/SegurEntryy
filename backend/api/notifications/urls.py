@@ -1,6 +1,7 @@
 from django.urls import path
 
 from .views import (
+    system_event,
     notifications,
     unread_notifications,
     mark_notification_as_read,
@@ -10,6 +11,15 @@ from .views import (
 
 
 urlpatterns = [
+
+    # IMPORTANTE:
+    # Debe ir ANTES de "<str:uid>/" para que Django no
+    # interprete "system-event" como si fuera un UID.
+    path(
+        "system-event/",
+        system_event,
+        name="notification_system_event"
+    ),
 
     path(
         "<str:uid>/",

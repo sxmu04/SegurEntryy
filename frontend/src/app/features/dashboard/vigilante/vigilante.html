@@ -3,18 +3,27 @@
     <!-- =========================================================
          SIDEBAR
          ========================================================= -->
-    <aside class="sidebar" [class.collapsed]="!menuOpen">
+    <aside
+        class="sidebar"
+        [class.collapsed]="!menuOpen">
 
-        <!-- PERFIL DEL VIGILANTE -->
+        <!-- PERFIL -->
         <div class="sidebar-profile">
 
             <div class="avatar">
 
-                <img *ngIf="profile.photo" [src]="profile.photo" alt="Foto de perfil">
+                <img
+                    *ngIf="profile.photo"
+                    [src]="profile.photo"
+                    alt="Foto de perfil">
 
-                <i *ngIf="!profile.photo" class="fas fa-user-shield"></i>
+                <i
+                    *ngIf="!profile.photo"
+                    class="fas fa-user-shield">
+                </i>
 
             </div>
+
 
             <h3 *ngIf="menuOpen">
                 {{ profile.name || 'Vigilante' }}
@@ -46,8 +55,26 @@
         <!-- NAVEGACIÓN -->
         <nav>
 
-            <!-- ACCESOS -->
-            <button type="button" [class.active]="activeSection === 'accesses'" (click)="setSection('accesses')">
+            <!-- DASHBOARD PERSONAL -->
+            <button
+                type="button"
+                [class.active]="activeSection === 'dashboard'"
+                (click)="setSection('dashboard')">
+
+                <i class="fas fa-chart-pie"></i>
+
+                <span *ngIf="menuOpen">
+                    Dashboard
+                </span>
+
+            </button>
+
+
+            <!-- TODOS LOS ACCESOS -->
+            <button
+                type="button"
+                [class.active]="activeSection === 'accesses'"
+                (click)="setSection('accesses')">
 
                 <i class="fas fa-door-open"></i>
 
@@ -59,7 +86,10 @@
 
 
             <!-- USUARIOS TEMPORALES -->
-            <button type="button" [class.active]="activeSection === 'temporary'" (click)="setSection('temporary')">
+            <button
+                type="button"
+                [class.active]="activeSection === 'temporary'"
+                (click)="setSection('temporary')">
 
                 <i class="fas fa-user-clock"></i>
 
@@ -70,24 +100,57 @@
             </button>
 
 
-            <!-- PERFIL -->
-            <button type="button" [class.active]="activeSection === 'profile'" (click)="setSection('profile')">
+            <!-- NOTIFICACIONES -->
+            <button
+                type="button"
+                [class.active]="activeSection === 'notifications'"
+                (click)="setSection('notifications')">
 
-                <i class="fas fa-user"></i>
+                <i class="fas fa-bell"></i>
 
                 <span *ngIf="menuOpen">
-                    Mi perfil
+                    Notificaciones
+                </span>
+
+                <span
+                    *ngIf="
+                        menuOpen &&
+                        unreadNotifications > 0
+                    "
+                    class="sidebar-notification-count">
+
+                    {{ unreadNotifications }}
+
                 </span>
 
             </button>
 
-            <!-- BIOMETRÍA-->
-            <button type="button" [class.active]="activeSection === 'biometria'" (click)="setSection('biometria')">
+
+            <!-- BIOMETRÍA -->
+            <button
+                type="button"
+                [class.active]="activeSection === 'biometria'"
+                (click)="setSection('biometria')">
 
                 <i class="fas fa-fingerprint"></i>
 
                 <span *ngIf="menuOpen">
                     Biometría
+                </span>
+
+            </button>
+
+
+            <!-- PERFIL -->
+            <button
+                type="button"
+                [class.active]="activeSection === 'profile'"
+                (click)="setSection('profile')">
+
+                <i class="fas fa-user-circle"></i>
+
+                <span *ngIf="menuOpen">
+                    Mi perfil
                 </span>
 
             </button>
@@ -98,7 +161,10 @@
         <!-- CERRAR SESIÓN -->
         <div class="sidebar-bottom">
 
-            <button type="button" class="logout" (click)="logout()">
+            <button
+                type="button"
+                class="logout"
+                (click)="logout()">
 
                 <i class="fas fa-sign-out-alt"></i>
 
@@ -114,16 +180,18 @@
 
 
     <!-- =========================================================
-         MAIN — VIGILANTE
+         MAIN
          ========================================================= -->
     <main class="main">
 
-        <!-- =====================================================
-             HEADER
-             ===================================================== -->
+        <!-- HEADER -->
         <header>
 
-            <button type="button" class="menu-btn" (click)="toggleMenu()" title="Abrir/cerrar menú"
+            <button
+                type="button"
+                class="menu-btn"
+                (click)="toggleMenu()"
+                title="Abrir/cerrar menú"
                 aria-label="Abrir o cerrar menú">
 
                 <i class="fas fa-bars"></i>
@@ -133,7 +201,19 @@
 
             <div class="header-info">
 
-                <!-- DASHBOARD / ACCESOS -->
+                <div *ngIf="activeSection === 'dashboard'">
+
+                    <h2>
+                        Mi Dashboard
+                    </h2>
+
+                    <p class="header-subtitle">
+                        Tus ingresos y salidas personales como vigilante
+                    </p>
+
+                </div>
+
+
                 <div *ngIf="activeSection === 'accesses'">
 
                     <h2>
@@ -141,13 +221,12 @@
                     </h2>
 
                     <p class="header-subtitle">
-                        Monitoreo en tiempo real de ingresos y salidas
+                        Consulta los accesos de todos los usuarios registrados
                     </p>
 
                 </div>
 
 
-                <!-- USUARIOS TEMPORALES -->
                 <div *ngIf="activeSection === 'temporary'">
 
                     <h2>
@@ -161,21 +240,19 @@
                 </div>
 
 
-                <!-- PERFIL -->
-                <div *ngIf="activeSection === 'profile'">
+                <div *ngIf="activeSection === 'notifications'">
 
                     <h2>
-                        Mi Perfil
+                        Notificaciones
                     </h2>
 
                     <p class="header-subtitle">
-                        Información y configuración de tu cuenta
+                        Actividad importante asociada a tu cuenta
                     </p>
 
                 </div>
 
 
-                <!-- BIOMETRÍA -->
                 <div *ngIf="activeSection === 'biometria'">
 
                     <h2>
@@ -188,22 +265,305 @@
 
                 </div>
 
+
+                <div *ngIf="activeSection === 'profile'">
+
+                    <h2>
+                        Mi Perfil
+                    </h2>
+
+                    <p class="header-subtitle">
+                        Información personal y datos protegidos de tu cuenta
+                    </p>
+
+                </div>
+
             </div>
 
         </header>
 
 
         <!-- =====================================================
-             DASHBOARD — ACCESOS
+             DASHBOARD PERSONAL
              ===================================================== -->
-        <section *ngIf="activeSection === 'accesses'" class="accesses-section">
+        <section
+            *ngIf="activeSection === 'dashboard'"
+            class="vigilante-dashboard">
 
-            <!-- =================================================
-                 ESTADÍSTICAS
-                 ================================================= -->
+            <div class="dashboard-hero">
+
+                <div>
+
+                    <span class="dashboard-eyebrow">
+                        MI ACTIVIDAD
+                    </span>
+
+                    <h3>
+                        Mis ingresos y salidas
+                    </h3>
+
+                    <p>
+                        Este panel muestra únicamente tus propios movimientos
+                        registrados como vigilante.
+                    </p>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    class="refresh-dashboard-btn"
+                    (click)="refreshAccesses()">
+
+                    <i class="fas fa-rotate"></i>
+
+                    Actualizar
+
+                </button>
+
+            </div>
+
+
+            <section class="stats personal-stats">
+
+                <div class="card stat-card">
+
+                    <div class="stat-icon">
+                        <i class="fas fa-right-to-bracket"></i>
+                    </div>
+
+                    <div>
+
+                        <h2>
+                            {{ myIngresosToday }}
+                        </h2>
+
+                        <p>
+                            Mis ingresos hoy
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="card stat-card">
+
+                    <div class="stat-icon exit">
+                        <i class="fas fa-right-from-bracket"></i>
+                    </div>
+
+                    <div>
+
+                        <h2>
+                            {{ mySalidasToday }}
+                        </h2>
+
+                        <p>
+                            Mis salidas hoy
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="card stat-card">
+
+                    <div class="stat-icon blue">
+                        <i class="fas fa-arrows-rotate"></i>
+                    </div>
+
+                    <div>
+
+                        <h2>
+                            {{ myMovementsToday }}
+                        </h2>
+
+                        <p>
+                            Mis movimientos hoy
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <section class="card list-card personal-access-card">
+
+                <div class="table-header">
+
+                    <div>
+
+                        <h3>
+                            Mis movimientos recientes
+                        </h3>
+
+                        <p>
+                            Últimos ingresos y salidas asociados a tu cuenta
+                        </p>
+
+                    </div>
+
+
+                    <div
+                        class="last-personal-access"
+                        *ngIf="myLastMovement">
+
+                        <i class="fas fa-clock"></i>
+
+                        <span>
+                            Último:
+                            {{ formatDate(myLastMovement.date) }}
+                            {{ formatTime(myLastMovement.date) }}
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+                                <th>Movimiento</th>
+                                <th>Fecha</th>
+                                <th>Método</th>
+                                <th>Dispositivo</th>
+                                <th>Resultado</th>
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            <tr
+                                *ngFor="
+                                    let access
+                                    of recentMyAccesses
+                                ">
+
+                                <td>
+
+                                    <span
+                                        class="access-badge"
+                                        [class.ingreso]="access.type === 'entrada'"
+                                        [class.salida]="access.type === 'salida'">
+
+                                        <i
+                                            class="fas"
+                                            [class.fa-right-to-bracket]="access.type === 'entrada'"
+                                            [class.fa-right-from-bracket]="access.type === 'salida'">
+                                        </i>
+
+                                        {{
+                                            access.type === 'entrada'
+                                                ? 'Ingreso'
+                                                : 'Salida'
+                                        }}
+
+                                    </span>
+
+                                </td>
+
+
+                                <td>
+
+                                    <strong class="access-date">
+                                        {{ formatDate(access.date) }}
+                                    </strong>
+
+                                    <small class="access-time">
+                                        {{ formatTime(access.date) }}
+                                    </small>
+
+                                </td>
+
+
+                                <td>
+                                    {{ access.method || 'No registrado' }}
+                                </td>
+
+
+                                <td>
+                                    {{ access.device || 'No registrado' }}
+                                </td>
+
+
+                                <td>
+
+                                    <span
+                                        class="result-badge"
+                                        [class.allowed]="access.allowed"
+                                        [class.denied]="!access.allowed">
+
+                                        {{
+                                            access.allowed
+                                                ? 'Permitido'
+                                                : 'Denegado'
+                                        }}
+
+                                    </span>
+
+                                </td>
+
+                            </tr>
+
+
+                            <tr
+                                *ngIf="
+                                    recentMyAccesses.length === 0
+                                ">
+
+                                <td
+                                    colspan="5"
+                                    class="empty-state">
+
+                                    <div>
+
+                                        <i class="fas fa-clock-rotate-left"></i>
+
+                                        <h4>
+                                            Sin movimientos personales
+                                        </h4>
+
+                                        <p>
+                                            Tus ingresos y salidas aparecerán aquí.
+                                        </p>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+        </section>
+
+
+        <!-- =====================================================
+             ACCESOS — TODOS LOS USUARIOS
+             ===================================================== -->
+        <section
+            *ngIf="activeSection === 'accesses'"
+            class="accesses-section">
+
             <section class="stats">
 
-                <!-- INGRESOS -->
                 <div class="card stat-card">
 
                     <div class="stat-icon">
@@ -217,7 +577,7 @@
                         </h2>
 
                         <p>
-                            Ingresos Hoy
+                            Ingresos hoy
                         </p>
 
                     </div>
@@ -225,10 +585,9 @@
                 </div>
 
 
-                <!-- SALIDAS -->
                 <div class="card stat-card">
 
-                    <div class="stat-icon">
+                    <div class="stat-icon exit">
                         <i class="fas fa-right-from-bracket"></i>
                     </div>
 
@@ -239,7 +598,7 @@
                         </h2>
 
                         <p>
-                            Salidas Hoy
+                            Salidas hoy
                         </p>
 
                     </div>
@@ -247,11 +606,10 @@
                 </div>
 
 
-                <!-- MOVIMIENTOS -->
                 <div class="card stat-card">
 
-                    <div class="stat-icon">
-                        <i class="fas fa-arrows-rotate"></i>
+                    <div class="stat-icon blue">
+                        <i class="fas fa-users"></i>
                     </div>
 
                     <div>
@@ -261,7 +619,7 @@
                         </h2>
 
                         <p>
-                            Movimientos
+                            Movimientos hoy
                         </p>
 
                     </div>
@@ -271,59 +629,52 @@
             </section>
 
 
-            <!-- =================================================
-                 ESTADO EN TIEMPO REAL
-                 ================================================= -->
-            <div class="realtime-status">
-
-                <span class="status-dot"></span>
-
-                <span>
-                    Sistema conectado
-                </span>
-
-                <small>
-                    Actualización en tiempo real
-                </small>
-
-            </div>
-
-
-            <!-- =================================================
-                 TABLA DE ACCESOS
-                 ================================================= -->
             <section class="card list-card">
 
-                <!-- HEADER TABLA -->
                 <div class="table-header">
 
                     <div>
 
                         <h3>
-                            Registro de accesos
+                            Registro general de accesos
                         </h3>
 
                         <p>
-                            Todos los movimientos registrados en tiempo real
+                            Movimientos de absolutamente todos los usuarios
                         </p>
 
                     </div>
 
 
-                    <!-- BUSCADOR -->
-                    <div class="search-box">
+                    <div class="access-table-actions">
 
-                        <i class="fas fa-search"></i>
+                        <div class="search-box">
 
-                        <input type="text" [(ngModel)]="search" placeholder="Buscar por nombre, documento o correo"
-                            aria-label="Buscar accesos">
+                            <i class="fas fa-search"></i>
+
+                            <input
+                                type="text"
+                                [(ngModel)]="search"
+                                placeholder="Nombre, documento, correo, rol..."
+                                aria-label="Buscar accesos">
+
+                        </div>
+
+
+                        <button
+                            type="button"
+                            class="small-refresh-btn"
+                            (click)="refreshAccesses()">
+
+                            <i class="fas fa-rotate"></i>
+
+                        </button>
 
                     </div>
 
                 </div>
 
 
-                <!-- TABLA -->
                 <div class="table-container">
 
                     <table>
@@ -331,31 +682,14 @@
                         <thead>
 
                             <tr>
-
-                                <th>
-                                    Usuario
-                                </th>
-
-                                <th>
-                                    Correo
-                                </th>
-
-                                <th>
-                                    Documento
-                                </th>
-
-                                <th>
-                                    Tipo
-                                </th>
-
-                                <th>
-                                    Fecha
-                                </th>
-
-                                <th>
-                                    Estado
-                                </th>
-
+                                <th>Usuario</th>
+                                <th>Correo</th>
+                                <th>Documento</th>
+                                <th>Rol</th>
+                                <th>Tipo</th>
+                                <th>Fecha</th>
+                                <th>Método</th>
+                                <th>Resultado</th>
                             </tr>
 
                         </thead>
@@ -363,28 +697,28 @@
 
                         <tbody>
 
-                            <!-- REGISTROS -->
-                            <tr *ngFor="let a of filteredAccesses()">
+                            <tr
+                                *ngFor="
+                                    let access
+                                    of filteredAccesses()
+                                ">
 
-                                <!-- USUARIO -->
                                 <td>
 
                                     <div class="user-cell">
 
                                         <div class="user-mini-avatar">
-
                                             <i class="fas fa-user"></i>
-
                                         </div>
 
                                         <div>
 
                                             <strong>
-                                                {{ a.name || 'Usuario' }}
+                                                {{ access.name || 'Usuario' }}
                                             </strong>
 
                                             <small>
-                                                {{ a.role || 'Usuario' }}
+                                                {{ access.uid || 'Sin UID' }}
                                             </small>
 
                                         </div>
@@ -394,33 +728,42 @@
                                 </td>
 
 
-                                <!-- CORREO -->
                                 <td>
-                                    {{ a.email || 'No registrado' }}
+                                    {{ access.email || 'No registrado' }}
                                 </td>
 
 
-                                <!-- DOCUMENTO -->
                                 <td>
-                                    {{ a.document || 'No registrado' }}
+                                    {{ access.document || 'No registrado' }}
                                 </td>
 
 
-                                <!-- TIPO -->
                                 <td>
 
-                                    <span class="access-badge" [class.ingreso]="a.type === 'entrada'"
-                                        [class.salida]="a.type === 'salida'">
+                                    <span class="role-chip">
+                                        {{ access.role || 'usuario' }}
+                                    </span>
 
-                                        <i class="fas" [class.fa-right-to-bracket]="a.type === 'entrada'"
-                                            [class.fa-right-from-bracket]="a.type === 'salida'"></i>
+                                </td>
+
+
+                                <td>
+
+                                    <span
+                                        class="access-badge"
+                                        [class.ingreso]="access.type === 'entrada'"
+                                        [class.salida]="access.type === 'salida'">
+
+                                        <i
+                                            class="fas"
+                                            [class.fa-right-to-bracket]="access.type === 'entrada'"
+                                            [class.fa-right-from-bracket]="access.type === 'salida'">
+                                        </i>
 
                                         {{
-                                        a.type === 'entrada'
-                                        ? 'Ingreso'
-                                        : a.type === 'salida'
-                                        ? 'Salida'
-                                        : 'Sin registro'
+                                            access.type === 'entrada'
+                                                ? 'Ingreso'
+                                                : 'Salida'
                                         }}
 
                                     </span>
@@ -428,26 +771,36 @@
                                 </td>
 
 
-                                <!-- FECHA -->
                                 <td>
 
-                                    {{
-                                    a.date
-                                    ? (a.date | date:'dd/MM/yyyy HH:mm')
-                                    : 'Sin fecha'
-                                    }}
+                                    <strong class="access-date">
+                                        {{ formatDate(access.date) }}
+                                    </strong>
+
+                                    <small class="access-time">
+                                        {{ formatTime(access.date) }}
+                                    </small>
 
                                 </td>
 
 
-                                <!-- ESTADO -->
+                                <td>
+                                    {{ access.method || 'No registrado' }}
+                                </td>
+
+
                                 <td>
 
-                                    <span class="online-status">
+                                    <span
+                                        class="result-badge"
+                                        [class.allowed]="access.allowed"
+                                        [class.denied]="!access.allowed">
 
-                                        <span class="status-dot"></span>
-
-                                        Registrado
+                                        {{
+                                            access.allowed
+                                                ? 'Permitido'
+                                                : 'Denegado'
+                                        }}
 
                                     </span>
 
@@ -456,22 +809,25 @@
                             </tr>
 
 
-                            <!-- SIN REGISTROS -->
-                            <tr *ngIf="filteredAccesses().length === 0">
+                            <tr
+                                *ngIf="
+                                    filteredAccesses().length === 0
+                                ">
 
-                                <td colspan="6" class="empty-state">
+                                <td
+                                    colspan="8"
+                                    class="empty-state">
 
                                     <div>
 
                                         <i class="fas fa-door-closed"></i>
 
                                         <h4>
-                                            No hay accesos registrados
+                                            No hay accesos para mostrar
                                         </h4>
 
                                         <p>
-                                            Los movimientos aparecerán aquí
-                                            automáticamente.
+                                            Ajusta la búsqueda o actualiza los registros.
                                         </p>
 
                                     </div>
@@ -1047,6 +1403,289 @@
 
 
 
+
+
+        <!-- =====================================================
+             NOTIFICACIONES
+             ===================================================== -->
+        <section
+            *ngIf="activeSection === 'notifications'"
+            class="notifications-section">
+
+            <div class="notification-summary-grid">
+
+                <div class="card notification-summary-card">
+
+                    <div class="notification-summary-icon">
+                        <i class="fas fa-bell"></i>
+                    </div>
+
+                    <div>
+                        <strong>{{ notifications.length }}</strong>
+                        <span>Total</span>
+                    </div>
+
+                </div>
+
+
+                <div class="card notification-summary-card">
+
+                    <div class="notification-summary-icon unread">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+
+                    <div>
+                        <strong>{{ unreadNotifications }}</strong>
+                        <span>Sin leer</span>
+                    </div>
+
+                </div>
+
+
+                <div class="card notification-summary-card">
+
+                    <div class="notification-summary-icon read">
+                        <i class="fas fa-envelope-open"></i>
+                    </div>
+
+                    <div>
+                        <strong>{{ getReadNotificationsCount() }}</strong>
+                        <span>Leídas</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <section class="card notification-center">
+
+                <div class="notification-center-header">
+
+                    <div>
+
+                        <h3>
+                            Centro de notificaciones
+                        </h3>
+
+                        <p>
+                            Consulta cambios de cuenta, accesos y eventos importantes.
+                        </p>
+
+                    </div>
+
+
+                    <div class="notification-header-actions">
+
+                        <button
+                            type="button"
+                            class="notification-action-btn"
+                            (click)="loadNotifications()">
+
+                            <i class="fas fa-rotate"></i>
+
+                            Actualizar
+
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="notification-action-btn primary"
+                            *ngIf="unreadNotifications > 0"
+                            (click)="markAllNotificationsAsRead()">
+
+                            <i class="fas fa-check-double"></i>
+
+                            Marcar todas como leídas
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <div class="notification-toolbar">
+
+                    <div class="notification-filters">
+
+                        <button
+                            type="button"
+                            [class.active]="notificationFilter === 'todas'"
+                            (click)="notificationFilter = 'todas'">
+
+                            Todas
+
+                        </button>
+
+
+                        <button
+                            type="button"
+                            [class.active]="notificationFilter === 'no_leidas'"
+                            (click)="notificationFilter = 'no_leidas'">
+
+                            Sin leer
+
+                            <span>
+                                {{ unreadNotifications }}
+                            </span>
+
+                        </button>
+
+
+                        <button
+                            type="button"
+                            [class.active]="notificationFilter === 'leidas'"
+                            (click)="notificationFilter = 'leidas'">
+
+                            Leídas
+
+                        </button>
+
+                    </div>
+
+
+                    <div class="notification-search">
+
+                        <i class="fas fa-search"></i>
+
+                        <input
+                            type="text"
+                            [(ngModel)]="notificationSearch"
+                            placeholder="Buscar notificación...">
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="notification-loading"
+                    *ngIf="notificationsLoading">
+
+                    <i class="fas fa-spinner fa-spin"></i>
+
+                    Cargando notificaciones...
+
+                </div>
+
+
+                <div
+                    class="notification-list"
+                    *ngIf="!notificationsLoading">
+
+                    <article
+                        class="notification-item"
+                        *ngFor="
+                            let notification
+                            of filteredNotifications()
+                        "
+                        [class.unread]="!notification.read"
+                        (click)="markNotificationAsRead(notification)">
+
+                        <div
+                            class="notification-item-icon"
+                            [ngClass]="getNotificationTone(notification)">
+
+                            <i
+                                class="fas"
+                                [ngClass]="getNotificationIcon(notification)">
+                            </i>
+
+                        </div>
+
+
+                        <div class="notification-content">
+
+                            <div class="notification-title-row">
+
+                                <strong>
+                                    {{ notification.title }}
+                                </strong>
+
+                                <span
+                                    class="unread-dot"
+                                    *ngIf="!notification.read">
+                                </span>
+
+                            </div>
+
+
+                            <p>
+                                {{ notification.message }}
+                            </p>
+
+
+                            <div class="notification-meta">
+
+                                <span>
+
+                                    <i class="fas fa-clock"></i>
+
+                                    {{ formatDate(notification.created_at) }}
+                                    ·
+                                    {{ formatTime(notification.created_at) }}
+
+                                </span>
+
+
+                                <span *ngIf="notification.source">
+
+                                    <i class="fas fa-circle-nodes"></i>
+
+                                    {{ notification.source }}
+
+                                </span>
+
+
+                                <span class="notification-type-chip">
+                                    {{ notification.type }}
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="notification-state">
+
+                            <i
+                                class="fas"
+                                [class.fa-envelope]="!notification.read"
+                                [class.fa-envelope-open]="notification.read">
+                            </i>
+
+                        </div>
+
+                    </article>
+
+
+                    <div
+                        class="notifications-empty"
+                        *ngIf="
+                            filteredNotifications().length === 0
+                        ">
+
+                        <i class="fas fa-bell-slash"></i>
+
+                        <h4>
+                            No hay notificaciones
+                        </h4>
+
+                        <p>
+                            No existen notificaciones que coincidan con los filtros actuales.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </section>
+
+
     <!-- =====================================================
          BIOMETRÍA
          Vista preparada para futura conexión ESP32 + AS608
@@ -1301,12 +1940,15 @@
 
 
 
-                <!-- =====================================================
-     PERFIL DEL VIGILANTE
-     ===================================================== -->
-        <section *ngIf="activeSection === 'profile'" class="profile-section">
 
-            <!-- ENCABEZADO -->
+
+        <!-- =====================================================
+             PERFIL DEL VIGILANTE
+             ===================================================== -->
+        <section
+            *ngIf="activeSection === 'profile'"
+            class="profile-section">
+
             <div class="profile-page-header">
 
                 <h2>
@@ -1314,22 +1956,22 @@
                 </h2>
 
                 <p>
-                    Administra la información de tu cuenta.
+                    Consulta tus datos personales y actualiza únicamente
+                    la información permitida.
                 </p>
 
             </div>
 
 
-            <!-- =================================================
-         FOTO DE PERFIL
-         ================================================= -->
             <div class="card profile-photo-card">
 
                 <div class="profile-photo-wrapper">
 
                     <div class="profile-photo">
 
-                        <img [src]="profile.photo || 'assets/avatar.png'" alt="Foto de perfil">
+                        <img
+                            [src]="profile.photo || 'assets/avatar.png'"
+                            alt="Foto de perfil">
 
                     </div>
 
@@ -1347,13 +1989,18 @@
                     </p>
 
 
-                    <label class="change-photo-btn" title="Cambiar fotografía">
+                    <label
+                        class="change-photo-btn"
+                        title="Cambiar fotografía">
 
                         <i class="fas fa-camera"></i>
 
                         Cambiar fotografía
 
-                        <input type="file" accept="image/jpeg,image/png,image/webp" hidden
+                        <input
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp"
+                            hidden
                             (change)="uploadPhoto($event)">
 
                     </label>
@@ -1363,94 +2010,44 @@
             </div>
 
 
-            <!-- =================================================
-         INFORMACIÓN DE LA CUENTA
-         ================================================= -->
+            <div class="profile-security-banner">
+
+                <i class="fas fa-shield-halved"></i>
+
+                <div>
+
+                    <strong>
+                        Datos de identidad protegidos
+                    </strong>
+
+                    <p>
+                        El nombre, tipo de documento, número de documento,
+                        rol, UID y estado de la cuenta no pueden modificarse
+                        desde el perfil del Vigilante.
+                    </p>
+
+                </div>
+
+            </div>
+
+
             <div class="card profile-information-card">
 
                 <div class="profile-form-grid">
 
 
-                    <!-- =========================================
-                 NOMBRE
-                 ========================================= -->
+                    <!-- NOMBRE PROTEGIDO -->
                     <div class="form-group">
 
-                        <label for="profile-name">
-                            Nombre
-                        </label>
-                        <div class="locked-input">
-
-                            <input id="profile-name" type="text" [(ngModel)]="profile.name"
-                                placeholder="Nombre completo" readonly>
-
-                            <i class="fas fa-lock"></i>
-
-                        </div>
-                        <small>
-                            El nombre no puede modificarse.
-                        </small>
-
-                    </div>
-
-
-
-                    <!-- =========================================
-                 CORREO
-                 ========================================= -->
-                    <div class="form-group">
-
-                        <label for="profile-email">
-                            Correo electrónico
-                        </label>
-
-                        <input id="profile-email" type="email" [(ngModel)]="profile.email"
-                            placeholder="Correo electrónico">
-
-                    </div>
-
-
-                    <!-- =========================================
-                 TELÉFONO
-                 ========================================= -->
-                    <div class="form-group">
-
-                        <label for="profile-phone">
-                            Teléfono
-                        </label>
-
-                        <input id="profile-phone" type="text" [(ngModel)]="profile.phone"
-                            placeholder="Número de teléfono">
-
-                    </div>
-
-
-                    <!-- =========================================
-                 DIRECCIÓN
-                 ========================================= -->
-                    <div class="form-group">
-
-                        <label for="profile-address">
-                            Dirección
-                        </label>
-
-                        <input id="profile-address" type="text" [(ngModel)]="profile.address" placeholder="Dirección">
-
-                    </div>
-
-
-                    <!-- =========================================
-                 DOCUMENTO
-                 ========================================= -->
-                    <div class="form-group">
-
-                        <label for="profile-document">
-                            Documento
+                        <label>
+                            Nombre completo
                         </label>
 
                         <div class="locked-input">
 
-                            <input id="profile-document" type="text" [value]="profile.document || 'No registrado'"
+                            <input
+                                type="text"
+                                [value]="profile.name || 'No registrado'"
                                 readonly>
 
                             <i class="fas fa-lock"></i>
@@ -1458,64 +2055,161 @@
                         </div>
 
                         <small>
-                            El documento no puede modificarse.
+                            El nombre está protegido.
                         </small>
 
                     </div>
 
 
-                    <!-- =========================================
-                 ROL
-                 ========================================= -->
+                    <!-- TIPO DOCUMENTO PROTEGIDO -->
                     <div class="form-group">
 
-                        <label for="profile-role">
+                        <label>
+                            Tipo de documento
+                        </label>
+
+                        <div class="locked-input">
+
+                            <input
+                                type="text"
+                                [value]="profile.documentType || 'No registrado'"
+                                readonly>
+
+                            <i class="fas fa-lock"></i>
+
+                        </div>
+
+                        <small>
+                            El tipo de documento está protegido.
+                        </small>
+
+                    </div>
+
+
+                    <!-- DOCUMENTO PROTEGIDO -->
+                    <div class="form-group">
+
+                        <label>
+                            Número de documento
+                        </label>
+
+                        <div class="locked-input">
+
+                            <input
+                                type="text"
+                                [value]="profile.document || 'No registrado'"
+                                readonly>
+
+                            <i class="fas fa-lock"></i>
+
+                        </div>
+
+                        <small>
+                            El número de documento está protegido.
+                        </small>
+
+                    </div>
+
+
+                    <!-- CORREO EDITABLE -->
+                    <div class="form-group">
+
+                        <label for="profile-email">
+                            Correo electrónico
+                        </label>
+
+                        <input
+                            id="profile-email"
+                            type="email"
+                            [(ngModel)]="profile.email"
+                            placeholder="Correo electrónico">
+
+                    </div>
+
+
+                    <!-- TELÉFONO EDITABLE -->
+                    <div class="form-group">
+
+                        <label for="profile-phone">
+                            Teléfono
+                        </label>
+
+                        <input
+                            id="profile-phone"
+                            type="text"
+                            [(ngModel)]="profile.phone"
+                            placeholder="Número de teléfono">
+
+                    </div>
+
+
+                    <!-- DIRECCIÓN EDITABLE -->
+                    <div class="form-group">
+
+                        <label for="profile-address">
+                            Dirección
+                        </label>
+
+                        <input
+                            id="profile-address"
+                            type="text"
+                            [(ngModel)]="profile.address"
+                            placeholder="Dirección">
+
+                    </div>
+
+
+                    <!-- ROL PROTEGIDO -->
+                    <div class="form-group">
+
+                        <label>
                             Rol
                         </label>
 
                         <div class="locked-input">
 
-                            <input id="profile-role" type="text" [value]="currentUser?.role || 'vigilante'" readonly>
+                            <input
+                                type="text"
+                                [value]="currentUser?.role || 'vigilante'"
+                                readonly>
 
                             <i class="fas fa-lock"></i>
 
                         </div>
 
                         <small>
-                            El rol no puede modificarse desde el perfil.
+                            El rol está protegido.
                         </small>
 
                     </div>
 
 
-                    <!-- =========================================
-                 ID USUARIO
-                 ========================================= -->
+                    <!-- UID PROTEGIDO -->
                     <div class="form-group">
 
-                        <label for="profile-user-id">
+                        <label>
                             ID de usuario
                         </label>
 
                         <div class="locked-input">
 
-                            <input id="profile-user-id" type="text"
-                                [value]="currentUser?.uid || currentUser?.id || 'No disponible'" readonly>
+                            <input
+                                type="text"
+                                [value]="currentUser?.uid || currentUser?.id || 'No disponible'"
+                                readonly>
 
                             <i class="fas fa-lock"></i>
 
                         </div>
 
                         <small>
-                            El ID de usuario es permanente.
+                            El identificador es permanente.
                         </small>
 
                     </div>
 
 
-                    <!-- =========================================
-                 ESTADO
-                 ========================================= -->
+                    <!-- ESTADO PROTEGIDO -->
                     <div class="form-group">
 
                         <label>
@@ -1530,7 +2224,13 @@
                                 Activo
                             </span>
 
+                            <i class="fas fa-lock status-lock"></i>
+
                         </div>
+
+                        <small>
+                            El estado solo puede gestionarlo un administrador autorizado.
+                        </small>
 
                     </div>
 
@@ -1539,12 +2239,12 @@
             </div>
 
 
-            <!-- =================================================
-         ACCIONES
-         ================================================= -->
             <div class="profile-actions">
 
-                <button type="button" class="primary-btn profile-save-btn" (click)="updateProfile()">
+                <button
+                    type="button"
+                    class="primary-btn profile-save-btn"
+                    (click)="updateProfile()">
 
                     <i class="fas fa-save"></i>
 

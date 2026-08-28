@@ -2,20 +2,28 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/internal/Observable';
 
+
 @Injectable({
   providedIn: 'root'
 })
 export class ApiService {
 
-  private API_URL = 'http://127.0.0.1:8000/api';
+  private API_URL =
+    'http://127.0.0.1:8000/api';
 
-  constructor(private http: HttpClient) { }
+
+  constructor(
+    private http: HttpClient
+  ) {}
+
 
   // ===========================
   // AUTH
   // ===========================
 
-  login(email: string) {
+  login(
+    email: string
+  ) {
 
     return this.http.post(
       `${this.API_URL}/auth/login/`,
@@ -26,18 +34,25 @@ export class ApiService {
 
   }
 
-  googleLogin(idToken: string) {
+
+  googleLogin(
+    idToken: string
+  ) {
 
     return this.http.post(
       `${this.API_URL}/auth/google-login/`,
       {
-        id_token: idToken
+        id_token:
+          idToken
       }
     );
 
   }
 
-  checkProvider(email: string) {
+
+  checkProvider(
+    email: string
+  ) {
 
     return this.http.post(
       `${this.API_URL}/auth/check-provider/`,
@@ -48,11 +63,14 @@ export class ApiService {
 
   }
 
+
   // ===========================
   // INVITACIONES
   // ===========================
 
-  validateInvitation(data: any) {
+  validateInvitation(
+    data: any
+  ) {
 
     return this.http.post(
       `${this.API_URL}/invitations/validate/`,
@@ -61,7 +79,10 @@ export class ApiService {
 
   }
 
-  createInvitation(data: any) {
+
+  createInvitation(
+    data: any
+  ) {
 
     return this.http.post(
       `${this.API_URL}/invitations/create/`,
@@ -70,11 +91,14 @@ export class ApiService {
 
   }
 
+
   // ===========================
   // USUARIOS
   // ===========================
 
-  createUser(data: any) {
+  createUser(
+    data: any
+  ) {
 
     return this.http.post(
       `${this.API_URL}/users/create/`,
@@ -82,6 +106,7 @@ export class ApiService {
     );
 
   }
+
 
   listUsers() {
 
@@ -91,7 +116,10 @@ export class ApiService {
 
   }
 
-  getUser(uid: string) {
+
+  getUser(
+    uid: string
+  ) {
 
     return this.http.get(
       `${this.API_URL}/users/get/${uid}/`
@@ -99,7 +127,11 @@ export class ApiService {
 
   }
 
-  updateUser(uid: string, data: any) {
+
+  updateUser(
+    uid: string,
+    data: any
+  ) {
 
     return this.http.put(
       `${this.API_URL}/users/update/${uid}/`,
@@ -108,13 +140,29 @@ export class ApiService {
 
   }
 
-  deleteUser(uid: string) {
+
+  deleteUser(
+    uid: string
+  ) {
 
     return this.http.delete(
       `${this.API_URL}/users/delete/${uid}/`
     );
 
   }
+
+
+  completeRegistration(
+    data: any
+  ): Observable<any> {
+
+    return this.http.post<any>(
+      `${this.API_URL}/users/complete-registration/`,
+      data
+    );
+
+  }
+
 
   // ===========================
   // ACCESOS
@@ -128,7 +176,10 @@ export class ApiService {
 
   }
 
-  registerAccess(data: any) {
+
+  registerAccess(
+    data: any
+  ) {
 
     return this.http.post(
       `${this.API_URL}/access/register/`,
@@ -137,18 +188,14 @@ export class ApiService {
 
   }
 
-  completeRegistration(data: any): Observable<any> {
-    return this.http.post<any>(
-      `${this.API_URL}/users/complete-registration/`,
-      data
-    );
-  }
 
   // ===========================
   // NOTIFICACIONES
   // ===========================
 
-  getNotifications(uid: string) {
+  getNotifications(
+    uid: string
+  ) {
 
     return this.http.get(
       `${this.API_URL}/notifications/${uid}/`
@@ -156,13 +203,17 @@ export class ApiService {
 
   }
 
-  getUnreadNotifications(uid: string) {
+
+  getUnreadNotifications(
+    uid: string
+  ) {
 
     return this.http.get(
       `${this.API_URL}/notifications/${uid}/unread/`
     );
 
   }
+
 
   markNotificationAsRead(
     uid: string,
@@ -176,7 +227,10 @@ export class ApiService {
 
   }
 
-  markAllNotificationsAsRead(uid: string) {
+
+  markAllNotificationsAsRead(
+    uid: string
+  ) {
 
     return this.http.patch(
       `${this.API_URL}/notifications/${uid}/read-all/`,
@@ -184,6 +238,7 @@ export class ApiService {
     );
 
   }
+
 
   deleteNotification(
     uid: string,
@@ -196,7 +251,26 @@ export class ApiService {
 
   }
 
-  getTemporaryUserRequest(requestId: string) {
+
+  createNotificationSystemEvent(
+    data: any
+  ) {
+
+    return this.http.post(
+      `${this.API_URL}/notifications/system-event/`,
+      data
+    );
+
+  }
+
+
+  // ===========================
+  // TEMPORALES
+  // ===========================
+
+  getTemporaryUserRequest(
+    requestId: string
+  ) {
 
     return this.http.get(
       `${this.API_URL}/temporary-users/requests/${requestId}/`
@@ -204,7 +278,10 @@ export class ApiService {
 
   }
 
-  approveTemporaryUser(requestId: string) {
+
+  approveTemporaryUser(
+    requestId: string
+  ) {
 
     return this.http.post(
       `${this.API_URL}/temporary-users/requests/${requestId}/approve/`,
@@ -213,7 +290,10 @@ export class ApiService {
 
   }
 
-  rejectTemporaryUser(requestId: string) {
+
+  rejectTemporaryUser(
+    requestId: string
+  ) {
 
     return this.http.post(
       `${this.API_URL}/temporary-users/requests/${requestId}/reject/`,

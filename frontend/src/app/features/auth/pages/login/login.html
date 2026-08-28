@@ -1,59 +1,235 @@
-<div class="container">
+<main class="auth-page">
 
-  <div class="card">
-    <div class="toggle-container">
-      <button class="theme-btn" (click)="toggleDarkMode()">
-        <i class="fa-solid fa-moon"></i>
-      </button>
-    </div>
+  <div class="auth-grid">
 
-    <div class="logo">
-      <i class="fa-solid fa-shield-halved"></i>
-      
-    </div>
+    <!-- =====================================================
+         IDENTIDAD SEGURENTRY
+    ====================================================== -->
+    <section class="brand-panel">
 
-    <h2>SEGURENTRY</h2>
+      <div class="brand-content">
 
-    <p class="subtitle">
-      Control Inteligente de Accesos
-    </p>
+        <div class="brand-badge">
+          <span class="status-dot"></span>
+          Plataforma de control de accesos
+        </div>
 
-    <div class="input-group">
-      <i class="fa-solid fa-envelope"></i>
-      <input type="email" placeholder="Correo electrónico" [(ngModel)]="email">
-    </div>
+        <div class="brand-mark">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
 
-    <div class="input-group">
-      <i class="fa-solid fa-lock"></i>
-      <input [type]="showPassword ? 'text':'password'" placeholder="Contraseña" [(ngModel)]="password">
-      <button type="button" class="eye-btn" (click)="showPassword=!showPassword">
-        <i [class]="showPassword
-          ? 'fa-solid fa-eye-slash'
-          : 'fa-solid fa-eye'">
-        </i>
-      </button>
-    </div>
+        <h1>
+          Segur<span>Entry</span>
+        </h1>
 
-    <div class="forgot">
-      <a routerLink="/forgot-password">
-        ¿Olvidaste tu contraseña?
-      </a>
-    </div>
+        <p>
+          Gestión inteligente, segura y centralizada
+          para el control de accesos.
+        </p>
 
-    <button class="login-btn" (click)="login()">
-      Iniciar Sesión
-    </button>
+        <div class="security-features">
 
-    <div class="divider">
-      <span>o</span>
-    </div>
+          <div>
+            <i class="fa-solid fa-fingerprint"></i>
+
+            <span>
+              <strong>Biometría</strong>
+              Identificación mediante huella
+            </span>
+          </div>
+
+          <div>
+            <i class="fa-solid fa-microchip"></i>
+
+            <span>
+              <strong>IoT</strong>
+              Integración con dispositivos físicos
+            </span>
+          </div>
+
+          <div>
+            <i class="fa-solid fa-shield"></i>
+
+            <span>
+              <strong>Seguridad</strong>
+              Acceso controlado por roles
+            </span>
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="brand-footer">
+        <i class="fa-solid fa-lock"></i>
+        Conexión segura · SegurEntry
+      </div>
+
+    </section>
 
 
-    <p class="link">
-      ¿No tienes cuenta?
-      <a routerLink="/register">
-        Crear cuenta
-      </a>
-    </p>
+    <!-- =====================================================
+         LOGIN
+    ====================================================== -->
+    <section class="form-panel">
+
+      <div class="auth-card">
+
+        <div class="mobile-brand">
+          <div class="mobile-logo">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+
+          <strong>
+            Segur<span>Entry</span>
+          </strong>
+        </div>
+
+
+        <div class="form-heading">
+
+          <span class="eyebrow">
+            ACCESO AL SISTEMA
+          </span>
+
+          <h2>
+            Bienvenido de nuevo
+          </h2>
+
+          <p>
+            Ingresa tus credenciales para acceder
+            al panel de SegurEntry.
+          </p>
+
+        </div>
+
+
+        <div class="field">
+
+          <label for="loginEmail">
+            Correo electrónico
+          </label>
+
+          <div class="input-group">
+
+            <i class="fa-solid fa-envelope"></i>
+
+            <input
+              id="loginEmail"
+              type="email"
+              autocomplete="email"
+              placeholder="nombre@correo.com"
+              [(ngModel)]="email"
+              (keyup.enter)="login()">
+
+          </div>
+
+        </div>
+
+
+        <div class="field">
+
+          <div class="field-label-row">
+
+            <label for="loginPassword">
+              Contraseña
+            </label>
+
+            <a
+              routerLink="/forgot-password"
+              class="forgot-link">
+              ¿Olvidaste tu contraseña?
+            </a>
+
+          </div>
+
+          <div class="input-group">
+
+            <i class="fa-solid fa-lock"></i>
+
+            <input
+              id="loginPassword"
+              [type]="showPassword ? 'text' : 'password'"
+              autocomplete="current-password"
+              placeholder="Ingresa tu contraseña"
+              [(ngModel)]="password"
+              (keyup.enter)="login()">
+
+            <button
+              type="button"
+              class="eye-btn"
+              (click)="togglePassword()"
+              [attr.aria-label]="
+                showPassword
+                  ? 'Ocultar contraseña'
+                  : 'Mostrar contraseña'
+              ">
+
+              <i
+                [class]="
+                  showPassword
+                    ? 'fa-solid fa-eye-slash'
+                    : 'fa-solid fa-eye'
+                ">
+              </i>
+
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <button
+          type="button"
+          class="primary-auth-btn"
+          (click)="login()"
+          [disabled]="loading">
+
+          <i
+            class="fa-solid"
+            [class.fa-arrow-right-to-bracket]="!loading"
+            [class.fa-circle-notch]="loading"
+            [class.fa-spin]="loading">
+          </i>
+
+          {{
+            loading
+              ? 'Verificando...'
+              : 'Iniciar sesión'
+          }}
+
+        </button>
+
+
+        <div class="auth-divider">
+          <span>Cuenta protegida</span>
+        </div>
+
+
+        <p class="auth-switch">
+          ¿Aún no tienes una cuenta?
+
+          <a routerLink="/register">
+            Crear cuenta
+          </a>
+        </p>
+
+
+        <div class="security-note">
+
+          <i class="fa-solid fa-shield-check"></i>
+
+          <span>
+            Tus credenciales se verifican de forma segura.
+          </span>
+
+        </div>
+
+      </div>
+
+    </section>
+
   </div>
-</div>
+
+</main>
