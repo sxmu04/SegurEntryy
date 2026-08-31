@@ -18,7 +18,10 @@ const DATE_TIME_KEY_NAMES = new Set([
   'lastexit',
   'lastloginat',
   'readat',
-  'sentat'
+  'sentat',
+  'generatedat',
+  'processingat',
+  'completedat'
 ]);
 
 function normalizeKey(key: string): string {
@@ -127,11 +130,8 @@ function parseDateTime(value: any): Date | null {
   text = normalizeOffset(text);
 
   /*
-   * Compatibilidad con los registros históricos de SegurEntry.
-   *
-   * El backend usaba datetime.utcnow().isoformat(), por lo que guardaba
-   * un instante UTC sin la Z final. Para esos registros antiguos se
-   * agrega Z únicamente durante la lectura; NO se modifica Firestore.
+   * Compatibilidad con registros históricos de SegurEntry:
+   * datetime.utcnow().isoformat() generaba UTC sin Z ni offset.
    */
   if (!hasExplicitTimeZone(text)) {
     text = `${text}Z`;
@@ -173,13 +173,9 @@ function getColombiaParts(date: Date): Record<string, string> {
 }
 
 /**
- * Convierte cualquier instante a una cadena ISO de "reloj Colombia".
- *
- * Se devuelve sin offset de manera intencional (YYYY-MM-DDTHH:mm:ss.SSS):
- * los componentes existentes de SegurEntry usan new Date(valor) y luego
- * muestran la hora local. Entregarles el reloj colombiano evita que cada
- * dashboard aplique una conversión distinta y mantiene compatibles los
- * componentes ya construidos.
+ * Devuelve el reloj oficial de Colombia en ISO local sin offset.
+ * Esto mantiene compatibilidad con los componentes existentes que ya usan
+ * new Date(valor), incluso si el navegador del usuario está en otra zona.
  */
 export function toColombiaWallClockIso(value: any): any {
   const date = parseDateTime(value);
@@ -195,10 +191,13 @@ export function toColombiaWallClockIso(value: any): any {
 }
 
 /**
- * Normaliza recursivamente solo campos que representan fecha/hora.
+ * Normaliza recursivamente únicamente campos que representan fecha/hora.
  * Fechas puras como 2026-08-31 se conservan intactas.
  */
-export function normalizeColombiaDateTimes<T>(value: T, parentKey: string = ''): T {
+export function normalizeColombiaDateTimes<T>(
+  value: T,
+  parentKey: string = ''
+): T {
   if (value == null) {
     return value;
   }
@@ -212,10 +211,17 @@ export function normalizeColombiaDateTimes<T>(value: T, parentKey: string = ''):
   }
 
   if (Array.isArray(value)) {
-    return value.map(item => normalizeColombiaDateTimes(item, parentKey)) as T;
+    return value.map(
+      item => normalizeColombiaDateTimes(item, parentKey)
+    ) as T;
   }
 
-  if (value instanceof Date || typeof value?.toDate === 'function') {
+  const anyValue = value as any;
+
+  if (
+    value instanceof Date ||
+    typeof anyValue?.toDate === 'function'
+  ) {
     return value;
   }
 
