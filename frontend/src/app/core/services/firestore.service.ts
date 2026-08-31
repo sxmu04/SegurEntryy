@@ -8,7 +8,11 @@ import {
   doc,
   collectionData
 } from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
+
+import {
+  normalizeColombiaDateTimes
+} from '../utils/colombia-time.util';
 
 @Injectable({
   providedIn: 'root'
@@ -21,10 +25,14 @@ export class FirestoreService {
 
   constructor(private firestore: Firestore) { }
 
-  // 📥 Leer en tiempo real
+  // 📥 Leer usuarios en tiempo real y normalizar fechas a Colombia
   getUsers(): Observable<any[]> {
     const ref = collection(this.firestore, this.path);
-    return collectionData(ref, { idField: 'id' });
+
+    return collectionData(ref, { idField: 'id' })
+      .pipe(
+        map(data => normalizeColombiaDateTimes(data))
+      );
   }
 
   // ➕ Crear
@@ -45,10 +53,17 @@ export class FirestoreService {
     return deleteDoc(ref);
   }
 
-  getAccessLogs() {
-    return collectionData(collection(this.firestore, 'access_logs'), {
-      idField: 'id'
-    });
+  // 📥 Accesos en tiempo real con hora oficial de Colombia
+  getAccessLogs(): Observable<any[]> {
+    return collectionData(
+      collection(this.firestore, 'access_logs'),
+      {
+        idField: 'id'
+      }
+    )
+      .pipe(
+        map(data => normalizeColombiaDateTimes(data))
+      );
   }
 
   loadUsers() {
@@ -62,9 +77,9 @@ export class FirestoreService {
             id: u.id,
             name: u.name || u.nombre || 'Sin nombre',
             email: u.email || u.correo || 'Sin correo',
-            role: (u.role || '').toLowerCase() // 🔥 normalizamos
+            role: (u.role || '').toLowerCase()
           }))
-          .filter(u => u.role === 'aprendiz'); // 🔥 SOLO APRENDICES
+          .filter(u => u.role === 'aprendiz');
 
         this.filteredUsers = this.users;
 
