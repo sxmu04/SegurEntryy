@@ -1,6 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
+
+import {
+  normalizeColombiaDateTimes
+} from '../utils/colombia-time.util';
 
 @Injectable({
   providedIn: 'root'
@@ -11,134 +15,131 @@ export class DashboardService {
 
   constructor(private http: HttpClient) { }
 
+  private normalize<T>(source: Observable<T>): Observable<T> {
+    return source.pipe(
+      map(response => normalizeColombiaDateTimes(response))
+    );
+  }
+
   // =====================================
   // DASHBOARD
   // =====================================
 
   getStats(): Observable<any> {
-    return this.http.get<any>(
-      `${this.apiUrl}/dashboard/stats/`
+    return this.normalize(
+      this.http.get<any>(`${this.apiUrl}/dashboard/stats/`)
     );
   }
 
   getRecentUsers(): Observable<any> {
-    return this.http.get<any>(
-      `${this.apiUrl}/dashboard/recent-users/`
+    return this.normalize(
+      this.http.get<any>(`${this.apiUrl}/dashboard/recent-users/`)
     );
   }
 
   getRecentAccess(): Observable<any> {
-    return this.http.get<any>(
-      `${this.apiUrl}/dashboard/recent-access/`
+    return this.normalize(
+      this.http.get<any>(`${this.apiUrl}/dashboard/recent-access/`)
     );
   }
 
   getAccessByRole(): Observable<any> {
-    return this.http.get<any>(
-      `${this.apiUrl}/dashboard/access-role/`
+    return this.normalize(
+      this.http.get<any>(`${this.apiUrl}/dashboard/access-role/`)
     );
   }
 
   getAccessByDoor(): Observable<any> {
-    return this.http.get<any>(
-      `${this.apiUrl}/dashboard/access-door/`
+    return this.normalize(
+      this.http.get<any>(`${this.apiUrl}/dashboard/access-door/`)
     );
   }
-
 
   // =====================================
   // USUARIOS
   // =====================================
 
   getUsers(): Observable<any> {
-    return this.http.get<any>(
-      `${this.apiUrl}/users/list/`
+    return this.normalize(
+      this.http.get<any>(`${this.apiUrl}/users/list/`)
     );
   }
 
   createUser(data: any): Observable<any> {
-    return this.http.post<any>(
-      `${this.apiUrl}/users/create/`,
-      data
+    return this.normalize(
+      this.http.post<any>(`${this.apiUrl}/users/create/`, data)
     );
   }
 
   updateUser(uid: string, data: any): Observable<any> {
-    return this.http.put<any>(
-      `${this.apiUrl}/users/update/${uid}/`,
-      data
+    return this.normalize(
+      this.http.put<any>(`${this.apiUrl}/users/update/${uid}/`, data)
     );
   }
 
   deleteUser(uid: string): Observable<any> {
-    return this.http.delete<any>(
-      `${this.apiUrl}/users/delete/${uid}/`
+    return this.normalize(
+      this.http.delete<any>(`${this.apiUrl}/users/delete/${uid}/`)
     );
   }
 
   getUser(uid: string): Observable<any> {
-    return this.http.get<any>(
-      `${this.apiUrl}/users/${uid}/`
+    return this.normalize(
+      this.http.get<any>(`${this.apiUrl}/users/${uid}/`)
     );
   }
-
 
   // =====================================
   // INVITACIONES
   // =====================================
 
   getInvitations(): Observable<any> {
-    return this.http.get<any>(
-      `${this.apiUrl}/invitations/list/`
+    return this.normalize(
+      this.http.get<any>(`${this.apiUrl}/invitations/list/`)
     );
   }
 
   createInvitation(data: any): Observable<any> {
-    return this.http.post<any>(
-      `${this.apiUrl}/invitations/create/`,
-      data
+    return this.normalize(
+      this.http.post<any>(`${this.apiUrl}/invitations/create/`, data)
     );
   }
 
   validateInvitation(data: any): Observable<any> {
-    return this.http.post<any>(
-      `${this.apiUrl}/invitations/validate/`,
-      data
+    return this.normalize(
+      this.http.post<any>(`${this.apiUrl}/invitations/validate/`, data)
     );
   }
 
   deleteInvitation(id: string): Observable<any> {
-    return this.http.delete<any>(
-      `${this.apiUrl}/invitations/delete/${id}/`
+    return this.normalize(
+      this.http.delete<any>(`${this.apiUrl}/invitations/delete/${id}/`)
     );
   }
-
 
   // =====================================
   // ACCESOS
   // =====================================
 
   getAccesses(): Observable<any> {
-    return this.http.get<any>(
-      `${this.apiUrl}/access/`
+    return this.normalize(
+      this.http.get<any>(`${this.apiUrl}/access/`)
     );
   }
 
   registerAccess(data: any): Observable<any> {
-    return this.http.post<any>(
-      `${this.apiUrl}/access/register/`,
-      data
+    return this.normalize(
+      this.http.post<any>(`${this.apiUrl}/access/register/`, data)
     );
   }
-
 
   // =====================================
   // BIOMETRÍA
   // =====================================
 
   getBiometricUsers(): Observable<any> {
-    return this.http.get<any>(
-      `${this.apiUrl}/biometrics/users/`
+    return this.normalize(
+      this.http.get<any>(`${this.apiUrl}/biometrics/users/`)
     );
   }
 
@@ -147,117 +148,104 @@ export class DashboardService {
     actorUid: string,
     device: string = 'SEGURENTRY-ESP32'
   ): Observable<any> {
-
-    return this.http.post<any>(
-      `${this.apiUrl}/biometrics/enroll/`,
-      {
-        uid,
-        actor_uid: actorUid,
-        device
-      }
+    return this.normalize(
+      this.http.post<any>(
+        `${this.apiUrl}/biometrics/enroll/`,
+        {
+          uid,
+          actor_uid: actorUid,
+          device
+        }
+      )
     );
-
   }
-
 
   deleteBiometricFingerprint(
     uid: string,
     actorUid: string,
     device: string = 'SEGURENTRY-ESP32'
   ): Observable<any> {
-
-    return this.http.post<any>(
-      `${this.apiUrl}/biometrics/delete/`,
-      {
-        uid,
-        actor_uid: actorUid,
-        device
-      }
+    return this.normalize(
+      this.http.post<any>(
+        `${this.apiUrl}/biometrics/delete/`,
+        {
+          uid,
+          actor_uid: actorUid,
+          device
+        }
+      )
     );
-
   }
 
-  getBiometricJob(
-    jobId: string
-  ): Observable<any> {
-
-    return this.http.get<any>(
-      `${this.apiUrl}/biometrics/jobs/${jobId}/`
+  getBiometricJob(jobId: string): Observable<any> {
+    return this.normalize(
+      this.http.get<any>(`${this.apiUrl}/biometrics/jobs/${jobId}/`)
     );
-
   }
 
   getBiometricDeviceStatus(
     device: string = 'SEGURENTRY-ESP32'
   ): Observable<any> {
-
-    return this.http.get<any>(
-      `${this.apiUrl}/biometrics/device/status/`,
-      {
-        params: {
-          device
+    return this.normalize(
+      this.http.get<any>(
+        `${this.apiUrl}/biometrics/device/status/`,
+        {
+          params: {
+            device
+          }
         }
-      }
+      )
     );
-
   }
-
-
 
   // =====================================
   // AUDITORÍA
   // =====================================
 
   getAuditLogs(): Observable<any> {
-    return this.http.get<any>(
-      `${this.apiUrl}/audit/`
+    return this.normalize(
+      this.http.get<any>(`${this.apiUrl}/audit/`)
     );
   }
-
 
   // =====================================
   // REPORTES
   // =====================================
 
   getReports(): Observable<any> {
-    return this.http.get<any>(
-      `${this.apiUrl}/reports/`
+    return this.normalize(
+      this.http.get<any>(`${this.apiUrl}/reports/`)
     );
   }
-
 
   // =====================================
   // FOTO DE PERFIL
   // =====================================
 
   uploadProfilePhoto(uid: string, photo: File): Observable<any> {
-
     const formData = new FormData();
 
     formData.append('uid', uid);
     formData.append('photo', photo);
 
-    return this.http.post<any>(
-      `${this.apiUrl}/users/upload-photo/`,
-      formData
+    return this.normalize(
+      this.http.post<any>(`${this.apiUrl}/users/upload-photo/`, formData)
     );
   }
-
 
   // =====================================
   // VIGILANTE - USUARIOS TEMPORALES
   // =====================================
 
   createTemporaryRequest(data: any): Observable<any> {
-    return this.http.post<any>(
-      `${this.apiUrl}/temporary-requests/`,
-      data
+    return this.normalize(
+      this.http.post<any>(`${this.apiUrl}/temporary-requests/`, data)
     );
   }
 
   getTemporaryRequests(): Observable<any> {
-    return this.http.get<any>(
-      `${this.apiUrl}/temporary-requests/`
+    return this.normalize(
+      this.http.get<any>(`${this.apiUrl}/temporary-requests/`)
     );
   }
 
@@ -265,11 +253,13 @@ export class DashboardService {
     requestId: string,
     reviewerUid: string
   ): Observable<any> {
-    return this.http.patch<any>(
-      `${this.apiUrl}/temporary-requests/${requestId}/approve/`,
-      {
-        reviewer_uid: reviewerUid
-      }
+    return this.normalize(
+      this.http.patch<any>(
+        `${this.apiUrl}/temporary-requests/${requestId}/approve/`,
+        {
+          reviewer_uid: reviewerUid
+        }
+      )
     );
   }
 
@@ -278,12 +268,14 @@ export class DashboardService {
     reviewerUid: string,
     reason: string
   ): Observable<any> {
-    return this.http.patch<any>(
-      `${this.apiUrl}/temporary-requests/${requestId}/reject/`,
-      {
-        reviewer_uid: reviewerUid,
-        reason
-      }
+    return this.normalize(
+      this.http.patch<any>(
+        `${this.apiUrl}/temporary-requests/${requestId}/reject/`,
+        {
+          reviewer_uid: reviewerUid,
+          reason
+        }
+      )
     );
   }
 }
