@@ -7,11 +7,9 @@
 
         <div class="sidebar-content">
 
-            <!-- PERFIL -->
             <div class="sidebar-profile">
 
                 <div class="sidebar-avatar">
-
                     <img
                         *ngIf="profile.photo"
                         [src]="profile.photo"
@@ -21,24 +19,19 @@
                         *ngIf="!profile.photo"
                         class="fas fa-chalkboard-user">
                     </i>
-
                 </div>
 
                 <div
                     class="sidebar-profile-info"
                     *ngIf="menuOpen">
 
-                    <span class="profile-eyebrow">
-                        INSTRUCTOR
-                    </span>
+                    <span class="profile-eyebrow">INSTRUCTOR</span>
 
                     <h3>
                         {{ profile.name || 'Instructor' }}
                     </h3>
 
-                    <p>
-                        Seguimiento de aprendices
-                    </p>
+                    <p>Seguimiento de aprendices</p>
 
                     <div class="profile-status">
                         <span></span>
@@ -49,10 +42,7 @@
 
             </div>
 
-
-            <!-- MARCA -->
             <div class="brand">
-
                 <div class="brand-icon">
                     <i class="fas fa-shield-halved"></i>
                 </div>
@@ -61,11 +51,8 @@
                     <strong>SegurEntry</strong>
                     <span>Control de acceso</span>
                 </div>
-
             </div>
 
-
-            <!-- NAVEGACIÓN -->
             <nav>
 
                 <button
@@ -75,13 +62,18 @@
                     title="Dashboard">
 
                     <i class="fas fa-chart-pie"></i>
-
-                    <span *ngIf="menuOpen">
-                        Dashboard
-                    </span>
-
+                    <span *ngIf="menuOpen">Dashboard</span>
                 </button>
 
+                <button
+                    type="button"
+                    (click)="changeTab('accesos')"
+                    [class.active]="activeTab === 'accesos'"
+                    title="Mis accesos">
+
+                    <i class="fas fa-door-open"></i>
+                    <span *ngIf="menuOpen">Accesos</span>
+                </button>
 
                 <button
                     type="button"
@@ -90,13 +82,8 @@
                     title="Aprendices">
 
                     <i class="fas fa-user-graduate"></i>
-
-                    <span *ngIf="menuOpen">
-                        Aprendices
-                    </span>
-
+                    <span *ngIf="menuOpen">Aprendices</span>
                 </button>
-
 
                 <button
                     type="button"
@@ -105,58 +92,41 @@
                     title="Notificaciones">
 
                     <i class="fas fa-bell"></i>
-
-                    <span *ngIf="menuOpen">
-                        Notificaciones
-                    </span>
-
+                    <span *ngIf="menuOpen">Notificaciones</span>
                 </button>
-<button
+
+                <button
                     type="button"
                     (click)="changeTab('profile')"
                     [class.active]="activeTab === 'profile'"
                     title="Mi perfil">
 
                     <i class="fas fa-user-circle"></i>
-
-                    <span *ngIf="menuOpen">
-                        Mi Perfil
-                    </span>
-
+                    <span *ngIf="menuOpen">Mi Perfil</span>
                 </button>
 
             </nav>
 
         </div>
 
-
-        <!-- CERRAR SESIÓN -->
         <div class="sidebar-bottom">
-
             <button
                 type="button"
                 class="logout"
                 (click)="logout()">
 
                 <i class="fas fa-right-from-bracket"></i>
-
-                <span *ngIf="menuOpen">
-                    Cerrar sesión
-                </span>
-
+                <span *ngIf="menuOpen">Cerrar sesión</span>
             </button>
-
         </div>
 
     </aside>
-
 
     <!-- =========================================================
          CONTENIDO PRINCIPAL
          ========================================================= -->
     <main class="main">
 
-        <!-- HEADER -->
         <header class="main-header">
 
             <div class="header-left">
@@ -168,20 +138,17 @@
                     aria-label="Abrir o cerrar menú">
 
                     <i class="fas fa-bars"></i>
-
                 </button>
 
-
                 <div>
-
-                    <span class="header-eyebrow">
-                        PANEL DEL INSTRUCTOR
-                    </span>
+                    <span class="header-eyebrow">PANEL DEL INSTRUCTOR</span>
 
                     <h2>
                         {{
                             activeTab === 'dashboard'
                                 ? 'Resumen general'
+                                : activeTab === 'accesos'
+                                ? 'Mis accesos'
                                 : activeTab === 'aprendices'
                                 ? 'Mis aprendices'
                                 : activeTab === 'notificaciones'
@@ -193,7 +160,9 @@
                     <p class="header-subtitle">
                         {{
                             activeTab === 'dashboard'
-                                ? 'Consulta el estado general de tus aprendices y su actividad.'
+                                ? 'Consulta tu actividad personal y el estado general de tus aprendices.'
+                                : activeTab === 'accesos'
+                                ? 'Consulta tus ingresos y salidas en tiempo real con hora oficial de Colombia.'
                                 : activeTab === 'aprendices'
                                 ? 'Consulta los aprendices registrados y su información.'
                                 : activeTab === 'notificaciones'
@@ -201,16 +170,13 @@
                                 : 'Consulta y actualiza la información permitida de tu perfil.'
                         }}
                     </p>
-
                 </div>
 
             </div>
 
-
             <div class="header-profile">
 
                 <div class="header-profile-avatar">
-
                     <img
                         *ngIf="profile.photo"
                         [src]="profile.photo"
@@ -220,54 +186,38 @@
                         *ngIf="!profile.photo"
                         class="fas fa-chalkboard-user">
                     </i>
-
                 </div>
 
                 <div>
-                    <strong>
-                        {{ profile.name || 'Instructor' }}
-                    </strong>
-
-                    <span>
-                        {{ currentUser?.role || 'instructor' }}
-                    </span>
+                    <strong>{{ profile.name || 'Instructor' }}</strong>
+                    <span>{{ currentUser?.role || 'instructor' }}</span>
                 </div>
 
             </div>
 
         </header>
 
-
         <!-- =====================================================
-             DASHBOARD — MIS INGRESOS Y SALIDAS
+             DASHBOARD PRINCIPAL — ACTIVIDAD DEL INSTRUCTOR
              ===================================================== -->
         <section
             *ngIf="activeTab === 'dashboard'"
             class="dashboard">
 
-            <!-- HERO -->
             <div class="dashboard-hero">
 
                 <div>
+                    <span class="section-eyebrow">MI ACTIVIDAD</span>
 
-                    <span class="section-eyebrow">
-                        MI ACTIVIDAD
-                    </span>
-
-                    <h3>
-                        Mis ingresos y salidas
-                    </h3>
+                    <h3>Mis ingresos y salidas</h3>
 
                     <p>
-                        Consulta únicamente tus movimientos personales
-                        registrados como Instructor en SegurEntry.
+                        Visualiza tus movimientos personales registrados
+                        como Instructor en SegurEntry.
                     </p>
-
                 </div>
 
-
                 <div class="dashboard-hero-side">
-
                     <span class="dashboard-live-chip">
                         <span></span>
                         En vivo · 1 s
@@ -276,170 +226,107 @@
                     <div class="dashboard-hero-icon">
                         <i class="fas fa-id-badge"></i>
                     </div>
-
                 </div>
 
             </div>
 
-
-            <!-- ESTADÍSTICAS PERSONALES -->
             <div class="stats">
 
                 <article class="stat-card entries">
-
                     <div class="stat-head">
-
                         <div class="stat-icon">
                             <i class="fas fa-arrow-right-to-bracket"></i>
                         </div>
-
-                        <span>
-                            Mis movimientos
-                        </span>
-
+                        <span>Mis movimientos</span>
                     </div>
 
-                    <strong>
-                        {{ stats.ingresos }}
-                    </strong>
-
-                    <p>
-                        Mis ingresos
-                    </p>
-
+                    <strong>{{ stats.ingresos }}</strong>
+                    <p>Mis ingresos</p>
                 </article>
 
-
                 <article class="stat-card exits">
-
                     <div class="stat-head">
-
                         <div class="stat-icon">
                             <i class="fas fa-arrow-right-from-bracket"></i>
                         </div>
-
-                        <span>
-                            Mis movimientos
-                        </span>
-
+                        <span>Mis movimientos</span>
                     </div>
 
-                    <strong>
-                        {{ stats.salidas }}
-                    </strong>
-
-                    <p>
-                        Mis salidas
-                    </p>
-
+                    <strong>{{ stats.salidas }}</strong>
+                    <p>Mis salidas</p>
                 </article>
 
-
                 <article class="stat-card allowed">
-
                     <div class="stat-head">
-
                         <div class="stat-icon">
                             <i class="fas fa-circle-check"></i>
                         </div>
-
-                        <span>
-                            Mi cuenta
-                        </span>
-
+                        <span>Mi cuenta</span>
                     </div>
 
-                    <strong>
-                        {{ stats.permitidos }}
-                    </strong>
-
-                    <p>
-                        Accesos permitidos
-                    </p>
-
+                    <strong>{{ stats.permitidos }}</strong>
+                    <p>Accesos permitidos</p>
                 </article>
 
-
                 <article class="stat-card last-movement">
-
                     <div class="stat-head">
-
                         <div class="stat-icon">
                             <i class="fas fa-clock"></i>
                         </div>
-
-                        <span>
-                            Último registro
-                        </span>
-
+                        <span>Último registro</span>
                     </div>
 
-                    <strong>
-                        {{ stats.ultimoMovimiento }}
-                    </strong>
-
-                    <p>
-                        Último movimiento
-                    </p>
-
+                    <strong>{{ stats.ultimoMovimiento }}</strong>
+                    <p>Hora Colombia</p>
                 </article>
 
             </div>
 
-
-            <!-- HISTORIAL PERSONAL -->
             <section class="content-card recent-access-card">
 
                 <div class="section-header">
 
                     <div>
-
-                        <span class="section-eyebrow">
-                            HISTORIAL PERSONAL
-                        </span>
-
-                        <h3>
-                            Mis movimientos recientes
-                        </h3>
-
+                        <span class="section-eyebrow">HISTORIAL PERSONAL</span>
+                        <h3>Mis movimientos recientes</h3>
                         <p>
-                            Aquí solo aparecen tus ingresos y salidas.
+                            Últimos ingresos y salidas · America/Bogota · formato 12 horas.
                         </p>
-
                     </div>
 
+                    <div class="table-actions">
+                        <button
+                            type="button"
+                            class="refresh-access-btn"
+                            (click)="loadMyAccesses()">
 
-                    <button
-                        type="button"
-                        class="refresh-access-btn"
-                        (click)="loadMyAccesses()">
+                            <i class="fas fa-rotate"></i>
+                            Actualizar
+                        </button>
 
-                        <i class="fas fa-rotate"></i>
+                        <button
+                            type="button"
+                            class="refresh-access-btn"
+                            (click)="changeTab('accesos')">
 
-                        Actualizar
-
-                    </button>
+                            <i class="fas fa-list"></i>
+                            Ver todos
+                        </button>
+                    </div>
 
                 </div>
-
 
                 <div
                     class="empty-state"
                     *ngIf="recentMyAccesses.length === 0">
 
                     <i class="fas fa-door-closed"></i>
-
-                    <strong>
-                        Aún no tienes movimientos
-                    </strong>
-
+                    <strong>Aún no tienes movimientos</strong>
                     <span>
                         Cuando uses tu huella como Instructor,
                         el ingreso o la salida aparecerá aquí.
                     </span>
-
                 </div>
-
 
                 <div
                     class="access-list"
@@ -450,7 +337,6 @@
                         *ngFor="let log of recentMyAccesses">
 
                         <div class="access-user">
-
                             <div
                                 class="access-icon"
                                 [class.exit]="log.type === 'Salida'">
@@ -460,56 +346,36 @@
                                     [class.fa-arrow-right-to-bracket]="log.type === 'Ingreso'"
                                     [class.fa-arrow-right-from-bracket]="log.type === 'Salida'">
                                 </i>
-
                             </div>
 
-
                             <div>
-
-                                <strong>
-                                    {{ log.type }}
-                                </strong>
-
+                                <strong>{{ log.type }}</strong>
                                 <span>
                                     {{ formatAccessDate(log.date) }}
                                     ·
                                     {{ formatAccessTime(log.date) }}
                                 </span>
-
                             </div>
-
                         </div>
 
-
                         <div class="access-meta">
-
                             <span class="method-chip">
-
                                 <i class="fas fa-fingerprint"></i>
-
                                 {{ log.method || 'Huella' }}
-
                             </span>
-
 
                             <span
                                 class="movement-badge"
                                 [class.exit]="log.type === 'Salida'">
-
                                 {{ log.type }}
-
                             </span>
-
 
                             <span
                                 class="status-badge"
                                 [class.allowed]="log.result === 'Permitido'"
                                 [class.denied]="log.result === 'Denegado'">
-
                                 {{ log.result }}
-
                             </span>
-
                         </div>
 
                     </div>
@@ -520,9 +386,164 @@
 
         </section>
 
+        <!-- =====================================================
+             ACCESOS — HISTORIAL PERSONAL EN TIEMPO REAL
+             ===================================================== -->
+        <section
+            *ngIf="activeTab === 'accesos'"
+            class="content-card recent-access-card">
+
+            <div class="section-header">
+
+                <div>
+                    <span class="section-eyebrow">CONTROL PERSONAL EN TIEMPO REAL</span>
+
+                    <div class="title-with-badge">
+                        <h3>Mis accesos</h3>
+                        <span class="count-badge">
+                            {{ filteredLogs.length }}
+                            de
+                            {{ logs.length }}
+                        </span>
+                    </div>
+
+                    <p>
+                        Historial exclusivo del Instructor autenticado.
+                        Hora oficial de Colombia en formato 12 horas con AM/PM.
+                    </p>
+                </div>
+
+                <div class="table-actions">
+                    <span class="dashboard-live-chip">
+                        <span></span>
+                        En vivo · 1 s
+                    </span>
+
+                    <button
+                        type="button"
+                        class="refresh-access-btn"
+                        (click)="loadMyAccesses()">
+
+                        <i class="fas fa-rotate"></i>
+                        Actualizar
+                    </button>
+                </div>
+
+            </div>
+
+            <div class="student-search-panel">
+
+                <div class="student-search-box">
+                    <i class="fas fa-magnifying-glass"></i>
+
+                    <input
+                        type="text"
+                        placeholder="Buscar por ingreso, salida, método, dispositivo, fecha..."
+                        [(ngModel)]="accessSearchTerm"
+                        (input)="filterLogs()">
+
+                    <button
+                        type="button"
+                        *ngIf="accessSearchTerm"
+                        (click)="clearAccessSearch()"
+                        aria-label="Limpiar búsqueda de accesos">
+
+                        <i class="fas fa-xmark"></i>
+                    </button>
+                </div>
+
+                <div class="search-help">
+                    <i class="fas fa-clock"></i>
+                    <span>
+                        Zona horaria: America/Bogota · actualización automática cada segundo.
+                    </span>
+                </div>
+
+            </div>
+
+            <div
+                class="empty-state"
+                *ngIf="filteredLogs.length === 0">
+
+                <i class="fas fa-door-closed"></i>
+                <strong>No hay accesos para mostrar</strong>
+
+                <span *ngIf="accessSearchTerm">
+                    No hay coincidencias para “{{ accessSearchTerm }}”.
+                </span>
+
+                <span *ngIf="!accessSearchTerm">
+                    Tus ingresos y salidas aparecerán aquí en cuanto sean registrados.
+                </span>
+            </div>
+
+            <div
+                class="access-list"
+                *ngIf="filteredLogs.length > 0">
+
+                <div
+                    class="access-row"
+                    *ngFor="let log of filteredLogs">
+
+                    <div class="access-user">
+                        <div
+                            class="access-icon"
+                            [class.exit]="log.type === 'Salida'">
+
+                            <i
+                                class="fas"
+                                [class.fa-arrow-right-to-bracket]="log.type === 'Ingreso'"
+                                [class.fa-arrow-right-from-bracket]="log.type === 'Salida'">
+                            </i>
+                        </div>
+
+                        <div>
+                            <strong>{{ log.type }}</strong>
+                            <span>
+                                {{ formatAccessDate(log.date) }}
+                                ·
+                                {{ formatAccessTime(log.date) }}
+                                · Colombia
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="access-meta">
+                        <span class="method-chip">
+                            <i class="fas fa-fingerprint"></i>
+                            {{ log.method || 'Huella' }}
+                        </span>
+
+                        <span
+                            class="method-chip"
+                            *ngIf="log.device">
+
+                            <i class="fas fa-microchip"></i>
+                            {{ log.device }}
+                        </span>
+
+                        <span
+                            class="movement-badge"
+                            [class.exit]="log.type === 'Salida'">
+                            {{ log.type }}
+                        </span>
+
+                        <span
+                            class="status-badge"
+                            [class.allowed]="log.result === 'Permitido'"
+                            [class.denied]="log.result === 'Denegado'">
+                            {{ log.result }}
+                        </span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
 
         <!-- =====================================================
-             APRENDICES — TODOS + ÚLTIMOS MOVIMIENTOS
+             APRENDICES
              ===================================================== -->
         <section
             *ngIf="activeTab === 'aprendices'"
@@ -531,57 +552,39 @@
             <div class="table-header">
 
                 <div>
-
-                    <span class="section-eyebrow">
-                        TODOS LOS REGISTRADOS
-                    </span>
+                    <span class="section-eyebrow">TODOS LOS REGISTRADOS</span>
 
                     <div class="title-with-badge">
-
-                        <h3>
-                            Aprendices
-                        </h3>
-
+                        <h3>Aprendices</h3>
                         <span class="count-badge">
                             {{ filteredUsers.length }}
                             de
                             {{ users.length }}
                         </span>
-
                     </div>
 
                     <p>
                         Consulta todos los aprendices registrados
                         y su último ingreso y salida.
                     </p>
-
                 </div>
 
-
                 <div class="table-actions">
-
                     <button
                         type="button"
                         class="refresh-students-btn"
                         (click)="loadUsers()">
 
                         <i class="fas fa-rotate"></i>
-
                         Actualizar
-
                     </button>
-
                 </div>
 
             </div>
 
-
-            <!-- BUSCADOR AVANZADO -->
-
             <div class="student-search-panel">
 
                 <div class="student-search-box">
-
                     <i class="fas fa-magnifying-glass"></i>
 
                     <input
@@ -597,38 +600,26 @@
                         aria-label="Limpiar búsqueda">
 
                         <i class="fas fa-xmark"></i>
-
                     </button>
-
                 </div>
 
-
                 <div class="search-help">
-
                     <i class="fas fa-circle-info"></i>
-
                     <span>
                         Puedes buscar por nombre, apellido,
                         tipo de documento, número de documento
                         o combinarlos en una sola búsqueda.
                     </span>
-
                 </div>
 
             </div>
-
-
-            <!-- SIN RESULTADOS -->
 
             <div
                 class="empty-state"
                 *ngIf="filteredUsers.length === 0">
 
                 <i class="fas fa-user-graduate"></i>
-
-                <strong>
-                    No se encontraron aprendices
-                </strong>
+                <strong>No se encontraron aprendices</strong>
 
                 <span *ngIf="searchTerm">
                     No hay coincidencias para “{{ searchTerm }}”.
@@ -637,11 +628,7 @@
                 <span *ngIf="!searchTerm">
                     Aún no hay aprendices registrados.
                 </span>
-
             </div>
-
-
-            <!-- TABLA -->
 
             <div
                 class="table-container students-table-container"
@@ -650,7 +637,6 @@
                 <table class="students-table">
 
                     <thead>
-
                         <tr>
                             <th>Aprendiz</th>
                             <th>Tipo doc.</th>
@@ -660,78 +646,40 @@
                             <th>Última salida</th>
                             <th>Estado</th>
                         </tr>
-
                     </thead>
-
 
                     <tbody>
 
-                        <tr
-                            *ngFor="
-                                let user
-                                of filteredUsers
-                            ">
+                        <tr *ngFor="let user of filteredUsers">
 
-                            <!-- APRENDIZ -->
                             <td>
-
                                 <div class="table-user">
-
                                     <div class="table-avatar">
                                         <i class="fas fa-user-graduate"></i>
                                     </div>
 
                                     <div>
-
-                                        <strong>
-                                            {{ user.name }}
-                                        </strong>
-
-                                        <span>
-                                            Aprendiz
-                                        </span>
-
+                                        <strong>{{ user.name }}</strong>
+                                        <span>Aprendiz</span>
                                     </div>
-
                                 </div>
-
                             </td>
 
-
-                            <!-- TIPO DOCUMENTO -->
                             <td>
-
                                 <span class="document-type-badge">
-                                    {{
-                                        user.documentType ||
-                                        '—'
-                                    }}
+                                    {{ user.documentType || '—' }}
                                 </span>
-
                             </td>
 
-
-                            <!-- DOCUMENTO -->
                             <td class="document-cell">
-                                {{
-                                    user.document ||
-                                    'Sin documento'
-                                }}
+                                {{ user.document || 'Sin documento' }}
                             </td>
 
-
-                            <!-- CORREO -->
                             <td class="student-email">
-                                {{
-                                    user.email ||
-                                    'Sin correo'
-                                }}
+                                {{ user.email || 'Sin correo' }}
                             </td>
 
-
-                            <!-- ÚLTIMO INGRESO -->
                             <td>
-
                                 <div
                                     class="last-movement"
                                     *ngIf="user.lastEntry">
@@ -741,34 +689,23 @@
                                     </div>
 
                                     <div>
-
                                         <strong>
                                             {{ formatAccessTime(user.lastEntry) }}
                                         </strong>
-
                                         <span>
                                             {{ formatAccessDate(user.lastEntry) }}
                                         </span>
-
                                     </div>
-
                                 </div>
-
 
                                 <span
                                     class="no-movement"
                                     *ngIf="!user.lastEntry">
-
                                     Sin registro
-
                                 </span>
-
                             </td>
 
-
-                            <!-- ÚLTIMA SALIDA -->
                             <td>
-
                                 <div
                                     class="last-movement"
                                     *ngIf="user.lastExit">
@@ -778,34 +715,23 @@
                                     </div>
 
                                     <div>
-
                                         <strong>
                                             {{ formatAccessTime(user.lastExit) }}
                                         </strong>
-
                                         <span>
                                             {{ formatAccessDate(user.lastExit) }}
                                         </span>
-
                                     </div>
-
                                 </div>
-
 
                                 <span
                                     class="no-movement"
                                     *ngIf="!user.lastExit">
-
                                     Sin registro
-
                                 </span>
-
                             </td>
 
-
-                            <!-- ESTADO -->
                             <td>
-
                                 <span
                                     class="status-badge"
                                     [class.allowed]="user.active"
@@ -816,14 +742,8 @@
                                         *ngIf="user.active">
                                     </span>
 
-                                    {{
-                                        user.active
-                                            ? 'Activo'
-                                            : 'Inactivo'
-                                    }}
-
+                                    {{ user.active ? 'Activo' : 'Inactivo' }}
                                 </span>
-
                             </td>
 
                         </tr>
@@ -836,7 +756,6 @@
 
         </section>
 
-
         <!-- =====================================================
              NOTIFICACIONES
              ===================================================== -->
@@ -845,33 +764,18 @@
             class="content-card">
 
             <div class="section-header">
-
                 <div>
-
-                    <span class="section-eyebrow">
-                        CENTRO DE ACTIVIDAD
-                    </span>
-
-                    <h3>
-                        Notificaciones
-                    </h3>
-
-                    <p>
-                        Avisos relacionados con la actividad del sistema.
-                    </p>
-
+                    <span class="section-eyebrow">CENTRO DE ACTIVIDAD</span>
+                    <h3>Notificaciones</h3>
+                    <p>Avisos relacionados con la actividad del sistema.</p>
                 </div>
-
 
                 <span class="count-badge">
                     {{ notifications.length }}
                 </span>
-
             </div>
 
-
             <div class="notification-list">
-
                 <article
                     class="notification-item"
                     *ngFor="let n of notifications">
@@ -881,25 +785,15 @@
                     </div>
 
                     <div>
-
-                        <strong>
-                            {{ n }}
-                        </strong>
-
-                        <span>
-                            Actividad reciente de SegurEntry
-                        </span>
-
+                        <strong>{{ n }}</strong>
+                        <span>Actividad reciente de SegurEntry</span>
                     </div>
 
                     <i class="fas fa-chevron-right notification-arrow"></i>
-
                 </article>
-
             </div>
 
         </section>
-
 
         <!-- =====================================================
              PERFIL
@@ -909,44 +803,27 @@
             class="content-card profile-section">
 
             <div class="profile-page-header">
-
                 <div>
-
-                    <span class="section-eyebrow">
-                        MI CUENTA
-                    </span>
-
-                    <h3>
-                        Mi perfil
-                    </h3>
-
+                    <span class="section-eyebrow">MI CUENTA</span>
+                    <h3>Mi perfil</h3>
                     <p>
                         Consulta y actualiza la información disponible
                         de tu cuenta.
                     </p>
-
                 </div>
-
             </div>
-
 
             <div class="profile-identity">
 
                 <div class="profile-photo-area">
-
                     <div class="profile-photo">
-
                         <img
                             [src]="profile.photo || 'assets/avatar.png'"
                             alt="Foto de perfil">
-
                     </div>
 
-
                     <label class="upload-btn">
-
                         <i class="fas fa-camera"></i>
-
                         Cambiar foto
 
                         <input
@@ -954,42 +831,25 @@
                             accept="image/*"
                             (change)="uploadPhoto($event)"
                             hidden>
-
                     </label>
-
                 </div>
 
-
                 <div class="profile-info">
-
-                    <span class="profile-label">
-                        INSTRUCTOR
-                    </span>
-
-                    <h2>
-                        {{ profile.name || 'Instructor' }}
-                    </h2>
-
+                    <span class="profile-label">INSTRUCTOR</span>
+                    <h2>{{ profile.name || 'Instructor' }}</h2>
                     <span class="role-badge">
                         {{ currentUser?.role || 'instructor' }}
                     </span>
-
                 </div>
 
             </div>
 
-
             <div class="profile-form">
 
-                <!-- NOMBRE — PROTEGIDO -->
                 <div class="form-group readonly-group">
-
-                    <label>
-                        Nombre completo
-                    </label>
+                    <label>Nombre completo</label>
 
                     <div class="readonly-control">
-
                         <input
                             type="text"
                             [value]="profile.name || 'No registrado'"
@@ -1000,25 +860,17 @@
                             class="fas fa-lock"
                             title="Campo protegido">
                         </i>
-
                     </div>
 
                     <small class="protected-help">
                         Tu nombre no puede modificarse desde el perfil.
                     </small>
-
                 </div>
 
-
-                <!-- TIPO DE DOCUMENTO — PROTEGIDO -->
                 <div class="form-group readonly-group">
-
-                    <label>
-                        Tipo de documento
-                    </label>
+                    <label>Tipo de documento</label>
 
                     <div class="readonly-control">
-
                         <input
                             type="text"
                             [value]="profile.documentType || 'No registrado'"
@@ -1029,25 +881,17 @@
                             class="fas fa-lock"
                             title="Campo protegido">
                         </i>
-
                     </div>
 
                     <small class="protected-help">
                         El tipo de documento no puede modificarse.
                     </small>
-
                 </div>
 
-
-                <!-- NÚMERO DE DOCUMENTO — PROTEGIDO -->
                 <div class="form-group readonly-group">
-
-                    <label>
-                        Número de documento
-                    </label>
+                    <label>Número de documento</label>
 
                     <div class="readonly-control">
-
                         <input
                             type="text"
                             [value]="profile.document || 'No registrado'"
@@ -1058,70 +902,41 @@
                             class="fas fa-lock"
                             title="Campo protegido">
                         </i>
-
                     </div>
 
                     <small class="protected-help">
                         El número de documento no puede modificarse.
                     </small>
-
                 </div>
 
-
-                <!-- CORREO — EDITABLE -->
                 <div class="form-group">
-
-                    <label>
-                        Correo electrónico
-                    </label>
-
+                    <label>Correo electrónico</label>
                     <input
                         type="email"
                         [(ngModel)]="profile.email"
                         name="profileEmail">
-
                 </div>
 
-
-                <!-- TELÉFONO — EDITABLE -->
                 <div class="form-group">
-
-                    <label>
-                        Teléfono
-                    </label>
-
+                    <label>Teléfono</label>
                     <input
                         type="text"
                         [(ngModel)]="profile.phone"
                         name="profilePhone">
-
                 </div>
 
-
-                <!-- DIRECCIÓN — EDITABLE -->
                 <div class="form-group form-group-full">
-
-                    <label>
-                        Dirección
-                    </label>
-
+                    <label>Dirección</label>
                     <input
                         type="text"
                         [(ngModel)]="profile.address"
                         name="profileAddress">
-
                 </div>
 
-
-                <!-- ROL — PROTEGIDO -->
                 <div class="form-group readonly-group">
-
-                    <label>
-                        Rol
-                    </label>
+                    <label>Rol</label>
 
                     <div class="readonly-control">
-
                         <input
                             type="text"
                             [value]="currentUser?.role || 'instructor'"
@@ -1132,21 +947,13 @@
                             class="fas fa-lock"
                             title="Campo protegido">
                         </i>
-
                     </div>
-
                 </div>
 
-
-                <!-- UID — PROTEGIDO -->
                 <div class="form-group readonly-group">
-
-                    <label>
-                        Identificador
-                    </label>
+                    <label>Identificador</label>
 
                     <div class="readonly-control">
-
                         <input
                             type="text"
                             [value]="currentUser?.uid || currentUser?.id || ''"
@@ -1157,47 +964,30 @@
                             class="fas fa-lock"
                             title="Campo protegido">
                         </i>
-
                     </div>
-
                 </div>
 
-
-                <!-- AVISO -->
                 <div class="profile-security-note">
-
                     <i class="fas fa-shield-halved"></i>
 
                     <div>
-
-                        <strong>
-                            Datos de identidad protegidos
-                        </strong>
-
+                        <strong>Datos de identidad protegidos</strong>
                         <p>
                             Tu nombre, tipo de documento y número de documento
                             solo pueden ser modificados por personal autorizado.
                         </p>
-
                     </div>
-
                 </div>
 
-
-                <!-- GUARDAR -->
                 <div class="profile-actions">
-
                     <button
                         type="button"
                         class="primary-btn"
                         (click)="updateProfile()">
 
                         <i class="fas fa-floppy-disk"></i>
-
                         Guardar cambios
-
                     </button>
-
                 </div>
 
             </div>
