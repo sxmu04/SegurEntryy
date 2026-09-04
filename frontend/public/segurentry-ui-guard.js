@@ -184,10 +184,12 @@
     if (!(element instanceof HTMLElement)) return;
     Array.from(element.childNodes).forEach((node) => {
       if (node.nodeType !== Node.TEXT_NODE || !node.textContent) return;
-      node.textContent = node.textContent.replace(
+      const current = node.textContent;
+      const next = current.replace(
         /\b([01]?\d|2[0-3]):([0-5]\d)(?:\s*(AM|PM))?\b/gi,
         (_, hour, minute, suffix) => format12HourToken(hour, minute, suffix || '')
       );
+      if (next !== current) node.textContent = next;
     });
   };
 
@@ -226,7 +228,7 @@
       const headerRow = table.querySelector('thead tr');
       if (!headerRow) return;
 
-      let headers = Array.from(headerRow.children);
+      const headers = Array.from(headerRow.children);
       if (!headers.some((header) => normalize(header.textContent) === 'presencia')) {
         const accountHeader = headers.find((header) => normalize(header.textContent) === 'estado');
         const th = document.createElement('th');
@@ -244,7 +246,9 @@
         const cells = Array.from(row.children);
         const lastEntry = parseMovementCell(cells[4]);
         const lastExit = parseMovementCell(cells[5]);
-        const isInside = lastEntry !== null && (lastExit === null || lastEntry > lastExit);
+        const presence = lastEntry !== null && (lastExit === null || lastEntry > lastExit)
+          ? 'inside'
+          : 'outside';
 
         let presenceCell = row.querySelector('.segurentry-presence-cell');
         if (!presenceCell) {
@@ -254,7 +258,12 @@
           row.insertBefore(presenceCell, currentCells[currentCells.length - 1] || null);
         }
 
-        presenceCell.innerHTML = `<span class="segurentry-presence-badge ${isInside ? 'is-inside' : 'is-outside'}"><span class="segurentry-presence-dot"></span>${isInside ? 'Dentro' : 'Fuera'}</span>`;
+        if (presenceCell.dataset.presence !== presence) {
+          presenceCell.dataset.presence = presence;
+          const isInside = presence === 'inside';
+          presenceCell.innerHTML = `<span class="segurentry-presence-badge ${isInside ? 'is-inside' : 'is-outside'}"><span class="segurentry-presence-dot"></span>${isInside ? 'Dentro' : 'Fuera'}</span>`;
+          presenceCell.setAttribute('aria-label', isInside ? 'El aprendiz está dentro' : 'El aprendiz está fuera');
+        }
       });
     });
   };
