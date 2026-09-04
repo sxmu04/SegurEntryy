@@ -17,6 +17,82 @@ p, h1, h2, h3, h4, h5, h6, td, th, label, span { overflow-wrap: anywhere; }
 /* Accesibilidad: mantiene foco visible para teclado. */
 :focus-visible { outline: 3px solid rgba(0, 132, 61, .35); outline-offset: 2px; }
 
+/* =========================================================
+   VALIDACIONES SEGURENTRY
+   No impiden escribir. Solo informan y marcan errores.
+   ========================================================= */
+.se-validation-hint {
+  display: block;
+  margin-top: 7px;
+  font-size: .75rem;
+  line-height: 1.35;
+  color: #8b9aaf;
+  transition: color .18s ease;
+}
+
+.se-validation-hint.is-error {
+  color: #ff6b6b;
+  font-weight: 700;
+}
+
+.se-validation-hint.is-valid {
+  color: #34d399;
+}
+
+input.se-field-invalid,
+textarea.se-field-invalid,
+select.se-field-invalid,
+.se-field-invalid-container {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, .12) !important;
+}
+
+input.se-field-valid,
+textarea.se-field-valid,
+select.se-field-valid {
+  border-color: rgba(34, 197, 94, .6) !important;
+}
+
+.se-form-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0 0 18px;
+  padding: 12px 14px;
+  border: 1px solid rgba(239, 68, 68, .36);
+  border-radius: 12px;
+  background: rgba(127, 29, 29, .18);
+  color: #fee2e2;
+}
+
+.se-form-alert-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  flex: 0 0 22px;
+  border-radius: 50%;
+  background: #ef4444;
+  color: white;
+  font-size: .75rem;
+  font-weight: 900;
+}
+
+.se-form-alert > span:last-child {
+  display: grid;
+  gap: 3px;
+}
+
+.se-form-alert strong {
+  font-size: .85rem;
+}
+
+.se-form-alert small {
+  color: #fecaca;
+  font-size: .75rem;
+  line-height: 1.4;
+}
+
 /* Pantallas táctiles: objetivos de interacción cómodos sin alterar botones compactos. */
 @media (pointer: coarse) {
   button, input, select, textarea { min-height: 42px; }
