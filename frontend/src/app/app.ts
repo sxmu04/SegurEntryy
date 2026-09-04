@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { AuthService } from './core/services/auth.service';
 import { ReportBrandingService } from './core/services/report-branding.service';
+import { UiStandardsService } from './core/services/ui-standards.service';
 
 @Component({
   selector: 'app-root',
@@ -14,13 +15,19 @@ export class App implements OnInit {
   constructor(
     private auth: AuthService,
     private router: Router,
-    private reportBranding: ReportBrandingService
+    private reportBranding: ReportBrandingService,
+    private uiStandards: UiStandardsService
   ) {}
 
   ngOnInit(): void {
 
-    // Branding específico de Reportes. No modifica inputs ni formularios.
+    // Branding específico de Reportes.
     this.reportBranding.start();
+
+    // Estándares visuales SegurEntry:
+    // - validación pasiva (NO modifica valores mientras se escribe)
+    // - horas visibles en formato de 12 horas con AM/PM
+    this.uiStandards.start();
 
     this.auth.getAuthState().subscribe(user => {
 
