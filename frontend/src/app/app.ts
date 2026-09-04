@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { AuthService } from './core/services/auth.service';
+import { ReportBrandingService } from './core/services/report-branding.service';
 
 @Component({
   selector: 'app-root',
@@ -12,10 +13,14 @@ export class App implements OnInit {
 
   constructor(
     private auth: AuthService,
-    private router: Router
+    private router: Router,
+    private reportBranding: ReportBrandingService
   ) {}
 
   ngOnInit(): void {
+
+    // Branding específico de Reportes. No modifica inputs ni formularios.
+    this.reportBranding.start();
 
     this.auth.getAuthState().subscribe(user => {
 
