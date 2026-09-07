@@ -47,6 +47,26 @@ interface PersonalAccessLog {
 }
 
 
+interface PersonalAccessSession {
+  id: string;
+  uid: string;
+  user: string;
+  email: string;
+  document: string;
+  role: string;
+  entryDate: string | null;
+  exitDate: string | null;
+  method: string;
+  device: string;
+  allowed: boolean;
+  status:
+    'dentro' |
+    'fuera' |
+    'denegado' |
+    'salida_sin_entrada';
+}
+
+
 @Component({
   selector: 'app-aprendiz',
   standalone: true,
@@ -836,30 +856,336 @@ export class Aprendiz
 
 
   // =========================================================
-  // ACCESOS — FILTROS
+  // ACCESOS — SESIONES / FILTROS
   // =========================================================
 
-  get filteredPersonalAccessLogs():
-    PersonalAccessLog[] {
+  private buildPersonalAccessSessions():
+    PersonalAccessSession[] {
+
+    const ordered =
+      [...this.personalAccessLogs]
+        .sort(
+          (
+            a:
+              PersonalAccessLog,
+            b:
+              PersonalAccessLog
+          ) => {
+
+            const dateA =
+              this.parseAccessDate(
+                a.date
+              )?.getTime() || 0;
+
+            const dateB =
+              this.parseAccessDate(
+                b.date
+              )?.getTime() || 0;
+
+            return dateA - dateB;
+
+          }
+        );
+
+    const pendingEntries =
+      new Map<
+        string,
+        PersonalAccessLog
+      >();
+
+    const sessions:
+      PersonalAccessSession[] =
+        [];
+
+    for (
+      const log
+      of ordered
+    ) {
+
+      const key =
+        String(
+          log.uid ||
+          log.email ||
+          log.document ||
+          log.user ||
+          log.id
+        )
+          .trim()
+          .toLowerCase();
+
+      // Los intentos denegados se muestran,
+      // pero no modifican el estado Dentro/Fuera.
+      if (!log.allowed) {
+
+        sessions.push({
+          id:
+            log.id,
+          uid:
+            log.uid,
+          user:
+            log.user,
+          email:
+            log.email,
+          document:
+            log.document,
+          role:
+            log.role,
+          entryDate:
+            log.type === 'entrada'
+              ? log.date
+              : null,
+          exitDate:
+            log.type === 'salida'
+              ? log.date
+              : null,
+          method:
+            log.method,
+          device:
+            log.device,
+          allowed:
+            false,
+          status:
+            'denegado'
+        });
+
+        continue;
+
+      }
+
+      if (
+        log.type ===
+        'entrada'
+      ) {
+
+        const previousEntry =
+          pendingEntries.get(
+            key
+          );
+
+        // Compatibilidad con datos históricos:
+        // si aparecen dos entradas consecutivas,
+        // conservamos la anterior como sesión abierta.
+        if (previousEntry) {
+
+          sessions.push({
+            id:
+              previousEntry.id,
+            uid:
+              previousEntry.uid,
+            user:
+              previousEntry.user,
+            email:
+              previousEntry.email,
+            document:
+              previousEntry.document,
+            role:
+              previousEntry.role,
+            entryDate:
+              previousEntry.date,
+            exitDate:
+              null,
+            method:
+              previousEntry.method,
+            device:
+              previousEntry.device,
+            allowed:
+              true,
+            status:
+              'dentro'
+          });
+
+        }
+
+        pendingEntries.set(
+          key,
+          log
+        );
+
+        continue;
+
+      }
+
+      const entry =
+        pendingEntries.get(
+          key
+        );
+
+      if (entry) {
+
+        sessions.push({
+          id:
+            `${entry.id}-${log.id}`,
+          uid:
+            log.uid ||
+            entry.uid,
+          user:
+            log.user ||
+            entry.user,
+          email:
+            log.email ||
+            entry.email,
+          document:
+            log.document ||
+            entry.document,
+          role:
+            log.role ||
+            entry.role,
+          entryDate:
+            entry.date,
+          exitDate:
+            log.date,
+          method:
+            log.method ||
+            entry.method,
+          device:
+            log.device ||
+            entry.device,
+          allowed:
+            true,
+          status:
+            'fuera'
+        });
+
+        pendingEntries.delete(
+          key
+        );
+
+      } else {
+
+        sessions.push({
+          id:
+            log.id,
+          uid:
+            log.uid,
+          user:
+            log.user,
+          email:
+            log.email,
+          document:
+            log.document,
+          role:
+            log.role,
+          entryDate:
+            null,
+          exitDate:
+            log.date,
+          method:
+            log.method,
+          device:
+            log.device,
+          allowed:
+            true,
+          status:
+            'salida_sin_entrada'
+        });
+
+      }
+
+    }
+
+    pendingEntries.forEach(
+      (
+        entry:
+          PersonalAccessLog
+      ) => {
+
+        sessions.push({
+          id:
+            entry.id,
+          uid:
+            entry.uid,
+          user:
+            entry.user,
+          email:
+            entry.email,
+          document:
+            entry.document,
+          role:
+            entry.role,
+          entryDate:
+            entry.date,
+          exitDate:
+            null,
+          method:
+            entry.method,
+          device:
+            entry.device,
+          allowed:
+            true,
+          status:
+            'dentro'
+        });
+
+      }
+    );
+
+    return sessions
+      .sort(
+        (
+          a:
+            PersonalAccessSession,
+          b:
+            PersonalAccessSession
+        ) => {
+
+          const dateA =
+            this.parseAccessDate(
+              a.exitDate ||
+              a.entryDate
+            )?.getTime() || 0;
+
+          const dateB =
+            this.parseAccessDate(
+              b.exitDate ||
+              b.entryDate
+            )?.getTime() || 0;
+
+          return dateB - dateA;
+
+        }
+      );
+
+  }
+
+
+  get personalAccessSessions():
+    PersonalAccessSession[] {
+
+    return this
+      .buildPersonalAccessSessions();
+
+  }
+
+
+  get filteredPersonalAccessSessions():
+    PersonalAccessSession[] {
 
     const search =
       this.accessSearch
         .trim()
         .toLowerCase();
 
-    return this.personalAccessLogs
+    return this.personalAccessSessions
       .filter(
         (
-          access:
-            PersonalAccessLog
+          session:
+            PersonalAccessSession
         ) => {
 
           if (
-            this.accessMovement !==
-              'todos'
+            this.accessMovement ===
+              'entrada'
             &&
-            access.type !==
-              this.accessMovement
+            !session.entryDate
+          ) {
+            return false;
+          }
+
+          if (
+            this.accessMovement ===
+              'salida'
+            &&
+            !session.exitDate
           ) {
             return false;
           }
@@ -868,7 +1194,7 @@ export class Aprendiz
             this.accessStatus ===
               'permitido'
             &&
-            !access.allowed
+            !session.allowed
           ) {
             return false;
           }
@@ -877,7 +1203,7 @@ export class Aprendiz
             this.accessStatus ===
               'denegado'
             &&
-            access.allowed
+            session.allowed
           ) {
             return false;
           }
@@ -886,36 +1212,22 @@ export class Aprendiz
             this.accessDate
           ) {
 
-            const date =
-              this.parseAccessDate(
-                access.date
+            const entryKey =
+              this.getAccessDateKey(
+                session.entryDate
               );
 
-            if (!date) {
-              return false;
-            }
-
-            const localDate =
-              [
-                date.getFullYear(),
-                String(
-                  date.getMonth() + 1
-                ).padStart(
-                  2,
-                  '0'
-                ),
-                String(
-                  date.getDate()
-                ).padStart(
-                  2,
-                  '0'
-                )
-              ]
-                .join('-');
+            const exitKey =
+              this.getAccessDateKey(
+                session.exitDate
+              );
 
             if (
-              localDate !==
-              this.accessDate
+              entryKey !==
+                this.accessDate
+              &&
+              exitKey !==
+                this.accessDate
             ) {
               return false;
             }
@@ -924,12 +1236,27 @@ export class Aprendiz
 
           if (search) {
 
+            const statusLabel =
+              session.status ===
+                'dentro'
+                ? 'dentro'
+                : session.status ===
+                    'fuera'
+                    ? 'fuera'
+                    : session.status ===
+                        'denegado'
+                        ? 'denegado'
+                        : 'salida';
+
             const searchable =
               [
-                access.type,
-                access.method,
-                access.device,
-                access.status
+                session.user,
+                session.email,
+                session.document,
+                session.role,
+                session.method,
+                session.device,
+                statusLabel
               ]
                 .join(' ')
                 .toLowerCase();
@@ -948,6 +1275,44 @@ export class Aprendiz
 
         }
       );
+
+  }
+
+
+  get currentPresenceStatus():
+    'Dentro' |
+    'Fuera' |
+    'Sin registro' {
+
+    const lastGranted =
+      this.personalAccessLogs
+        .find(
+          access =>
+            access.allowed
+        );
+
+    if (!lastGranted) {
+      return 'Sin registro';
+    }
+
+    return lastGranted.type ===
+      'entrada'
+        ? 'Dentro'
+        : 'Fuera';
+
+  }
+
+
+  get currentPresenceClass():
+    string {
+
+    return this.currentPresenceStatus ===
+      'Dentro'
+        ? 'inside'
+        : this.currentPresenceStatus ===
+            'Fuera'
+            ? 'outside'
+            : 'unknown';
 
   }
 
@@ -977,8 +1342,16 @@ export class Aprendiz
   get monthEntries():
     number {
 
-    const now =
-      new Date();
+    const nowKey =
+      this.getAccessDateKey(
+        new Date()
+      );
+
+    const currentMonth =
+      nowKey.slice(
+        0,
+        7
+      );
 
     return this.personalAccessLogs
       .filter(
@@ -986,26 +1359,23 @@ export class Aprendiz
 
           if (
             access.type !==
-            'entrada'
+              'entrada'
           ) {
             return false;
           }
 
-          const date =
-            this.parseAccessDate(
+          const accessKey =
+            this.getAccessDateKey(
               access.date
             );
 
-          if (!date) {
-            return false;
-          }
-
           return (
-            date.getFullYear() ===
-              now.getFullYear()
-            &&
-            date.getMonth() ===
-              now.getMonth()
+            !!accessKey &&
+            accessKey.slice(
+              0,
+              7
+            ) ===
+              currentMonth
           );
 
         }
@@ -1059,24 +1429,9 @@ export class Aprendiz
       return '—';
     }
 
-    const date =
-      this.parseAccessDate(
-        this.lastAccess.date
-      );
-
-    if (!date) {
-      return '—';
-    }
-
-    return date
-      .toLocaleTimeString(
-        'es-CO',
-        {
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: false
-        }
-      );
+    return this.formatAccessTime(
+      this.lastAccess.date
+    );
 
   }
 
@@ -1153,9 +1508,44 @@ export class Aprendiz
 
     }
 
+    let raw =
+      String(
+        value
+      )
+        .trim();
+
+    if (!raw) {
+      return null;
+    }
+
+    // Compatibilidad con los accesos históricos de SegurEntry.
+    // El backend antiguo guardaba datetime.utcnow().isoformat()
+    // sin indicar la zona horaria. Esos valores eran UTC.
+    const isIsoDateTime =
+      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/
+        .test(
+          raw
+        );
+
+    const hasTimezone =
+      /(?:Z|[+-]\d{2}:\d{2})$/i
+        .test(
+          raw
+        );
+
+    if (
+      isIsoDateTime &&
+      !hasTimezone
+    ) {
+
+      raw +=
+        'Z';
+
+    }
+
     const date =
       new Date(
-        value
+        raw
       );
 
     return isNaN(
@@ -1163,6 +1553,69 @@ export class Aprendiz
     )
       ? null
       : date;
+
+  }
+
+
+  private getAccessDateKey(
+    value: any
+  ): string {
+
+    const date =
+      this.parseAccessDate(
+        value
+      );
+
+    if (!date) {
+      return '';
+    }
+
+    const parts =
+      new Intl.DateTimeFormat(
+        'en-US',
+        {
+          timeZone:
+            'America/Bogota',
+          year:
+            'numeric',
+          month:
+            '2-digit',
+          day:
+            '2-digit'
+        }
+      )
+        .formatToParts(
+          date
+        );
+
+    const year =
+      parts.find(
+        part =>
+          part.type ===
+          'year'
+      )?.value || '';
+
+    const month =
+      parts.find(
+        part =>
+          part.type ===
+          'month'
+      )?.value || '';
+
+    const day =
+      parts.find(
+        part =>
+          part.type ===
+          'day'
+      )?.value || '';
+
+    return (
+      year &&
+      month &&
+      day
+    )
+      ? `${year}-${month}-${day}`
+      : '';
 
   }
 
@@ -1180,14 +1633,21 @@ export class Aprendiz
       return '—';
     }
 
-    return date
-      .toLocaleDateString(
-        'es-CO',
-        {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric'
-        }
+    return new Intl.DateTimeFormat(
+      'es-CO',
+      {
+        timeZone:
+          'America/Bogota',
+        day:
+          '2-digit',
+        month:
+          '2-digit',
+        year:
+          'numeric'
+      }
+    )
+      .format(
+        date
       );
 
   }
@@ -1206,16 +1666,25 @@ export class Aprendiz
       return '—';
     }
 
-    return date
-      .toLocaleTimeString(
-        'es-CO',
-        {
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-          hour12: false
-        }
-      );
+    return new Intl.DateTimeFormat(
+      'en-US',
+      {
+        timeZone:
+          'America/Bogota',
+        hour:
+          'numeric',
+        minute:
+          '2-digit',
+        second:
+          '2-digit',
+        hour12:
+          true
+      }
+    )
+      .format(
+        date
+      )
+      .toUpperCase();
 
   }
 

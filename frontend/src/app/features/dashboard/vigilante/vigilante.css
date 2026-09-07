@@ -2839,1071 +2839,6 @@ tbody tr:last-child td {
 }
 
 /* =========================================================
-   SEGURENTRY — MÓDULO BIOMETRÍA
-   Vista preparada para ESP32 DevKit V1 + AS608
-   Pegar al final de administrador.css y vigilante.css
-   ========================================================= */
-
-.biometric-section {
-    width: 100%;
-    min-width: 0;
-}
-
-.biometric-page-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 24px;
-
-    margin-bottom: 20px;
-    padding: 24px;
-
-    border: 1px solid rgba(148, 163, 184, 0.14);
-    border-radius: 18px;
-
-    background:
-        radial-gradient(
-            circle at 90% 0%,
-            rgba(34, 197, 94, 0.10),
-            transparent 36%
-        ),
-        linear-gradient(
-            145deg,
-            rgba(15, 23, 42, 0.98),
-            rgba(7, 17, 31, 0.98)
-        );
-
-    box-shadow:
-        0 14px 38px rgba(0, 0, 0, 0.18);
-}
-
-.biometric-eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-
-    margin-bottom: 10px;
-
-    color: #4ade80;
-
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-}
-
-.biometric-page-header h2 {
-    margin: 0 0 8px;
-
-    color: #f8fafc;
-
-    font-size: clamp(22px, 2.1vw, 30px);
-    font-weight: 800;
-    letter-spacing: -0.04em;
-}
-
-.biometric-page-header p {
-    max-width: 760px;
-
-    margin: 0;
-
-    color: #94a3b8;
-
-    font-size: 13px;
-    line-height: 1.65;
-}
-
-.biometric-device-status {
-    min-width: 245px;
-
-    display: flex;
-    align-items: center;
-    gap: 11px;
-
-    padding: 13px 14px;
-
-    border-radius: 12px;
-}
-
-.biometric-device-status.offline {
-    border: 1px solid rgba(239, 68, 68, 0.20);
-    background: rgba(239, 68, 68, 0.07);
-}
-
-.device-status-dot {
-    width: 9px;
-    height: 9px;
-
-    flex: 0 0 9px;
-
-    border-radius: 50%;
-
-    background: #ef4444;
-
-    box-shadow:
-        0 0 0 4px rgba(239, 68, 68, 0.08),
-        0 0 11px rgba(239, 68, 68, 0.35);
-}
-
-.biometric-device-status strong,
-.biometric-device-status small {
-    display: block;
-}
-
-.biometric-device-status strong {
-    margin-bottom: 3px;
-
-    color: #fca5a5;
-
-    font-size: 12px;
-    font-weight: 800;
-}
-
-.biometric-device-status small {
-    color: #94a3b8;
-
-    font-size: 10px;
-}
-
-
-/* =========================================================
-   RESUMEN
-   ========================================================= */
-
-.biometric-summary-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 14px;
-
-    margin-bottom: 20px;
-}
-
-.biometric-summary-card {
-    min-height: 92px;
-
-    display: flex;
-    align-items: center;
-    gap: 14px;
-
-    margin: 0;
-    padding: 17px 18px;
-}
-
-.biometric-summary-icon {
-    width: 44px;
-    height: 44px;
-
-    flex: 0 0 44px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border: 1px solid rgba(56, 189, 248, 0.20);
-    border-radius: 12px;
-
-    background: rgba(56, 189, 248, 0.08);
-
-    color: #38bdf8;
-
-    font-size: 16px;
-}
-
-.biometric-summary-icon.success {
-    border-color: rgba(34, 197, 94, 0.22);
-    background: rgba(34, 197, 94, 0.09);
-    color: #4ade80;
-}
-
-.biometric-summary-icon.pending {
-    border-color: rgba(148, 163, 184, 0.18);
-    background: rgba(148, 163, 184, 0.07);
-    color: #94a3b8;
-}
-
-.biometric-summary-card strong,
-.biometric-summary-card span {
-    display: block;
-}
-
-.biometric-summary-card strong {
-    margin-bottom: 4px;
-
-    color: #f8fafc;
-
-    font-size: 22px;
-    font-weight: 800;
-}
-
-.biometric-summary-card span {
-    color: #94a3b8;
-
-    font-size: 11px;
-    font-weight: 600;
-}
-
-
-/* =========================================================
-   LISTA DE USUARIOS
-   ========================================================= */
-
-.biometric-users-card {
-    padding: 0 !important;
-    overflow: hidden;
-}
-
-.biometric-table-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-
-    padding: 21px 22px;
-
-    border-bottom: 1px solid rgba(148, 163, 184, 0.10);
-}
-
-.biometric-table-header h3 {
-    margin: 0 0 5px;
-
-    color: #f8fafc;
-
-    font-size: 16px;
-    font-weight: 800;
-}
-
-.biometric-table-header p {
-    margin: 0;
-
-    color: #64748b;
-
-    font-size: 11px;
-}
-
-.biometric-search-box {
-    width: min(100%, 390px);
-    height: 42px;
-
-    display: flex;
-    align-items: center;
-    gap: 9px;
-
-    padding: 0 12px;
-
-    border: 1px solid rgba(148, 163, 184, 0.14);
-    border-radius: 10px;
-
-    background: rgba(2, 6, 23, 0.48);
-
-    transition:
-        border-color 0.2s ease,
-        box-shadow 0.2s ease,
-        background 0.2s ease;
-}
-
-.biometric-search-box:focus-within {
-    border-color: rgba(34, 197, 94, 0.42);
-
-    background: rgba(2, 6, 23, 0.72);
-
-    box-shadow:
-        0 0 0 3px rgba(34, 197, 94, 0.07);
-}
-
-.biometric-search-box > i {
-    color: #64748b;
-
-    font-size: 12px;
-}
-
-.biometric-search-box input {
-    width: 100%;
-    min-width: 0;
-    height: 100%;
-
-    margin: 0 !important;
-    padding: 0 !important;
-
-    border: 0 !important;
-    outline: 0 !important;
-
-    background: transparent !important;
-
-    color: #e2e8f0;
-
-    box-shadow: none !important;
-
-    font-family: inherit;
-    font-size: 12px;
-}
-
-.biometric-search-box input::placeholder {
-    color: #64748b;
-}
-
-.biometric-search-box button {
-    width: 28px;
-    height: 28px;
-
-    flex: 0 0 28px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border: 0;
-    border-radius: 7px;
-
-    background: transparent;
-
-    color: #64748b;
-
-    cursor: pointer;
-}
-
-.biometric-search-box button:hover {
-    background: rgba(255, 255, 255, 0.05);
-    color: #f8fafc;
-}
-
-
-/* =========================================================
-   AVISO
-   ========================================================= */
-
-.biometric-info-banner {
-    display: flex;
-    align-items: flex-start;
-    gap: 11px;
-
-    margin: 18px 22px 0;
-    padding: 13px 14px;
-
-    border: 1px solid rgba(56, 189, 248, 0.16);
-    border-radius: 11px;
-
-    background: rgba(56, 189, 248, 0.055);
-}
-
-.biometric-info-banner > i {
-    margin-top: 2px;
-
-    color: #38bdf8;
-
-    font-size: 13px;
-}
-
-.biometric-info-banner strong {
-    display: block;
-
-    margin-bottom: 3px;
-
-    color: #cbd5e1;
-
-    font-size: 11px;
-}
-
-.biometric-info-banner p {
-    margin: 0;
-
-    color: #64748b;
-
-    font-size: 10px;
-    line-height: 1.55;
-}
-
-
-/* =========================================================
-   TABLA
-   ========================================================= */
-
-.biometric-table-container {
-    width: 100%;
-
-    margin-top: 18px;
-
-    overflow-x: auto;
-
-    -webkit-overflow-scrolling: touch;
-}
-
-.biometric-table {
-    width: 100%;
-    min-width: 790px;
-
-    border-collapse: collapse;
-}
-
-.biometric-table th {
-    padding: 12px 18px;
-
-    border-top: 1px solid rgba(148, 163, 184, 0.08);
-    border-bottom: 1px solid rgba(148, 163, 184, 0.08);
-
-    background: rgba(255, 255, 255, 0.02);
-
-    color: #64748b;
-
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 0.06em;
-    text-align: left;
-    text-transform: uppercase;
-    white-space: nowrap;
-}
-
-.biometric-table td {
-    padding: 14px 18px;
-
-    border-bottom: 1px solid rgba(148, 163, 184, 0.06);
-
-    color: #cbd5e1;
-
-    font-size: 12px;
-
-    vertical-align: middle;
-}
-
-.biometric-table tbody tr {
-    transition: background 0.2s ease;
-}
-
-.biometric-table tbody tr:hover {
-    background: rgba(34, 197, 94, 0.025);
-}
-
-.biometric-table tbody tr:last-child td {
-    border-bottom: 0;
-}
-
-.biometric-user-cell {
-    min-width: 210px;
-
-    display: flex;
-    align-items: center;
-    gap: 11px;
-}
-
-.biometric-user-avatar {
-    width: 37px;
-    height: 37px;
-
-    flex: 0 0 37px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border: 1px solid rgba(34, 197, 94, 0.22);
-    border-radius: 10px;
-
-    background: rgba(34, 197, 94, 0.09);
-
-    color: #4ade80;
-
-    font-size: 13px;
-    font-weight: 800;
-}
-
-.biometric-user-cell strong,
-.biometric-user-cell small {
-    display: block;
-
-    max-width: 230px;
-
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.biometric-user-cell strong {
-    margin-bottom: 3px;
-
-    color: #e2e8f0;
-
-    font-size: 12px;
-}
-
-.biometric-user-cell small {
-    color: #64748b;
-
-    font-size: 10px;
-}
-
-.biometric-role-badge,
-.biometric-status-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-
-    padding: 6px 9px;
-
-    border-radius: 999px;
-
-    font-size: 10px;
-    font-weight: 700;
-
-    white-space: nowrap;
-}
-
-.biometric-role-badge {
-    border: 1px solid rgba(34, 197, 94, 0.18);
-    background: rgba(34, 197, 94, 0.07);
-    color: #4ade80;
-}
-
-.biometric-status-badge.not-registered {
-    border: 1px solid rgba(148, 163, 184, 0.16);
-    background: rgba(148, 163, 184, 0.06);
-    color: #94a3b8;
-}
-
-.biometric-actions-column {
-    text-align: right !important;
-}
-
-.biometric-register-btn {
-    min-height: 38px;
-
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 7px;
-
-    padding: 0 13px;
-
-    border: 1px solid rgba(34, 197, 94, 0.25);
-    border-radius: 9px;
-
-    background:
-        linear-gradient(
-            135deg,
-            rgba(34, 197, 94, 0.16),
-            rgba(34, 197, 94, 0.08)
-        );
-
-    color: #4ade80;
-
-    font-family: inherit;
-    font-size: 11px;
-    font-weight: 800;
-
-    cursor: pointer;
-
-    transition:
-        transform 0.2s ease,
-        background 0.2s ease,
-        border-color 0.2s ease,
-        color 0.2s ease;
-}
-
-.biometric-register-btn:hover {
-    transform: translateY(-1px);
-
-    border-color: rgba(34, 197, 94, 0.5);
-
-    background:
-        linear-gradient(
-            135deg,
-            #22c55e,
-            #16a34a
-        );
-
-    color: #ffffff;
-}
-
-.biometric-empty-state {
-    min-height: 220px;
-
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-
-    text-align: center;
-}
-
-.biometric-empty-state > i {
-    margin-bottom: 12px;
-
-    color: #475569;
-
-    font-size: 30px;
-}
-
-.biometric-empty-state h4 {
-    margin: 0 0 6px;
-
-    color: #cbd5e1;
-
-    font-size: 13px;
-}
-
-.biometric-empty-state p {
-    margin: 0;
-
-    color: #64748b;
-
-    font-size: 11px;
-}
-
-
-/* =========================================================
-   MODAL
-   ========================================================= */
-
-.biometric-modal-backdrop {
-    position: fixed;
-    inset: 0;
-
-    z-index: 99999;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    padding: 20px;
-
-    background: rgba(2, 6, 23, 0.76);
-
-    backdrop-filter: blur(7px);
-}
-
-.biometric-modal {
-    position: relative;
-
-    width: min(560px, 100%);
-    max-height: calc(100dvh - 40px);
-
-    overflow-y: auto;
-
-    padding: 28px;
-
-    border: 1px solid rgba(148, 163, 184, 0.16);
-    border-radius: 20px;
-
-    background:
-        radial-gradient(
-            circle at 50% 0%,
-            rgba(34, 197, 94, 0.09),
-            transparent 34%
-        ),
-        linear-gradient(
-            145deg,
-            #0f172a,
-            #07111f
-        );
-
-    color: #e2e8f0;
-
-    box-shadow:
-        0 30px 90px rgba(0, 0, 0, 0.55);
-}
-
-.biometric-modal-close {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-
-    width: 34px;
-    height: 34px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border: 1px solid rgba(148, 163, 184, 0.12);
-    border-radius: 9px;
-
-    background: rgba(255, 255, 255, 0.03);
-
-    color: #94a3b8;
-
-    cursor: pointer;
-}
-
-.biometric-modal-close:hover {
-    background: rgba(239, 68, 68, 0.08);
-    border-color: rgba(239, 68, 68, 0.20);
-    color: #f87171;
-}
-
-.biometric-modal-icon {
-    width: 64px;
-    height: 64px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    margin: 0 auto 16px;
-
-    border: 1px solid rgba(34, 197, 94, 0.25);
-    border-radius: 18px;
-
-    background: rgba(34, 197, 94, 0.09);
-
-    color: #4ade80;
-
-    font-size: 27px;
-
-    box-shadow:
-        0 0 0 7px rgba(34, 197, 94, 0.035);
-}
-
-.biometric-modal-heading {
-    text-align: center;
-}
-
-.biometric-modal-heading > span {
-    color: #4ade80;
-
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-}
-
-.biometric-modal-heading h2 {
-    margin: 6px 0 7px;
-
-    color: #f8fafc;
-
-    font-size: 22px;
-    font-weight: 800;
-}
-
-.biometric-modal-heading p {
-    max-width: 450px;
-
-    margin: 0 auto;
-
-    color: #64748b;
-
-    font-size: 11px;
-    line-height: 1.6;
-}
-
-.biometric-selected-user {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-
-    margin-top: 20px;
-    padding: 14px;
-
-    border: 1px solid rgba(34, 197, 94, 0.16);
-    border-radius: 12px;
-
-    background: rgba(34, 197, 94, 0.045);
-}
-
-.biometric-selected-avatar {
-    width: 44px;
-    height: 44px;
-
-    flex: 0 0 44px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 12px;
-
-    background: rgba(34, 197, 94, 0.12);
-
-    color: #4ade80;
-
-    font-size: 15px;
-    font-weight: 800;
-}
-
-.biometric-selected-user strong,
-.biometric-selected-user span,
-.biometric-selected-user small {
-    display: block;
-}
-
-.biometric-selected-user strong {
-    margin-bottom: 3px;
-
-    color: #f8fafc;
-
-    font-size: 13px;
-}
-
-.biometric-selected-user span {
-    margin-bottom: 2px;
-
-    color: #94a3b8;
-
-    font-size: 10px;
-}
-
-.biometric-selected-user small {
-    color: #64748b;
-
-    font-size: 10px;
-}
-
-.biometric-hardware-state {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-
-    margin-top: 14px;
-    padding: 14px;
-
-    border: 1px solid rgba(239, 68, 68, 0.16);
-    border-radius: 12px;
-
-    background: rgba(239, 68, 68, 0.055);
-}
-
-.hardware-state-icon {
-    width: 38px;
-    height: 38px;
-
-    flex: 0 0 38px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 10px;
-
-    background: rgba(239, 68, 68, 0.10);
-
-    color: #f87171;
-}
-
-.biometric-hardware-state strong {
-    display: block;
-
-    margin-bottom: 4px;
-
-    color: #fca5a5;
-
-    font-size: 11px;
-}
-
-.biometric-hardware-state p {
-    margin: 0;
-
-    color: #94a3b8;
-
-    font-size: 10px;
-    line-height: 1.55;
-}
-
-.biometric-future-flow {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 9px;
-
-    margin-top: 15px;
-}
-
-.future-step {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-
-    padding: 10px;
-
-    border: 1px solid rgba(148, 163, 184, 0.10);
-    border-radius: 10px;
-
-    background: rgba(255, 255, 255, 0.025);
-}
-
-.future-step > span {
-    width: 24px;
-    height: 24px;
-
-    flex: 0 0 24px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 7px;
-
-    background: rgba(34, 197, 94, 0.09);
-
-    color: #4ade80;
-
-    font-size: 9px;
-    font-weight: 800;
-}
-
-.future-step p {
-    margin: 0;
-
-    color: #94a3b8;
-
-    font-size: 9px;
-    line-height: 1.4;
-}
-
-.biometric-modal-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 9px;
-
-    margin-top: 20px;
-    padding-top: 17px;
-
-    border-top: 1px solid rgba(148, 163, 184, 0.10);
-}
-
-.biometric-close-btn,
-.biometric-disabled-btn {
-    min-height: 40px;
-
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 7px;
-
-    padding: 0 14px;
-
-    border-radius: 9px;
-
-    font-family: inherit;
-    font-size: 11px;
-    font-weight: 800;
-}
-
-.biometric-close-btn {
-    border: 1px solid rgba(148, 163, 184, 0.14);
-
-    background: rgba(255, 255, 255, 0.035);
-
-    color: #cbd5e1;
-
-    cursor: pointer;
-}
-
-.biometric-close-btn:hover {
-    background: rgba(255, 255, 255, 0.07);
-}
-
-.biometric-disabled-btn {
-    border: 1px solid rgba(148, 163, 184, 0.12);
-
-    background: rgba(148, 163, 184, 0.05);
-
-    color: #64748b;
-
-    cursor: not-allowed;
-}
-
-
-/* =========================================================
-   RESPONSIVE
-   ========================================================= */
-
-@media (max-width: 950px) {
-
-    .biometric-summary-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .biometric-summary-card:last-child {
-        grid-column: 1 / -1;
-    }
-
-    .biometric-table-header {
-        align-items: flex-start;
-        flex-direction: column;
-    }
-
-    .biometric-search-box {
-        width: 100%;
-    }
-}
-
-@media (max-width: 700px) {
-
-    .biometric-page-header {
-        flex-direction: column;
-
-        padding: 19px;
-    }
-
-    .biometric-device-status {
-        width: 100%;
-        min-width: 0;
-    }
-
-    .biometric-summary-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .biometric-summary-card:last-child {
-        grid-column: auto;
-    }
-
-    .biometric-table-header {
-        padding: 17px;
-    }
-
-    .biometric-info-banner {
-        margin-left: 17px;
-        margin-right: 17px;
-    }
-
-    .biometric-modal {
-        padding: 24px 18px 18px;
-    }
-}
-
-@media (max-width: 520px) {
-
-    .biometric-page-header {
-        padding: 16px;
-        border-radius: 14px;
-    }
-
-    .biometric-page-header h2 {
-        font-size: 21px;
-    }
-
-    .biometric-summary-card {
-        min-height: 82px;
-        padding: 14px;
-    }
-
-    .biometric-table {
-        min-width: 720px;
-    }
-
-    .biometric-future-flow {
-        grid-template-columns: 1fr;
-    }
-
-    .biometric-modal-backdrop {
-        padding: 10px;
-    }
-
-    .biometric-modal {
-        max-height: calc(100dvh - 20px);
-        border-radius: 16px;
-    }
-
-    .biometric-modal-actions {
-        flex-direction: column-reverse;
-    }
-
-    .biometric-close-btn,
-    .biometric-disabled-btn {
-        width: 100%;
-    }
-}
-
-
-/* =========================================================
    RESPONSIVE — FILTROS
    ========================================================= */
 
@@ -4892,5 +3827,2564 @@ tbody tr:last-child td {
 
     .small-refresh-btn {
         width: 100%;
+    }
+}
+
+
+/* =========================================================
+   VIGILANTE — SESIONES DE ACCESO
+   ========================================================= */
+
+.access-session-hero {
+    margin-bottom: 18px;
+}
+
+.access-session-hero-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.access-live-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+
+    padding: 7px 11px;
+
+    border: 1px solid rgba(34, 197, 94, 0.18);
+    border-radius: 999px;
+
+    background: rgba(34, 197, 94, 0.07);
+
+    color: #bbf7d0;
+
+    font-size: 10px;
+    font-weight: 750;
+}
+
+.access-live-chip > span {
+    width: 7px;
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: var(--green);
+
+    box-shadow:
+        0 0 0 4px rgba(34, 197, 94, 0.08),
+        0 0 10px rgba(34, 197, 94, 0.45);
+
+    animation: pulse-status 1.8s infinite;
+}
+
+.access-session-table {
+    min-width: 1180px;
+}
+
+.session-datetime {
+    min-width: 116px;
+}
+
+.session-datetime strong,
+.session-datetime span {
+    display: block;
+}
+
+.session-datetime strong {
+    margin-bottom: 3px;
+
+    color: var(--text-secondary);
+
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.session-datetime span {
+    color: var(--text-muted);
+
+    font-size: 10px;
+    font-weight: 650;
+}
+
+.session-empty {
+    color: #64748b;
+
+    font-size: 10px;
+}
+
+.session-inside-text {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    padding: 6px 9px;
+
+    border: 1px solid rgba(34, 197, 94, 0.18);
+    border-radius: 999px;
+
+    background: rgba(34, 197, 94, 0.08);
+
+    color: #86efac;
+
+    font-size: 10px;
+    font-weight: 750;
+}
+
+.presence-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+
+    min-width: 82px;
+
+    padding: 6px 9px;
+
+    border-radius: 999px;
+
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.presence-badge.inside {
+    border: 1px solid rgba(34, 197, 94, 0.22);
+
+    background: var(--green-soft);
+
+    color: #bbf7d0;
+}
+
+.presence-badge.inside > span {
+    width: 7px;
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: var(--green);
+
+    box-shadow:
+        0 0 8px rgba(34, 197, 94, 0.5);
+}
+
+.presence-badge.outside {
+    border: 1px solid rgba(249, 115, 22, 0.22);
+
+    background: var(--orange-soft);
+
+    color: #fed7aa;
+}
+
+.presence-badge.denied {
+    border: 1px solid rgba(239, 68, 68, 0.22);
+
+    background: var(--red-soft);
+
+    color: #fecaca;
+}
+
+.access-method-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+
+    padding: 6px 9px;
+
+    border: 1px solid rgba(56, 189, 248, 0.16);
+    border-radius: 999px;
+
+    background: rgba(56, 189, 248, 0.06);
+
+    color: #bae6fd;
+
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.access-method-chip i {
+    color: var(--blue);
+}
+
+
+/* =========================================================
+   VIGILANTE — REGISTRO TEMPORAL + RFID
+   ========================================================= */
+
+.rfid-process-grid {
+    display: grid;
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    gap: 12px;
+
+    margin-bottom: 18px;
+}
+
+.rfid-process-card {
+    min-height: 104px;
+
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+
+    padding: 15px;
+
+    border: 1px solid var(--border);
+    border-radius: 13px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(15, 23, 42, 0.94),
+            rgba(7, 17, 31, 0.94)
+        );
+
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+}
+
+.rfid-process-number {
+    width: 31px;
+    height: 31px;
+
+    flex: 0 0 31px;
+
+    display: grid;
+    place-items: center;
+
+    border: 1px solid rgba(34, 197, 94, 0.22);
+    border-radius: 9px;
+
+    background: var(--green-soft);
+
+    color: var(--green);
+
+    font-size: 11px;
+    font-weight: 850;
+}
+
+.rfid-process-card strong,
+.rfid-process-card span {
+    display: block;
+}
+
+.rfid-process-card strong {
+    margin-bottom: 5px;
+
+    color: var(--text-main);
+
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.rfid-process-card span {
+    color: var(--text-muted);
+
+    font-size: 9px;
+    line-height: 1.5;
+}
+
+.rfid-info-banner {
+    border-color: rgba(34, 197, 94, 0.17);
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(34, 197, 94, 0.07),
+            rgba(15, 23, 42, 0.34)
+        );
+}
+
+.rfid-info-banner .info-icon {
+    border-color: rgba(34, 197, 94, 0.16);
+
+    background: var(--green-soft);
+
+    color: var(--green);
+}
+
+.temporary-rfid-table {
+    min-width: 1120px;
+}
+
+.temporary-document {
+    color: var(--text-secondary);
+
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.temporary-expiration {
+    display: block;
+
+    margin-top: 6px;
+
+    color: var(--text-muted);
+
+    font-size: 9px;
+    white-space: nowrap;
+}
+
+.expired-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+
+    min-width: 92px;
+
+    padding: 6px 10px;
+
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    border-radius: 999px;
+
+    background: rgba(148, 163, 184, 0.07);
+
+    color: #cbd5e1;
+
+    font-size: 11px;
+    font-weight: 750;
+}
+
+.rfid-assigned {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    min-width: 150px;
+}
+
+.rfid-card-icon {
+    width: 34px;
+    height: 34px;
+
+    flex: 0 0 34px;
+
+    display: grid;
+    place-items: center;
+
+    border: 1px solid rgba(34, 197, 94, 0.2);
+    border-radius: 9px;
+
+    background: var(--green-soft);
+
+    color: var(--green);
+}
+
+.rfid-assigned strong,
+.rfid-assigned code {
+    display: block;
+}
+
+.rfid-assigned strong {
+    margin-bottom: 3px;
+
+    color: #bbf7d0;
+
+    font-size: 10px;
+}
+
+.rfid-assigned code {
+    color: #94a3b8;
+
+    font-family:
+        "SFMono-Regular",
+        Consolas,
+        "Liberation Mono",
+        monospace;
+
+    font-size: 9px;
+}
+
+.rfid-not-assigned {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    padding: 6px 9px;
+
+    border: 1px dashed rgba(250, 204, 21, 0.22);
+    border-radius: 9px;
+
+    background: rgba(250, 204, 21, 0.05);
+
+    color: #fde68a;
+
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.rfid-assign-btn {
+    min-height: 37px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+
+    padding: 0 12px;
+
+    border: 1px solid rgba(34, 197, 94, 0.25);
+    border-radius: 9px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(34, 197, 94, 0.15),
+            rgba(34, 197, 94, 0.07)
+        );
+
+    color: #86efac;
+
+    font-size: 10px;
+    font-weight: 800;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.2s ease,
+        background 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease;
+}
+
+.rfid-assign-btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+
+    border-color: rgba(34, 197, 94, 0.48);
+
+    background:
+        linear-gradient(
+            135deg,
+            #22c55e,
+            #16a34a
+        );
+
+    color: #ffffff;
+}
+
+.rfid-assign-btn:disabled {
+    opacity: 0.45;
+
+    cursor: not-allowed;
+}
+
+.rfid-action-help {
+    color: var(--yellow);
+
+    font-size: 9px;
+    font-weight: 650;
+}
+
+.rfid-action-help.rejected {
+    color: #fca5a5;
+}
+
+
+@media (max-width: 1150px) {
+
+    .rfid-process-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+}
+
+
+@media (max-width: 700px) {
+
+    .access-session-hero-actions {
+        width: 100%;
+
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .access-live-chip {
+        justify-content: center;
+    }
+
+    .rfid-process-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .rfid-process-card {
+        min-height: 0;
+    }
+}
+
+
+/* =========================================================
+   VIGILANTE — DASHBOARD PERSONAL POR SESIONES
+   ========================================================= */
+
+.personal-dashboard-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.personal-presence-panel {
+    min-width: 150px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    background: rgba(148, 163, 184, 0.05);
+}
+
+.personal-presence-panel.inside {
+    border-color: rgba(34, 197, 94, 0.22);
+    background: rgba(34, 197, 94, 0.08);
+}
+
+.personal-presence-panel.outside {
+    border-color: rgba(249, 115, 22, 0.22);
+    background: rgba(249, 115, 22, 0.08);
+}
+
+.personal-presence-panel.empty {
+    border-color: rgba(148, 163, 184, 0.16);
+    background: rgba(148, 163, 184, 0.05);
+}
+
+.personal-presence-icon {
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    flex: 0 0 34px;
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-muted);
+}
+
+.personal-presence-panel.inside .personal-presence-icon {
+    color: var(--green);
+    background: var(--green-soft);
+}
+
+.personal-presence-panel.outside .personal-presence-icon {
+    color: var(--orange);
+    background: var(--orange-soft);
+}
+
+.personal-presence-panel span,
+.personal-presence-panel strong {
+    display: block;
+}
+
+.personal-presence-panel span {
+    margin-bottom: 2px;
+    color: var(--text-muted);
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.personal-presence-panel strong {
+    color: var(--text-main);
+    font-size: 12px;
+    font-weight: 850;
+}
+
+.personal-stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.personal-presence-stat .stat-icon.presence {
+    color: var(--blue);
+    background: var(--blue-soft);
+    border-color: rgba(56, 189, 248, 0.18);
+}
+
+.personal-presence-stat.inside .stat-icon.presence {
+    color: var(--green);
+    background: var(--green-soft);
+    border-color: rgba(34, 197, 94, 0.18);
+}
+
+.personal-presence-stat.outside .stat-icon.presence {
+    color: var(--orange);
+    background: var(--orange-soft);
+    border-color: rgba(249, 115, 22, 0.18);
+}
+
+.personal-presence-stat .presence-stat-value {
+    font-size: 22px;
+    line-height: 1.05;
+}
+
+.personal-presence-stat.inside .presence-stat-value {
+    color: var(--green);
+}
+
+.personal-presence-stat.outside .presence-stat-value {
+    color: var(--orange);
+}
+
+.personal-session-table {
+    min-width: 900px;
+}
+
+.personal-session-table .session-datetime {
+    min-width: 120px;
+}
+
+@media (max-width: 1180px) {
+    .personal-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .personal-dashboard-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 700px) {
+    .personal-session-hero {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .personal-dashboard-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .personal-presence-panel,
+    .personal-dashboard-actions .refresh-dashboard-btn,
+    .personal-dashboard-actions .access-live-chip {
+        width: 100%;
+    }
+
+    .personal-dashboard-actions .access-live-chip {
+        justify-content: center;
+    }
+
+    .personal-stats {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ========================================================================
+   SEGURENTRY — VIGILANTE PREMIUM UI
+   Capa visual final
+   ------------------------------------------------------------------------
+   Esta sección se agrega al final para mejorar la interfaz sin romper
+   las clases que ya usa vigilante.html.
+   ======================================================================== */
+
+:host {
+    --bg-main: #020617;
+    --bg-secondary: #07111f;
+    --bg-elevated: #0b1424;
+    --bg-card: #0f172a;
+    --bg-card-soft: #111c2e;
+    --bg-input: rgba(2, 6, 23, 0.76);
+
+    --surface-glass: rgba(15, 23, 42, 0.78);
+    --surface-hover: rgba(255, 255, 255, 0.035);
+
+    --border: rgba(148, 163, 184, 0.14);
+    --border-light: rgba(148, 163, 184, 0.075);
+    --border-strong: rgba(148, 163, 184, 0.22);
+
+    --text-main: #f8fafc;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+    --text-subtle: #64748b;
+
+    --green: #22c55e;
+    --green-dark: #16a34a;
+    --green-light: #4ade80;
+    --green-soft: rgba(34, 197, 94, 0.11);
+
+    --orange: #f97316;
+    --orange-dark: #ea580c;
+    --orange-soft: rgba(249, 115, 22, 0.11);
+
+    --red: #ef4444;
+    --red-soft: rgba(239, 68, 68, 0.11);
+
+    --blue: #38bdf8;
+    --blue-soft: rgba(56, 189, 248, 0.10);
+
+    --yellow: #facc15;
+    --yellow-soft: rgba(250, 204, 21, 0.10);
+
+    --radius-xs: 7px;
+    --radius-sm: 10px;
+    --radius-md: 15px;
+    --radius-lg: 20px;
+    --radius-xl: 24px;
+
+    --shadow-card:
+        0 18px 45px rgba(0, 0, 0, 0.22),
+        0 1px 0 rgba(255, 255, 255, 0.018) inset;
+
+    --shadow-hover:
+        0 24px 60px rgba(0, 0, 0, 0.30),
+        0 1px 0 rgba(255, 255, 255, 0.03) inset;
+
+    --shadow-green:
+        0 10px 35px rgba(34, 197, 94, 0.10);
+
+    width: 100%;
+    overflow-x: clip;
+    background: var(--bg-main);
+}
+
+
+/* ========================================================================
+   BASE / ACCESIBILIDAD
+   ======================================================================== */
+
+button,
+input,
+select,
+textarea {
+    font-family: inherit;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+    -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+label:focus-visible {
+    outline: 2px solid rgba(74, 222, 128, 0.85);
+    outline-offset: 3px;
+}
+
+button:disabled {
+    cursor: not-allowed;
+}
+
+::placeholder {
+    color: #64748b;
+    opacity: 1;
+}
+
+.layout {
+    position: relative;
+    isolation: isolate;
+
+    min-height: 100vh;
+
+    background:
+        radial-gradient(
+            circle at 82% -10%,
+            rgba(34, 197, 94, 0.10),
+            transparent 30%
+        ),
+        radial-gradient(
+            circle at 12% 84%,
+            rgba(56, 189, 248, 0.055),
+            transparent 26%
+        ),
+        linear-gradient(
+            180deg,
+            #020617 0%,
+            #030815 50%,
+            #020617 100%
+        );
+}
+
+
+/* ========================================================================
+   SIDEBAR
+   ======================================================================== */
+
+.sidebar {
+    width: 274px;
+
+    padding: 17px 13px;
+
+    border-right:
+        1px solid rgba(148, 163, 184, 0.11);
+
+    background:
+        radial-gradient(
+            circle at 50% -4%,
+            rgba(34, 197, 94, 0.095),
+            transparent 26%
+        ),
+        linear-gradient(
+            180deg,
+            rgba(7, 17, 31, 0.99) 0%,
+            rgba(2, 6, 23, 0.995) 100%
+        );
+
+    box-shadow:
+        16px 0 50px rgba(0, 0, 0, 0.25);
+
+    backdrop-filter: blur(22px);
+}
+
+.sidebar.collapsed {
+    width: 84px;
+}
+
+.sidebar-profile {
+    position: relative;
+
+    margin-bottom: 10px;
+    padding: 15px 10px 17px;
+
+    border: 1px solid rgba(148, 163, 184, 0.08);
+    border-radius: 17px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.026),
+            rgba(255, 255, 255, 0.008)
+        );
+}
+
+.sidebar-profile::after {
+    content: "";
+
+    position: absolute;
+    left: 24%;
+    right: 24%;
+    bottom: -1px;
+
+    height: 1px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(34, 197, 94, 0.30),
+            transparent
+        );
+}
+
+.sidebar-profile .avatar {
+    width: 66px;
+    height: 66px;
+
+    margin-bottom: 12px;
+
+    border:
+        1px solid rgba(74, 222, 128, 0.38);
+
+    background:
+        radial-gradient(
+            circle at 30% 25%,
+            rgba(74, 222, 128, 0.22),
+            rgba(34, 197, 94, 0.08) 48%,
+            rgba(249, 115, 22, 0.06)
+        );
+
+    box-shadow:
+        0 0 0 5px rgba(34, 197, 94, 0.035),
+        0 12px 28px rgba(0, 0, 0, 0.25);
+}
+
+.sidebar-profile .avatar img {
+    display: block;
+}
+
+.sidebar-profile h3 {
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: -0.015em;
+}
+
+.sidebar-profile p:first-of-type {
+    color: #86efac;
+    font-weight: 700;
+}
+
+.sidebar-logo {
+    min-height: 54px;
+
+    justify-content: flex-start;
+
+    margin: 0 0 15px;
+    padding: 0 15px;
+
+    border-color: rgba(148, 163, 184, 0.075);
+    border-radius: 13px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(34, 197, 94, 0.055),
+            rgba(255, 255, 255, 0.015)
+        );
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.02);
+}
+
+.sidebar.collapsed .sidebar-logo {
+    justify-content: center;
+    padding: 0;
+}
+
+.sidebar-logo i {
+    width: 30px;
+    height: 30px;
+
+    display: grid;
+    place-items: center;
+
+    flex: 0 0 30px;
+
+    border:
+        1px solid rgba(74, 222, 128, 0.18);
+    border-radius: 9px;
+
+    background:
+        rgba(34, 197, 94, 0.08);
+
+    filter:
+        drop-shadow(
+            0 0 10px rgba(34, 197, 94, 0.24)
+        );
+}
+
+.sidebar nav {
+    gap: 6px;
+}
+
+.sidebar nav button {
+    min-height: 49px;
+
+    gap: 12px;
+
+    padding: 0 14px;
+
+    border-radius: 12px;
+
+    font-weight: 650;
+
+    overflow: hidden;
+}
+
+.sidebar nav button::before {
+    content: "";
+
+    position: absolute;
+    left: 0;
+    top: 50%;
+
+    width: 3px;
+    height: 0;
+
+    border-radius: 0 999px 999px 0;
+
+    background: var(--green);
+
+    transform: translateY(-50%);
+
+    transition: height 0.2s ease;
+}
+
+.sidebar nav button:hover {
+    transform: translateX(0);
+
+    background:
+        rgba(34, 197, 94, 0.055);
+
+    border-color:
+        rgba(34, 197, 94, 0.10);
+}
+
+.sidebar nav button.active {
+    color: #ecfdf5;
+
+    border-color:
+        rgba(74, 222, 128, 0.17);
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(34, 197, 94, 0.14),
+            rgba(34, 197, 94, 0.035)
+        );
+
+    box-shadow:
+        none;
+}
+
+.sidebar nav button.active::before {
+    height: 26px;
+}
+
+.sidebar nav button.active i {
+    text-shadow:
+        0 0 14px rgba(34, 197, 94, 0.36);
+}
+
+.sidebar-notification-count {
+    box-shadow:
+        0 0 0 3px rgba(34, 197, 94, 0.065);
+}
+
+.sidebar-bottom {
+    padding-top: 13px;
+
+    border-top:
+        1px solid rgba(148, 163, 184, 0.07);
+}
+
+.logout {
+    min-height: 47px;
+
+    border-radius: 11px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(239, 68, 68, 0.07),
+            rgba(239, 68, 68, 0.025)
+        );
+}
+
+
+/* ========================================================================
+   MAIN / HEADER
+   ======================================================================== */
+
+.main {
+    margin-left: 274px;
+
+    padding:
+        clamp(24px, 2.5vw, 36px)
+        clamp(22px, 3vw, 44px)
+        56px;
+
+    background: transparent;
+}
+
+.sidebar.collapsed ~ .main {
+    margin-left: 84px;
+}
+
+.main > header {
+    position: sticky;
+    top: 0;
+
+    z-index: 80;
+
+    min-height: 68px;
+
+    margin:
+        calc(clamp(24px, 2.5vw, 36px) * -1)
+        calc(clamp(22px, 3vw, 44px) * -1)
+        28px;
+
+    padding:
+        14px
+        clamp(22px, 3vw, 44px);
+
+    border-bottom:
+        1px solid rgba(148, 163, 184, 0.075);
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(2, 6, 23, 0.93),
+            rgba(2, 6, 23, 0.80)
+        );
+
+    backdrop-filter:
+        blur(18px)
+        saturate(125%);
+}
+
+.menu-btn {
+    width: 46px;
+    height: 46px;
+
+    border-radius: 12px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(15, 23, 42, 0.96),
+            rgba(7, 17, 31, 0.96)
+        );
+
+    box-shadow:
+        0 8px 22px rgba(0, 0, 0, 0.16);
+}
+
+.header-info h2 {
+    font-size:
+        clamp(22px, 2.2vw, 29px);
+
+    line-height: 1.1;
+}
+
+.header-subtitle {
+    max-width: 760px;
+
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+
+/* ========================================================================
+   CARDS / SECCIONES
+   ======================================================================== */
+
+.card,
+.dashboard-hero,
+.info-banner,
+.profile-photo-card,
+.profile-information-card,
+.rfid-process-card {
+    border-color:
+        rgba(148, 163, 184, 0.11);
+
+    box-shadow: var(--shadow-card);
+}
+
+.card {
+    background:
+        radial-gradient(
+            circle at 100% 0%,
+            rgba(255, 255, 255, 0.025),
+            transparent 32%
+        ),
+        linear-gradient(
+            145deg,
+            rgba(15, 23, 42, 0.965),
+            rgba(7, 17, 31, 0.97)
+        );
+}
+
+.card:hover {
+    border-color:
+        rgba(148, 163, 184, 0.17);
+}
+
+.list-card {
+    border-radius: 18px;
+
+    box-shadow:
+        var(--shadow-card);
+}
+
+.table-header {
+    min-height: 84px;
+
+    padding: 21px 23px;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.018),
+            transparent
+        );
+}
+
+.table-header h3 {
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: -0.012em;
+}
+
+.table-header p {
+    max-width: 640px;
+
+    font-size: 11px;
+    line-height: 1.55;
+}
+
+
+/* ========================================================================
+   DASHBOARD HERO
+   ======================================================================== */
+
+.dashboard-hero {
+    position: relative;
+
+    overflow: hidden;
+
+    min-height: 138px;
+
+    padding:
+        clamp(20px, 2.3vw, 28px);
+
+    border-radius: 20px;
+
+    background:
+        radial-gradient(
+            circle at 90% 0%,
+            rgba(34, 197, 94, 0.14),
+            transparent 34%
+        ),
+        radial-gradient(
+            circle at 72% 110%,
+            rgba(56, 189, 248, 0.065),
+            transparent 26%
+        ),
+        linear-gradient(
+            145deg,
+            rgba(15, 23, 42, 0.99),
+            rgba(7, 17, 31, 0.99)
+        );
+}
+
+.dashboard-hero::after {
+    content: "";
+
+    position: absolute;
+    right: -54px;
+    top: -54px;
+
+    width: 180px;
+    height: 180px;
+
+    border:
+        1px solid rgba(74, 222, 128, 0.08);
+    border-radius: 50%;
+
+    box-shadow:
+        0 0 0 28px rgba(34, 197, 94, 0.018),
+        0 0 0 58px rgba(34, 197, 94, 0.012);
+
+    pointer-events: none;
+}
+
+.dashboard-eyebrow {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 5px 8px;
+
+    border:
+        1px solid rgba(74, 222, 128, 0.13);
+    border-radius: 999px;
+
+    background:
+        rgba(34, 197, 94, 0.055);
+
+    letter-spacing: 0.11em;
+}
+
+.dashboard-hero h3 {
+    margin-top: 9px;
+
+    font-size:
+        clamp(22px, 2.4vw, 30px);
+
+    letter-spacing: -0.035em;
+}
+
+.dashboard-hero p {
+    font-size: 11px;
+}
+
+
+/* ========================================================================
+   BOTONES
+   ======================================================================== */
+
+.primary-btn,
+.secondary-btn,
+.refresh-dashboard-btn,
+.small-refresh-btn,
+.notification-action-btn,
+.rfid-assign-btn,
+.close-btn,
+.profile-save-btn {
+    position: relative;
+
+    overflow: hidden;
+
+    font-weight: 750;
+}
+
+.primary-btn,
+.profile-save-btn {
+    border:
+        1px solid rgba(74, 222, 128, 0.28);
+
+    background:
+        linear-gradient(
+            135deg,
+            #22c55e 0%,
+            #16a34a 100%
+        );
+
+    box-shadow:
+        0 10px 26px rgba(34, 197, 94, 0.16);
+}
+
+.primary-btn:hover,
+.profile-save-btn:hover {
+    filter: brightness(1.06);
+
+    box-shadow:
+        0 14px 34px rgba(34, 197, 94, 0.23);
+}
+
+.primary-btn:active,
+.profile-save-btn:active,
+.refresh-dashboard-btn:active,
+.small-refresh-btn:active,
+.rfid-assign-btn:active {
+    transform: translateY(0);
+}
+
+.refresh-dashboard-btn,
+.small-refresh-btn {
+    border-color:
+        rgba(74, 222, 128, 0.20);
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(34, 197, 94, 0.11),
+            rgba(34, 197, 94, 0.045)
+        );
+}
+
+.refresh-dashboard-btn:hover,
+.small-refresh-btn:hover {
+    border-color:
+        rgba(74, 222, 128, 0.36);
+
+    color: #86efac;
+}
+
+.secondary-btn {
+    border:
+        1px solid rgba(148, 163, 184, 0.14);
+
+    background:
+        rgba(148, 163, 184, 0.045);
+}
+
+.secondary-btn:hover {
+    border-color:
+        rgba(148, 163, 184, 0.23);
+}
+
+.close-btn {
+    border:
+        1px solid rgba(148, 163, 184, 0.12);
+}
+
+
+/* ========================================================================
+   ESTADÍSTICAS
+   ======================================================================== */
+
+.stats {
+    gap: 14px;
+}
+
+.stat-card {
+    min-height: 122px;
+
+    padding: 20px;
+
+    border-radius: 16px;
+
+    background:
+        radial-gradient(
+            circle at 90% 0%,
+            rgba(34, 197, 94, 0.06),
+            transparent 34%
+        ),
+        linear-gradient(
+            145deg,
+            rgba(15, 23, 42, 0.97),
+            rgba(7, 17, 31, 0.97)
+        );
+}
+
+.stat-card::before {
+    height: 2px;
+
+    opacity: 0.65;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+
+    border-radius: 13px;
+
+    font-size: 18px;
+}
+
+.stat-card h2 {
+    margin-bottom: 5px;
+
+    font-size:
+        clamp(25px, 2.4vw, 31px);
+
+    line-height: 1;
+}
+
+.stat-card p {
+    font-size: 11px;
+}
+
+.personal-presence-stat .presence-stat-value {
+    font-size:
+        clamp(18px, 2vw, 24px);
+}
+
+
+/* ========================================================================
+   PANEL DE PRESENCIA PERSONAL
+   ======================================================================== */
+
+.personal-dashboard-actions {
+    position: relative;
+    z-index: 2;
+}
+
+.personal-presence-panel {
+    min-width: 164px;
+
+    padding: 10px 13px;
+
+    border-radius: 12px;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.025);
+}
+
+.personal-presence-panel.inside {
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.025),
+        0 8px 24px rgba(34, 197, 94, 0.07);
+}
+
+.personal-presence-panel.outside {
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.025),
+        0 8px 24px rgba(249, 115, 22, 0.055);
+}
+
+.personal-presence-icon {
+    border:
+        1px solid rgba(148, 163, 184, 0.08);
+}
+
+
+/* ========================================================================
+   TABLAS
+   ======================================================================== */
+
+.table-container {
+    position: relative;
+
+    scrollbar-width: thin;
+    scrollbar-color:
+        rgba(100, 116, 139, 0.55)
+        rgba(2, 6, 23, 0.3);
+}
+
+table {
+    border-spacing: 0;
+}
+
+thead {
+    position: sticky;
+    top: 0;
+
+    z-index: 4;
+}
+
+thead th {
+    padding: 13px 18px;
+
+    border-bottom:
+        1px solid rgba(148, 163, 184, 0.11);
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(14, 30, 40, 0.98),
+            rgba(9, 22, 33, 0.98)
+        );
+
+    color: #aebed0;
+
+    font-size: 9px;
+    font-weight: 800;
+
+    letter-spacing: 0.09em;
+
+    backdrop-filter: blur(10px);
+}
+
+tbody td {
+    padding: 15px 18px;
+
+    border-bottom:
+        1px solid rgba(148, 163, 184, 0.065);
+
+    font-size: 11px;
+
+    vertical-align: middle;
+}
+
+tbody tr {
+    background:
+        transparent;
+}
+
+tbody tr:nth-child(even) {
+    background:
+        rgba(255, 255, 255, 0.008);
+}
+
+tbody tr:hover {
+    background:
+        linear-gradient(
+            90deg,
+            rgba(34, 197, 94, 0.045),
+            rgba(34, 197, 94, 0.015)
+        );
+}
+
+.user-mini-avatar {
+    border-radius: 11px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(34, 197, 94, 0.12),
+            rgba(34, 197, 94, 0.045)
+        );
+}
+
+.user-cell strong {
+    font-size: 11px;
+}
+
+.user-cell small {
+    font-size: 9px;
+}
+
+.role-chip,
+.result-badge,
+.access-method-chip,
+.presence-badge,
+.session-inside-text,
+.temporary-badge,
+.pending-badge,
+.approved-badge,
+.rejected-badge,
+.expired-badge {
+    min-height: 27px;
+
+    font-size: 9px;
+
+    letter-spacing: 0.01em;
+}
+
+.session-datetime strong {
+    font-size: 10px;
+}
+
+.session-datetime span {
+    color: #9fb0c3;
+
+    font-size: 9px;
+}
+
+.session-inside-text {
+    box-shadow:
+        0 0 0 3px rgba(34, 197, 94, 0.025);
+}
+
+.presence-badge.inside {
+    box-shadow:
+        0 0 0 3px rgba(34, 197, 94, 0.025);
+}
+
+.presence-badge.outside {
+    box-shadow:
+        0 0 0 3px rgba(249, 115, 22, 0.02);
+}
+
+
+/* ========================================================================
+   BUSCADORES / FORMULARIOS
+   ======================================================================== */
+
+.search-box input,
+.notification-search input,
+.form-group input,
+.form-group select,
+.form-group textarea,
+.profile-form-grid .form-group input {
+    border-color:
+        rgba(148, 163, 184, 0.12);
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(2, 6, 23, 0.78),
+            rgba(2, 6, 23, 0.66)
+        );
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.012);
+}
+
+.search-box input:hover,
+.notification-search input:hover,
+.form-group input:hover,
+.form-group select:hover,
+.form-group textarea:hover,
+.profile-form-grid .form-group input:hover {
+    border-color:
+        rgba(148, 163, 184, 0.20);
+}
+
+.search-box input:focus,
+.notification-search input:focus,
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus,
+.profile-form-grid .form-group input:focus {
+    border-color:
+        rgba(74, 222, 128, 0.55);
+
+    box-shadow:
+        0 0 0 3px rgba(34, 197, 94, 0.075),
+        inset 0 1px 0 rgba(255, 255, 255, 0.018);
+}
+
+.form-group label,
+.profile-form-grid .form-group label {
+    color: #cbd5e1;
+
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.form-group small,
+.profile-form-grid .form-group small {
+    color: #64748b;
+
+    font-size: 9px;
+}
+
+.form-header {
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.016),
+            transparent
+        );
+}
+
+.temporary-form {
+    border-radius: 18px;
+}
+
+.temporary-form .form-grid {
+    gap: 16px;
+
+    background:
+        radial-gradient(
+            circle at 100% 0%,
+            rgba(34, 197, 94, 0.025),
+            transparent 28%
+        ),
+        rgba(2, 6, 23, 0.11);
+}
+
+.approval-warning {
+    border-color:
+        rgba(250, 204, 21, 0.14);
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(250, 204, 21, 0.075),
+            rgba(250, 204, 21, 0.025)
+        );
+}
+
+
+/* ========================================================================
+   RFID / USUARIOS TEMPORALES
+   ======================================================================== */
+
+.rfid-process-grid {
+    gap: 10px;
+}
+
+.rfid-process-card {
+    position: relative;
+
+    overflow: hidden;
+
+    border-radius: 14px;
+
+    transition:
+        transform 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.rfid-process-card::after {
+    content: "";
+
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    height: 2px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(34, 197, 94, 0.30),
+            transparent
+        );
+
+    opacity: 0;
+
+    transition: opacity 0.2s ease;
+}
+
+.rfid-process-card:hover {
+    transform: translateY(-2px);
+
+    border-color:
+        rgba(74, 222, 128, 0.16);
+
+    box-shadow:
+        0 16px 38px rgba(0, 0, 0, 0.24);
+}
+
+.rfid-process-card:hover::after {
+    opacity: 1;
+}
+
+.rfid-process-number {
+    border-radius: 10px;
+
+    box-shadow:
+        0 0 0 4px rgba(34, 197, 94, 0.025);
+}
+
+.rfid-info-banner {
+    border-radius: 16px;
+}
+
+.rfid-assigned {
+    padding: 7px 9px;
+
+    border:
+        1px solid rgba(34, 197, 94, 0.10);
+    border-radius: 11px;
+
+    background:
+        rgba(34, 197, 94, 0.035);
+}
+
+.rfid-card-icon {
+    border-radius: 10px;
+}
+
+.rfid-assign-btn {
+    min-height: 38px;
+
+    border-radius: 10px;
+}
+
+
+/* ========================================================================
+   SOLICITUDES TEMPORALES
+   ======================================================================== */
+
+.section-top {
+    padding: 2px 2px 0;
+}
+
+.section-top h3 {
+    font-size:
+        clamp(18px, 1.8vw, 22px);
+
+    letter-spacing: -0.025em;
+}
+
+.section-top p {
+    font-size: 11px;
+}
+
+.info-banner {
+    border-radius: 16px;
+}
+
+.request-filters {
+    gap: 7px;
+
+    padding: 12px 18px;
+
+    background:
+        rgba(2, 6, 23, 0.30);
+}
+
+.request-filters button {
+    min-height: 34px;
+
+    border-radius: 9px;
+
+    font-size: 10px;
+}
+
+.request-filters button.active {
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.025),
+        0 6px 18px rgba(34, 197, 94, 0.05);
+}
+
+
+/* ========================================================================
+   NOTIFICACIONES
+   ======================================================================== */
+
+.notification-summary-grid {
+    gap: 12px;
+}
+
+.notification-summary-card {
+    border-radius: 15px;
+}
+
+.notification-summary-icon {
+    border-radius: 12px;
+}
+
+.notification-center {
+    border-radius: 18px;
+}
+
+.notification-toolbar {
+    background:
+        rgba(2, 6, 23, 0.22);
+}
+
+.notification-filters button {
+    border-radius: 8px;
+}
+
+.notification-filters button:hover {
+    color: var(--text-secondary);
+
+    background:
+        rgba(148, 163, 184, 0.045);
+}
+
+.notification-item {
+    padding: 14px 18px;
+}
+
+.notification-item.unread {
+    box-shadow:
+        inset 3px 0 0 rgba(34, 197, 94, 0.45);
+}
+
+.notification-item-icon {
+    border:
+        1px solid rgba(148, 163, 184, 0.07);
+}
+
+.notification-content p {
+    color: #aebed0;
+}
+
+
+/* ========================================================================
+   PERFIL
+   ======================================================================== */
+
+.profile-section {
+    max-width: 1180px;
+}
+
+.profile-page-header {
+    margin-bottom: 24px;
+}
+
+.profile-photo-card {
+    position: relative;
+
+    overflow: hidden;
+
+    border-radius: 20px;
+}
+
+.profile-photo-card::after {
+    content: "";
+
+    position: absolute;
+    right: -50px;
+    top: -70px;
+
+    width: 180px;
+    height: 180px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(34, 197, 94, 0.055);
+
+    filter: blur(5px);
+
+    pointer-events: none;
+}
+
+.profile-photo-wrapper {
+    position: relative;
+    z-index: 1;
+
+    width: 116px;
+    height: 116px;
+
+    border-width: 3px;
+}
+
+.profile-photo {
+    width: 104px;
+    height: 104px;
+}
+
+.profile-photo-info {
+    position: relative;
+    z-index: 1;
+}
+
+/* Corrige la colisión de la regla antigua de .change-photo-btn
+   usada en el perfil clásico. */
+.profile-photo-card .change-photo-btn {
+    position: static;
+
+    right: auto;
+    bottom: auto;
+
+    width: auto;
+    height: 38px;
+
+    border-width: 1px;
+    border-radius: 9px;
+}
+
+.profile-information-card {
+    border-radius: 20px;
+}
+
+.profile-security-banner {
+    border-radius: 13px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(56, 189, 248, 0.075),
+            rgba(56, 189, 248, 0.025)
+        );
+}
+
+.locked-input input {
+    border-style: dashed !important;
+
+    opacity: 0.88;
+}
+
+.account-status {
+    border-style: dashed;
+}
+
+
+/* ========================================================================
+   EMPTY STATES
+   ======================================================================== */
+
+.empty-state {
+    height: 245px;
+}
+
+.empty-state > div {
+    max-width: 430px;
+
+    margin: 0 auto;
+}
+
+.empty-state i,
+.notifications-empty > i {
+    width: 54px;
+    height: 54px;
+
+    display: grid;
+    place-items: center;
+
+    margin-bottom: 14px;
+
+    border:
+        1px solid rgba(148, 163, 184, 0.08);
+    border-radius: 16px;
+
+    background:
+        rgba(148, 163, 184, 0.035);
+
+    font-size: 21px;
+}
+
+.empty-state h4,
+.notifications-empty h4 {
+    font-weight: 800;
+}
+
+
+/* ========================================================================
+   CHIPS EN VIVO
+   ======================================================================== */
+
+.access-live-chip,
+.realtime-status {
+    border-color:
+        rgba(74, 222, 128, 0.16);
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(34, 197, 94, 0.08),
+            rgba(34, 197, 94, 0.03)
+        );
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.02);
+}
+
+
+/* ========================================================================
+   SCROLLBAR
+   ======================================================================== */
+
+::-webkit-scrollbar {
+    width: 9px;
+    height: 9px;
+}
+
+::-webkit-scrollbar-track {
+    background:
+        rgba(2, 6, 23, 0.86);
+}
+
+::-webkit-scrollbar-thumb {
+    border:
+        2px solid rgba(2, 6, 23, 0.86);
+    border-radius: 999px;
+
+    background:
+        #263448;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background:
+        #3a4b62;
+}
+
+
+/* ========================================================================
+   RESPONSIVE — LARGE
+   ======================================================================== */
+
+@media (max-width: 1380px) {
+
+    .main {
+        padding-left: 30px;
+        padding-right: 30px;
+    }
+
+    .main > header {
+        margin-left: -30px;
+        margin-right: -30px;
+
+        padding-left: 30px;
+        padding-right: 30px;
+    }
+
+    .personal-stats {
+        gap: 12px;
+    }
+
+    .stat-card {
+        padding: 18px;
+    }
+}
+
+
+@media (max-width: 1180px) {
+
+    .sidebar {
+        width: 248px;
+    }
+
+    .main {
+        margin-left: 248px;
+    }
+
+    .personal-stats {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .personal-dashboard-actions {
+        width: auto;
+        justify-content: flex-end;
+    }
+
+    .rfid-process-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .profile-form-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+}
+
+
+/* ========================================================================
+   RESPONSIVE — TABLET
+   ======================================================================== */
+
+@media (max-width: 900px) {
+
+    .sidebar {
+        width: 84px;
+    }
+
+    .sidebar:not(.collapsed) {
+        width: 264px;
+    }
+
+    .main,
+    .sidebar.collapsed ~ .main {
+        margin-left: 84px;
+    }
+
+    .main {
+        padding:
+            24px
+            22px
+            44px;
+    }
+
+    .main > header {
+        margin:
+            -24px
+            -22px
+            24px;
+
+        padding:
+            12px
+            22px;
+    }
+
+    .stats {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .table-header {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+    .access-table-actions,
+    .search-box,
+    .notification-search {
+        width: 100%;
+    }
+
+    .access-table-actions .search-box {
+        width: 100%;
+    }
+
+    .notification-center-header,
+    .notification-toolbar {
+        align-items: stretch;
+    }
+
+    .notification-header-actions {
+        width: 100%;
+    }
+
+    .profile-photo-card {
+        align-items: flex-start;
+    }
+}
+
+
+/* ========================================================================
+   RESPONSIVE — MOBILE
+   ======================================================================== */
+
+@media (max-width: 700px) {
+
+    .main {
+        margin-left: 0 !important;
+
+        padding:
+            18px
+            14px
+            34px;
+    }
+
+    .main > header {
+        min-height: 62px;
+
+        margin:
+            -18px
+            -14px
+            20px;
+
+        padding:
+            10px
+            14px;
+    }
+
+    .sidebar {
+        width: min(280px, 88vw);
+
+        padding-top:
+            max(16px, env(safe-area-inset-top));
+
+        transform: translateX(-104%);
+
+        box-shadow:
+            24px 0 70px rgba(0, 0, 0, 0.45);
+    }
+
+    .sidebar:not(.collapsed) {
+        width: min(280px, 88vw);
+
+        transform: translateX(0);
+    }
+
+    .header-info h2 {
+        font-size: 20px;
+    }
+
+    .header-subtitle {
+        display: none;
+    }
+
+    .menu-btn {
+        width: 42px;
+        height: 42px;
+    }
+
+    .dashboard-hero {
+        min-height: 0;
+
+        padding: 20px;
+
+        border-radius: 17px;
+    }
+
+    .dashboard-hero::after {
+        opacity: 0.65;
+    }
+
+    .dashboard-hero h3 {
+        font-size: 23px;
+    }
+
+    .personal-dashboard-actions {
+        width: 100%;
+
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .personal-presence-panel,
+    .personal-dashboard-actions .refresh-dashboard-btn,
+    .personal-dashboard-actions .access-live-chip {
+        width: 100%;
+    }
+
+    .personal-dashboard-actions .access-live-chip {
+        justify-content: center;
+    }
+
+    .stats,
+    .personal-stats {
+        grid-template-columns:
+            1fr;
+    }
+
+    .stat-card {
+        min-height: 104px;
+
+        padding: 17px;
+    }
+
+    .rfid-process-grid {
+        grid-template-columns:
+            1fr;
+    }
+
+    .rfid-process-card {
+        min-height: 0;
+    }
+
+    .section-top {
+        align-items: stretch;
+    }
+
+    .section-top .primary-btn {
+        width: 100%;
+    }
+
+    .temporary-form,
+    .list-card,
+    .notification-center,
+    .profile-photo-card,
+    .profile-information-card {
+        border-radius: 15px;
+    }
+
+    .form-grid,
+    .profile-form-grid {
+        grid-template-columns:
+            1fr;
+    }
+
+    .form-grid {
+        padding: 18px;
+    }
+
+    .form-group-full,
+    .form-group.full {
+        grid-column: auto;
+    }
+
+    .approval-warning {
+        margin:
+            0
+            18px
+            18px;
+    }
+
+    .form-actions {
+        align-items: stretch;
+
+        flex-direction: column-reverse;
+
+        padding:
+            15px
+            18px;
+    }
+
+    .form-actions button {
+        width: 100%;
+    }
+
+    .request-filters {
+        padding:
+            11px
+            14px;
+    }
+
+    .notification-summary-grid {
+        grid-template-columns:
+            1fr;
+    }
+
+    .notification-header-actions {
+        align-items: stretch;
+
+        flex-direction: column;
+    }
+
+    .notification-action-btn {
+        width: 100%;
+    }
+
+    .notification-filters {
+        width: 100%;
+
+        overflow-x: auto;
+
+        scrollbar-width: none;
+    }
+
+    .notification-filters::-webkit-scrollbar {
+        display: none;
+    }
+
+    .notification-filters button {
+        flex: 0 0 auto;
+    }
+
+    .notification-item {
+        grid-template-columns:
+            38px
+            minmax(0, 1fr);
+
+        padding:
+            13px
+            14px;
+    }
+
+    .notification-state {
+        display: none;
+    }
+
+    .profile-photo-card {
+        flex-direction: column;
+
+        gap: 18px;
+
+        padding: 20px;
+    }
+
+    .profile-photo-info {
+        width: 100%;
+    }
+
+    .profile-information-card {
+        padding: 18px;
+    }
+
+    .profile-actions {
+        justify-content: stretch;
+    }
+
+    .profile-save-btn {
+        width: 100%;
+    }
+}
+
+
+/* ========================================================================
+   RESPONSIVE — SMALL MOBILE
+   ======================================================================== */
+
+@media (max-width: 480px) {
+
+    .main {
+        padding:
+            14px
+            10px
+            28px;
+    }
+
+    .main > header {
+        margin:
+            -14px
+            -10px
+            17px;
+
+        padding:
+            9px
+            10px;
+    }
+
+    .header-info h2 {
+        font-size: 18px;
+    }
+
+    .dashboard-hero {
+        padding: 17px;
+    }
+
+    .dashboard-eyebrow {
+        font-size: 8px;
+    }
+
+    .dashboard-hero h3 {
+        font-size: 21px;
+    }
+
+    .stat-card {
+        gap: 13px;
+    }
+
+    .stat-icon {
+        width: 44px;
+        height: 44px;
+    }
+
+    .table-header,
+    .notification-center-header {
+        padding:
+            17px
+            15px;
+    }
+
+    .table-header h3,
+    .notification-center-header h3 {
+        font-size: 15px;
+    }
+
+    .search-box input {
+        height: 41px;
+    }
+
+    .profile-photo-wrapper {
+        width: 100px;
+        height: 100px;
+    }
+
+    .profile-photo {
+        width: 90px;
+        height: 90px;
+    }
+
+    .info-banner {
+        padding: 13px;
+    }
+}
+
+
+/* ========================================================================
+   REDUCED MOTION
+   ======================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+
+        transition-duration: 0.001ms !important;
     }
 }

@@ -521,7 +521,7 @@
 
 
         <!-- =====================================================
-             MIS ACCESOS — TIEMPO REAL
+             MIS ACCESOS — SESIONES EN TIEMPO REAL
              ===================================================== -->
         <ng-container *ngIf="activeSection === 'access'">
 
@@ -540,14 +540,38 @@
                         </h3>
 
                         <p>
-                            La lista se actualiza automáticamente
-                            cuando utilizas el sensor.
+                            Consulta la fecha y hora exacta de cada entrada
+                            y salida, además de tu estado actual dentro
+                            de SegurEntry.
                         </p>
 
                     </div>
 
 
                     <div class="access-header-actions">
+
+                        <span
+                            class="badge"
+                            [class.success]="currentPresenceStatus === 'Dentro'"
+                            [class.denied]="currentPresenceStatus === 'Fuera'">
+
+                            <i
+                                class="fas"
+                                [class.fa-location-dot]="currentPresenceStatus === 'Dentro'"
+                                [class.fa-person-walking-arrow-right]="currentPresenceStatus === 'Fuera'"
+                                [class.fa-circle-question]="currentPresenceStatus === 'Sin registro'">
+                            </i>
+
+                            {{
+                                currentPresenceStatus === 'Dentro'
+                                    ? 'Estoy dentro'
+                                    : currentPresenceStatus === 'Fuera'
+                                    ? 'Estoy fuera'
+                                    : 'Sin registro'
+                            }}
+
+                        </span>
+
 
                         <span class="live-chip">
 
@@ -585,7 +609,7 @@
                         <input
                             type="text"
                             [(ngModel)]="accessSearch"
-                            placeholder="Buscar por movimiento, método o dispositivo...">
+                            placeholder="Buscar por estado, método o dispositivo...">
 
                     </div>
 
@@ -593,15 +617,15 @@
                     <select [(ngModel)]="accessMovement">
 
                         <option value="todos">
-                            Todos
+                            Todas las sesiones
                         </option>
 
                         <option value="entrada">
-                            Ingresos
+                            Con entrada
                         </option>
 
                         <option value="salida">
-                            Salidas
+                            Con salida
                         </option>
 
                     </select>
@@ -610,7 +634,7 @@
                     <select [(ngModel)]="accessStatus">
 
                         <option value="todos">
-                            Todos los estados
+                            Todos los resultados
                         </option>
 
                         <option value="permitido">
@@ -664,30 +688,30 @@
                     class="access-empty-state"
                     *ngIf="
                         !accessLoading &&
-                        filteredPersonalAccessLogs.length === 0
+                        filteredPersonalAccessSessions.length === 0
                     ">
 
                     <i class="fas fa-door-closed"></i>
 
                     <strong>
-                        No hay registros para mostrar
+                        No hay sesiones para mostrar
                     </strong>
 
                     <span>
                         Cuando utilices el sensor,
-                        tus ingresos y salidas aparecerán aquí.
+                        tus entradas y salidas aparecerán aquí.
                     </span>
 
                 </div>
 
 
-                <!-- TABLA -->
+                <!-- TABLA DE SESIONES -->
 
                 <div
                     class="table-container"
                     *ngIf="
                         !accessLoading &&
-                        filteredPersonalAccessLogs.length > 0
+                        filteredPersonalAccessSessions.length > 0
                     ">
 
                     <table>
@@ -695,10 +719,9 @@
                         <thead>
 
                             <tr>
-                                <th>Fecha</th>
-                                <th>Hora</th>
-                                <th>Movimiento</th>
-                                <th>Resultado</th>
+                                <th>Entrada</th>
+                                <th>Salida</th>
+                                <th>Estado</th>
                                 <th>Método</th>
                                 <th>Dispositivo</th>
                             </tr>
@@ -710,67 +733,140 @@
 
                             <tr
                                 *ngFor="
-                                    let access
-                                    of filteredPersonalAccessLogs
+                                    let session
+                                    of filteredPersonalAccessSessions
                                 ">
 
-                                <td>
-                                    {{ formatAccessDate(access.date) }}
-                                </td>
+                                <!-- ENTRADA -->
 
                                 <td>
-                                    {{ formatAccessTime(access.date) }}
-                                </td>
 
-                                <td>
+                                    <div
+                                        class="activity-info"
+                                        *ngIf="session.entryDate">
+
+                                        <strong>
+                                            {{ formatAccessDate(session.entryDate) }}
+                                        </strong>
+
+                                        <span>
+                                            {{ formatAccessTime(session.entryDate) }}
+                                        </span>
+
+                                    </div>
+
 
                                     <span
-                                        class="movement-badge"
-                                        [class.entry]="access.type === 'entrada'"
-                                        [class.exit]="access.type === 'salida'">
+                                        class="no-movement"
+                                        *ngIf="!session.entryDate">
 
-                                        <i
-                                            class="fas"
-                                            [class.fa-arrow-right-to-bracket]="
-                                                access.type === 'entrada'
-                                            "
-                                            [class.fa-arrow-right-from-bracket]="
-                                                access.type === 'salida'
-                                            ">
-                                        </i>
-
-                                        {{
-                                            access.type === 'salida'
-                                                ? 'Salida'
-                                                : 'Ingreso'
-                                        }}
+                                        Sin registro
 
                                     </span>
 
                                 </td>
 
+
+                                <!-- SALIDA -->
+
                                 <td>
+
+                                    <div
+                                        class="activity-info"
+                                        *ngIf="session.exitDate">
+
+                                        <strong>
+                                            {{ formatAccessDate(session.exitDate) }}
+                                        </strong>
+
+                                        <span>
+                                            {{ formatAccessTime(session.exitDate) }}
+                                        </span>
+
+                                    </div>
+
+
+                                    <span
+                                        class="movement-badge entry"
+                                        *ngIf="
+                                            !session.exitDate &&
+                                            session.allowed &&
+                                            session.status === 'dentro'
+                                        ">
+
+                                        <i class="fas fa-location-dot"></i>
+
+                                        Aún dentro
+
+                                    </span>
+
+
+                                    <span
+                                        class="no-movement"
+                                        *ngIf="
+                                            !session.exitDate &&
+                                            (
+                                                !session.allowed ||
+                                                session.status !== 'dentro'
+                                            )
+                                        ">
+
+                                        —
+
+                                    </span>
+
+                                </td>
+
+
+                                <!-- ESTADO -->
+
+                                <td>
+
+                                    <span
+                                        class="badge success"
+                                        *ngIf="
+                                            session.allowed &&
+                                            session.status === 'dentro'
+                                        ">
+
+                                        <i class="fas fa-location-dot"></i>
+
+                                        Dentro
+
+                                    </span>
+
 
                                     <span
                                         class="badge"
-                                        [class.success]="access.allowed"
-                                        [class.denied]="!access.allowed">
+                                        *ngIf="
+                                            session.allowed &&
+                                            (
+                                                session.status === 'fuera' ||
+                                                session.status === 'salida_sin_entrada'
+                                            )
+                                        ">
 
-                                        <i
-                                            class="fas"
-                                            [class.fa-circle-check]="access.allowed"
-                                            [class.fa-circle-xmark]="!access.allowed">
-                                        </i>
+                                        <i class="fas fa-person-walking-arrow-right"></i>
 
-                                        {{
-                                            access.allowed
-                                                ? 'Permitido'
-                                                : 'Denegado'
-                                        }}
+                                        Fuera
+
+                                    </span>
+
+
+                                    <span
+                                        class="badge denied"
+                                        *ngIf="!session.allowed">
+
+                                        <i class="fas fa-circle-xmark"></i>
+
+                                        Denegado
 
                                     </span>
 
                                 </td>
+
+
+                                <!-- MÉTODO -->
 
                                 <td>
 
@@ -780,13 +876,13 @@
                                             class="fas"
                                             [ngClass]="
                                                 getAccessMethodIcon(
-                                                    access.method
+                                                    session.method
                                                 )
                                             ">
                                         </i>
 
                                         {{
-                                            access.method ||
+                                            session.method ||
                                             'No especificado'
                                         }}
 
@@ -794,8 +890,11 @@
 
                                 </td>
 
+
+                                <!-- DISPOSITIVO -->
+
                                 <td>
-                                    {{ access.device || '—' }}
+                                    {{ session.device || '—' }}
                                 </td>
 
                             </tr>

@@ -100,6 +100,21 @@
 
                 <button
                     type="button"
+                    (click)="changeTab('accesos')"
+                    [class.active]="activeTab === 'accesos'"
+                    title="Mis accesos">
+
+                    <i class="fas fa-door-open"></i>
+
+                    <span *ngIf="menuOpen">
+                        Accesos
+                    </span>
+
+                </button>
+
+
+                <button
+                    type="button"
                     (click)="changeTab('notificaciones')"
                     [class.active]="activeTab === 'notificaciones'"
                     title="Notificaciones">
@@ -184,6 +199,8 @@
                                 ? 'Resumen general'
                                 : activeTab === 'aprendices'
                                 ? 'Mis aprendices'
+                                : activeTab === 'accesos'
+                                ? 'Mis accesos'
                                 : activeTab === 'notificaciones'
                                 ? 'Notificaciones'
                                 : 'Mi perfil'
@@ -195,7 +212,9 @@
                             activeTab === 'dashboard'
                                 ? 'Consulta el estado general de tus aprendices y su actividad.'
                                 : activeTab === 'aprendices'
-                                ? 'Consulta los aprendices registrados y su información.'
+                                ? 'Consulta los aprendices registrados, sus entradas, salidas y presencia actual.'
+                                : activeTab === 'accesos'
+                                ? 'Consulta la fecha y hora exacta de tus entradas y salidas y si actualmente estás dentro.'
                                 : activeTab === 'notificaciones'
                                 ? 'Revisa la actividad importante relacionada con tu gestión.'
                                 : 'Consulta y actualiza la información permitida de tu perfil.'
@@ -522,6 +541,226 @@
 
 
         <!-- =====================================================
+             ACCESOS — HISTORIAL PERSONAL DEL INSTRUCTOR
+             ===================================================== -->
+        <section
+            *ngIf="activeTab === 'accesos'"
+            class="content-card apprentices-section">
+
+            <div class="table-header">
+
+                <div>
+
+                    <span class="section-eyebrow">
+                        MI CONTROL DE ACCESO
+                    </span>
+
+                    <div class="title-with-badge">
+
+                        <h3>
+                            Mis entradas y salidas
+                        </h3>
+
+                        <span class="count-badge">
+                            {{ myAccessSessions.length }}
+                            sesiones
+                        </span>
+
+                    </div>
+
+                    <p>
+                        Consulta la fecha y hora exacta de cada entrada y salida.
+                        Si una entrada todavía no tiene salida, SegurEntry mostrará
+                        que actualmente estás dentro.
+                    </p>
+
+                </div>
+
+                <div class="table-actions">
+
+                    <button
+                        type="button"
+                        class="refresh-students-btn"
+                        (click)="loadMyAccesses()">
+
+                        <i class="fas fa-rotate"></i>
+
+                        Actualizar
+
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="empty-state"
+                *ngIf="myAccessSessions.length === 0">
+
+                <i class="fas fa-door-closed"></i>
+
+                <strong>
+                    Aún no tienes sesiones de acceso
+                </strong>
+
+                <span>
+                    Cuando registres una entrada o salida con tu huella,
+                    aparecerá aquí con su fecha y hora exacta.
+                </span>
+
+            </div>
+
+
+            <div
+                class="table-container students-table-container"
+                *ngIf="myAccessSessions.length > 0">
+
+                <table class="students-table">
+
+                    <thead>
+
+                        <tr>
+                            <th>Entrada</th>
+                            <th>Salida</th>
+                            <th>Estado</th>
+                            <th>Método</th>
+                            <th>Dispositivo</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        <tr *ngFor="let session of myAccessSessions">
+
+                            <!-- ENTRADA -->
+                            <td data-label="Entrada">
+
+                                <div
+                                    class="last-movement"
+                                    *ngIf="session.entryDate">
+
+                                    <div class="movement-time-icon entry">
+                                        <i class="fas fa-arrow-right-to-bracket"></i>
+                                    </div>
+
+                                    <div>
+
+                                        <strong>
+                                            {{ formatAccessTime(session.entryDate) }}
+                                        </strong>
+
+                                        <span>
+                                            {{ formatAccessDate(session.entryDate) }}
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                                <span
+                                    class="no-movement"
+                                    *ngIf="!session.entryDate">
+                                    Sin registro
+                                </span>
+
+                            </td>
+
+
+                            <!-- SALIDA -->
+                            <td data-label="Salida">
+
+                                <div
+                                    class="last-movement"
+                                    *ngIf="session.exitDate">
+
+                                    <div class="movement-time-icon exit">
+                                        <i class="fas fa-arrow-right-from-bracket"></i>
+                                    </div>
+
+                                    <div>
+
+                                        <strong>
+                                            {{ formatAccessTime(session.exitDate) }}
+                                        </strong>
+
+                                        <span>
+                                            {{ formatAccessDate(session.exitDate) }}
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                                <span
+                                    class="status-badge allowed"
+                                    *ngIf="!session.exitDate && session.status === 'dentro'">
+
+                                    <i class="fas fa-location-dot"></i>
+                                    Aún dentro
+
+                                </span>
+
+                                <span
+                                    class="no-movement"
+                                    *ngIf="!session.exitDate && session.status !== 'dentro'">
+                                    Sin registro
+                                </span>
+
+                            </td>
+
+
+                            <!-- ESTADO -->
+                            <td data-label="Estado">
+
+                                <span
+                                    class="status-badge"
+                                    [class.allowed]="session.status === 'dentro' || session.status === 'fuera' || session.status === 'salida_sin_entrada'"
+                                    [class.denied]="session.status === 'denegado'">
+
+                                    <i
+                                        class="fas"
+                                        [class.fa-location-dot]="session.status === 'dentro'"
+                                        [class.fa-door-open]="session.status === 'fuera' || session.status === 'salida_sin_entrada'"
+                                        [class.fa-circle-xmark]="session.status === 'denegado'">
+                                    </i>
+
+                                    {{ getAccessSessionStatusLabel(session) }}
+
+                                </span>
+
+                            </td>
+
+
+                            <!-- MÉTODO -->
+                            <td data-label="Método">
+
+                                <span class="method-chip">
+                                    <i class="fas fa-fingerprint"></i>
+                                    {{ session.method || 'Huella' }}
+                                </span>
+
+                            </td>
+
+
+                            <!-- DISPOSITIVO -->
+                            <td data-label="Dispositivo">
+                                {{ session.device || '—' }}
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
              APRENDICES — TODOS + ÚLTIMOS MOVIMIENTOS
              ===================================================== -->
         <section
@@ -658,7 +897,7 @@
                             <th>Correo</th>
                             <th>Último ingreso</th>
                             <th>Última salida</th>
-                            <th>Estado</th>
+                            <th>Presencia</th>
                         </tr>
 
                     </thead>
@@ -793,8 +1032,18 @@
 
 
                                 <span
+                                    class="status-badge allowed"
+                                    *ngIf="!user.lastExit && user.inside">
+
+                                    <i class="fas fa-location-dot"></i>
+                                    Aún dentro
+
+                                </span>
+
+
+                                <span
                                     class="no-movement"
-                                    *ngIf="!user.lastExit">
+                                    *ngIf="!user.lastExit && !user.inside">
 
                                     Sin registro
 
@@ -803,24 +1052,22 @@
                             </td>
 
 
-                            <!-- ESTADO -->
+                            <!-- PRESENCIA -->
                             <td>
 
                                 <span
                                     class="status-badge"
-                                    [class.allowed]="user.active"
-                                    [class.denied]="!user.active">
+                                    [class.allowed]="user.presence === 'Dentro' || user.presence === 'Fuera'"
+                                    [class.denied]="user.presence === 'Sin registro'">
 
-                                    <span
-                                        class="status-dot"
-                                        *ngIf="user.active">
-                                    </span>
+                                    <i
+                                        class="fas"
+                                        [class.fa-location-dot]="user.presence === 'Dentro'"
+                                        [class.fa-door-open]="user.presence === 'Fuera'"
+                                        [class.fa-circle-minus]="user.presence === 'Sin registro'">
+                                    </i>
 
-                                    {{
-                                        user.active
-                                            ? 'Activo'
-                                            : 'Inactivo'
-                                    }}
+                                    {{ user.presence }}
 
                                 </span>
 

@@ -1088,7 +1088,7 @@
 
                                 <i class="fas fa-database"></i>
 
-                                {{ filteredAccessLogs.length }}
+                                {{ filteredAccessSessions.length }}
 
                                 {{
                                 filteredAccessLogs.length === 1
@@ -1135,7 +1135,7 @@
                                 </span>
 
                                 <strong>
-                                    {{ filteredAccessLogs.length }}
+                                    {{ filteredAccessSessions.length }}
                                 </strong>
 
                                 <small>
@@ -1455,7 +1455,7 @@
                             </div>
 
 
-                            <span class="access-page-status" *ngIf="filteredAccessLogs.length > 0">
+                            <span class="access-page-status" *ngIf="filteredAccessSessions.length > 0">
 
                                 Página
                                 {{ accessCurrentPage }}
@@ -1490,37 +1490,14 @@
 
                                     <tr>
 
-                                        <th>
-                                            Fecha
-                                        </th>
-
-                                        <th>
-                                            Usuario
-                                        </th>
-
-                                        <th>
-                                            Documento
-                                        </th>
-
-                                        <th>
-                                            Rol
-                                        </th>
-
-                                        <th>
-                                            Movimiento
-                                        </th>
-
-                                        <th>
-                                            Método
-                                        </th>
-
-                                        <th>
-                                            Dispositivo
-                                        </th>
-
-                                        <th>
-                                            Estado
-                                        </th>
+                                        <th>Usuario</th>
+                                        <th>Documento</th>
+                                        <th>Rol</th>
+                                        <th>Entrada</th>
+                                        <th>Salida</th>
+                                        <th>Método</th>
+                                        <th>Dispositivo</th>
+                                        <th>Estado</th>
 
                                     </tr>
 
@@ -1529,33 +1506,12 @@
 
                                 <tbody>
 
-                                    <!-- REGISTROS -->
+                                    <!-- REGISTROS AGRUPADOS POR ENTRADA / SALIDA -->
 
                                     <tr *ngFor="
-                                let log of paginatedAccessLogs;
-                                trackBy: trackByAccessLog
+                                let session of paginatedAccessSessions;
+                                trackBy: trackByAccessSession
                             ">
-
-                                        <!-- FECHA -->
-
-                                        <td class="access-date">
-
-                                            <strong>
-                                                {{
-                                                log.date
-                                                | date:'dd/MM/yyyy'
-                                                }}
-                                            </strong>
-
-                                            <small>
-                                                {{
-                                                log.date
-                                                | date:'HH:mm:ss'
-                                                }}
-                                            </small>
-
-                                        </td>
-
 
                                         <!-- USUARIO -->
 
@@ -1566,7 +1522,7 @@
                                                 <div class="access-avatar">
 
                                                     {{
-                                                    (log.user || 'U')
+                                                    (session.user || 'U')
                                                     .charAt(0)
                                                     .toUpperCase()
                                                     }}
@@ -1577,14 +1533,14 @@
 
                                                     <strong>
                                                         {{
-                                                        log.user ||
+                                                        session.user ||
                                                         'Usuario desconocido'
                                                         }}
                                                     </strong>
 
                                                     <small>
                                                         {{
-                                                        log.email ||
+                                                        session.email ||
                                                         'Sin correo'
                                                         }}
                                                     </small>
@@ -1601,7 +1557,7 @@
                                         <td class="access-document">
 
                                             {{
-                                            log.document ||
+                                            session.document ||
                                             'No registrado'
                                             }}
 
@@ -1616,7 +1572,7 @@
 
                                                 {{
                                                 formatRoleName(
-                                                log.role ||
+                                                session.role ||
                                                 'usuario'
                                                 )
                                                 }}
@@ -1626,27 +1582,73 @@
                                         </td>
 
 
-                                        <!-- MOVIMIENTO -->
+                                        <!-- ENTRADA -->
 
-                                        <td>
+                                        <td class="access-date">
 
-                                            <span class="access-movement" [class.entry]="log.type === 'entrada'"
-                                                [class.exit]="log.type === 'salida'">
+                                            <ng-container *ngIf="session.entryDate; else noEntry">
 
-                                                <i class="fas" [ngClass]="
-                                            log.type === 'salida'
-                                                ? 'fa-arrow-right-from-bracket'
-                                                : 'fa-arrow-right-to-bracket'
-                                        ">
-                                                </i>
+                                                <strong>
+                                                    {{ formatAccessDay(session.entryDate) }}
+                                                </strong>
 
-                                                {{
-                                                log.type === 'salida'
-                                                ? 'Salida'
-                                                : 'Entrada'
-                                                }}
+                                                <small>
+                                                    {{ formatAccessTime(session.entryDate) }}
+                                                </small>
 
-                                            </span>
+                                            </ng-container>
+
+                                            <ng-template #noEntry>
+
+                                                <span class="access-no-date">
+                                                    Sin registro
+                                                </span>
+
+                                            </ng-template>
+
+                                        </td>
+
+
+                                        <!-- SALIDA -->
+
+                                        <td class="access-date">
+
+                                            <ng-container *ngIf="session.exitDate; else noExit">
+
+                                                <strong>
+                                                    {{ formatAccessDay(session.exitDate) }}
+                                                </strong>
+
+                                                <small>
+                                                    {{ formatAccessTime(session.exitDate) }}
+                                                </small>
+
+                                            </ng-container>
+
+                                            <ng-template #noExit>
+
+                                                <span *ngIf="
+                                            session.allowed &&
+                                            session.status === 'dentro'
+                                        " class="access-status allowed">
+
+                                                    <i class="fas fa-location-dot"></i>
+                                                    Aún dentro
+
+                                                </span>
+
+                                                <span *ngIf="!session.allowed" class="access-no-date">
+                                                    —
+                                                </span>
+
+                                                <span *ngIf="
+                                            session.allowed &&
+                                            session.status !== 'dentro'
+                                        " class="access-no-date">
+                                                    Sin registro
+                                                </span>
+
+                                            </ng-template>
 
                                         </td>
 
@@ -1659,13 +1661,13 @@
 
                                                 <i class="fas" [ngClass]="
                                             getAccessMethodIcon(
-                                                log.method
+                                                session.method
                                             )
                                         ">
                                                 </i>
 
                                                 {{
-                                                log.method ||
+                                                session.method ||
                                                 'No especificado'
                                                 }}
 
@@ -1681,7 +1683,7 @@
                                             <i class="fas fa-microchip"></i>
 
                                             {{
-                                            log.device ||
+                                            session.device ||
                                             'No especificado'
                                             }}
 
@@ -1692,21 +1694,40 @@
 
                                         <td>
 
-                                            <span class="access-status" [class.allowed]="log.allowed"
-                                                [class.denied]="!log.allowed">
+                                            <span *ngIf="
+                                        session.allowed &&
+                                        session.status === 'completo'
+                                    " class="access-status allowed">
 
-                                                <i class="fas" [ngClass]="
-                                            log.allowed
-                                                ? 'fa-circle-check'
-                                                : 'fa-circle-xmark'
-                                        ">
-                                                </i>
+                                                <i class="fas fa-circle-check"></i>
+                                                Entrada y salida
 
-                                                {{
-                                                log.allowed
-                                                ? 'Permitido'
-                                                : 'Denegado'
-                                                }}
+                                            </span>
+
+                                            <span *ngIf="
+                                        session.allowed &&
+                                        session.status === 'dentro'
+                                    " class="access-status allowed">
+
+                                                <i class="fas fa-building-circle-check"></i>
+                                                Dentro
+
+                                            </span>
+
+                                            <span *ngIf="
+                                        session.allowed &&
+                                        session.status === 'salida_sin_entrada'
+                                    " class="access-status allowed">
+
+                                                <i class="fas fa-arrow-right-from-bracket"></i>
+                                                Salida
+
+                                            </span>
+
+                                            <span *ngIf="!session.allowed" class="access-status denied">
+
+                                                <i class="fas fa-circle-xmark"></i>
+                                                Denegado
 
                                             </span>
 
@@ -1717,18 +1738,14 @@
 
                                     <!-- SIN REGISTROS -->
 
-                                    <tr *ngIf="
-                                filteredAccessLogs.length === 0
-                            ">
+                                    <tr *ngIf="filteredAccessSessions.length === 0">
 
                                         <td colspan="8">
 
                                             <div class="access-empty">
 
                                                 <div class="access-empty-icon">
-
                                                     <i class="fas fa-door-closed"></i>
-
                                                 </div>
 
                                                 <h4>
@@ -1743,7 +1760,6 @@
                                                 <button type="button" (click)="resetAccessFilters()">
 
                                                     <i class="fas fa-rotate-left"></i>
-
                                                     Limpiar filtros
 
                                                 </button>
@@ -1767,7 +1783,7 @@
 
                         <div class="access-pagination" *ngIf="
                     !reportLoading &&
-                    filteredAccessLogs.length > 0
+                    filteredAccessSessions.length > 0
                 ">
 
                             <div class="access-pagination-info">
@@ -1787,7 +1803,7 @@
                                 de
 
                                 <strong>
-                                    {{ filteredAccessLogs.length }}
+                                    {{ filteredAccessSessions.length }}
                                 </strong>
 
                             </div>
@@ -2549,11 +2565,11 @@
                             </button>
 
 
-                            <button type="button" class="report-export-btn" (click)="exportReportCsv()">
+                            <button type="button" class="report-export-btn" (click)="exportReportExcel()">
 
-                                <i class="fas fa-file-csv"></i>
+                                <i class="fas fa-file-excel"></i>
 
-                                Exportar CSV
+                                Exportar Excel
 
                             </button>
 

@@ -180,15 +180,107 @@ def register_iot_access(
         }, status=400)
 
 
+# ==========================================================
+# ACCESO DESDE ESP32 / RFID
+# ==========================================================
+
+@csrf_exempt
+def register_rfid_access(
+    request
+):
+
+    if request.method != "POST":
+
+        return JsonResponse({
+
+            "success":
+                False,
+
+            "authorized":
+                False,
+
+            "message":
+                "Método no permitido."
+
+        }, status=405)
+
+    try:
+
+        data = (
+            _read_json(
+                request
+            )
+        )
+
+        result = (
+            AccessService
+            .register_rfid_access(
+                data
+            )
+        )
+
+        return JsonResponse({
+
+            "success":
+                True,
+
+            "authorized":
+                result.get(
+                    "authorized",
+                    False
+                ),
+
+            "movement":
+                result.get(
+                    "movement"
+                ),
+
+            "inside":
+                result.get(
+                    "inside"
+                ),
+
+            "message":
+                result.get(
+                    "message",
+                    ""
+                ),
+
+            "user":
+                result.get(
+                    "user"
+                ),
+
+            "access":
+                result.get(
+                    "access"
+                )
+        })
+
+    except Exception as error:
+
+        return JsonResponse({
+
+            "success":
+                False,
+
+            "authorized":
+                False,
+
+            "movement":
+                None,
+
+            "inside":
+                None,
+
+            "message":
+                str(error)
+
+        }, status=400)
 
 
 # ==========================================================
 # ALIAS DE COMPATIBILIDAD
-# ==========================================================
-#
-# Algunos commits/rutas antiguas usan "iot_access" y el
-# proyecto local actual usa "register_iot_access".
-# Dejamos ambos nombres válidos para evitar romper urls.py.
 # ==========================================================
 
 def iot_access(
@@ -196,6 +288,15 @@ def iot_access(
 ):
 
     return register_iot_access(
+        request
+    )
+
+
+def rfid_access(
+    request
+):
+
+    return register_rfid_access(
         request
     )
 
@@ -226,8 +327,6 @@ def list_access(
             .get_all_access()
         )
 
-        # Se mantienen ambas claves para compatibilidad
-        # con las vistas existentes de SegurEntry.
         return JsonResponse({
             "success":
                 True,

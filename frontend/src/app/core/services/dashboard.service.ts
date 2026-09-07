@@ -9,7 +9,10 @@ export class DashboardService {
 
   private apiUrl = 'http://127.0.0.1:8000/api';
 
-  constructor(private http: HttpClient) { }
+  constructor(
+    private http: HttpClient
+  ) { }
+
 
   // =====================================
   // DASHBOARD
@@ -56,27 +59,36 @@ export class DashboardService {
     );
   }
 
-  createUser(data: any): Observable<any> {
+  createUser(
+    data: any
+  ): Observable<any> {
     return this.http.post<any>(
       `${this.apiUrl}/users/create/`,
       data
     );
   }
 
-  updateUser(uid: string, data: any): Observable<any> {
+  updateUser(
+    uid: string,
+    data: any
+  ): Observable<any> {
     return this.http.put<any>(
       `${this.apiUrl}/users/update/${uid}/`,
       data
     );
   }
 
-  deleteUser(uid: string): Observable<any> {
+  deleteUser(
+    uid: string
+  ): Observable<any> {
     return this.http.delete<any>(
       `${this.apiUrl}/users/delete/${uid}/`
     );
   }
 
-  getUser(uid: string): Observable<any> {
+  getUser(
+    uid: string
+  ): Observable<any> {
     return this.http.get<any>(
       `${this.apiUrl}/users/${uid}/`
     );
@@ -93,21 +105,27 @@ export class DashboardService {
     );
   }
 
-  createInvitation(data: any): Observable<any> {
+  createInvitation(
+    data: any
+  ): Observable<any> {
     return this.http.post<any>(
       `${this.apiUrl}/invitations/create/`,
       data
     );
   }
 
-  validateInvitation(data: any): Observable<any> {
+  validateInvitation(
+    data: any
+  ): Observable<any> {
     return this.http.post<any>(
       `${this.apiUrl}/invitations/validate/`,
       data
     );
   }
 
-  deleteInvitation(id: string): Observable<any> {
+  deleteInvitation(
+    id: string
+  ): Observable<any> {
     return this.http.delete<any>(
       `${this.apiUrl}/invitations/delete/${id}/`
     );
@@ -124,7 +142,9 @@ export class DashboardService {
     );
   }
 
-  registerAccess(data: any): Observable<any> {
+  registerAccess(
+    data: any
+  ): Observable<any> {
     return this.http.post<any>(
       `${this.apiUrl}/access/register/`,
       data
@@ -158,7 +178,6 @@ export class DashboardService {
     );
 
   }
-
 
   deleteBiometricFingerprint(
     uid: string,
@@ -203,7 +222,6 @@ export class DashboardService {
   }
 
 
-
   // =====================================
   // AUDITORÍA
   // =====================================
@@ -230,17 +248,29 @@ export class DashboardService {
   // FOTO DE PERFIL
   // =====================================
 
-  uploadProfilePhoto(uid: string, photo: File): Observable<any> {
+  uploadProfilePhoto(
+    uid: string,
+    photo: File
+  ): Observable<any> {
 
-    const formData = new FormData();
+    const formData =
+      new FormData();
 
-    formData.append('uid', uid);
-    formData.append('photo', photo);
+    formData.append(
+      'uid',
+      uid
+    );
+
+    formData.append(
+      'photo',
+      photo
+    );
 
     return this.http.post<any>(
       `${this.apiUrl}/users/upload-photo/`,
       formData
     );
+
   }
 
 
@@ -248,7 +278,9 @@ export class DashboardService {
   // VIGILANTE - USUARIOS TEMPORALES
   // =====================================
 
-  createTemporaryRequest(data: any): Observable<any> {
+  createTemporaryRequest(
+    data: any
+  ): Observable<any> {
     return this.http.post<any>(
       `${this.apiUrl}/temporary-requests/`,
       data
@@ -286,4 +318,36 @@ export class DashboardService {
       }
     );
   }
+
+
+  // =====================================
+  // VIGILANTE - RFID TEMPORAL
+  // =====================================
+
+  startTemporaryRfidEnrollment(
+    requestId: string,
+    actorUid: string,
+    device: string = 'SEGURENTRY-ESP32'
+  ): Observable<any> {
+
+    return this.http.post<any>(
+      `${this.apiUrl}/temporary-requests/${requestId}/rfid/start/`,
+      {
+        actor_uid: actorUid,
+        device
+      }
+    );
+
+  }
+
+  getTemporaryRfidJob(
+    jobId: string
+  ): Observable<any> {
+
+    return this.http.get<any>(
+      `${this.apiUrl}/temporary-requests/rfid/jobs/${jobId}/`
+    );
+
+  }
+
 }

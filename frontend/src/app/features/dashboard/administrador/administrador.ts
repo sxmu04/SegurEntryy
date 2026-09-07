@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
+import * as ExcelJS from 'exceljs';
 
 import { ApiService } from '../../../core/services/api.service';
 import { DashboardService } from '../../../core/services/dashboard.service';
@@ -54,6 +55,33 @@ interface ReportAccessLog {
 
   allowed: boolean;
   status: string;
+
+}
+
+
+interface AdminAccessSession {
+
+  id: string;
+  uid: string;
+
+  user: string;
+  email: string;
+  document: string;
+  role: string;
+
+  entryDate: string | null;
+  exitDate: string | null;
+
+  method: string;
+  device: string;
+
+  allowed: boolean;
+
+  status:
+    'dentro' |
+    'fuera' |
+    'salida_sin_entrada' |
+    'denegado';
 
 }
 
@@ -2655,6 +2683,613 @@ export class AdminComponent implements OnInit, OnDestroy {
 
 
   // =========================================================
+  // ACCESOS — SESIONES ENTRADA / SALIDA
+  // =========================================================
+
+  private buildAdminAccessSessions(
+    logs: ReportAccessLog[]
+  ): AdminAccessSession[] {
+
+    const orderedLogs =
+      [...logs]
+        .sort(
+          (
+            a: ReportAccessLog,
+            b: ReportAccessLog
+          ) => {
+
+            const dateA =
+              this.parseReportAccessDate(
+                a.date
+              )?.getTime() || 0;
+
+            const dateB =
+              this.parseReportAccessDate(
+                b.date
+              )?.getTime() || 0;
+
+            return dateA - dateB;
+
+          }
+        );
+
+
+    const pendingEntries =
+      new Map<
+        string,
+        ReportAccessLog
+      >();
+
+
+    const sessions:
+      AdminAccessSession[] =
+      [];
+
+
+    for (
+      const log
+      of orderedLogs
+    ) {
+
+      const key =
+        String(
+          log.uid ||
+          log.email ||
+          log.document ||
+          log.user ||
+          log.id
+        )
+          .trim()
+          .toLowerCase();
+
+
+      // ======================================================
+      // ACCESO DENEGADO
+      // ======================================================
+
+      if (!log.allowed) {
+
+        sessions.push({
+
+          id:
+            log.id,
+
+          uid:
+            log.uid,
+
+          user:
+            log.user,
+
+          email:
+            log.email,
+
+          document:
+            log.document,
+
+          role:
+            log.role,
+
+          entryDate:
+            log.type === 'entrada'
+              ? log.date
+              : null,
+
+          exitDate:
+            log.type === 'salida'
+              ? log.date
+              : null,
+
+          method:
+            log.method,
+
+          device:
+            log.device,
+
+          allowed:
+            false,
+
+          status:
+            'denegado'
+
+        });
+
+        continue;
+
+      }
+
+
+      // ======================================================
+      // ENTRADA PERMITIDA
+      // ======================================================
+
+      if (
+        log.type ===
+        'entrada'
+      ) {
+
+        const previousEntry =
+          pendingEntries.get(
+            key
+          );
+
+
+        // Compatibilidad con historiales antiguos:
+        // si existen dos entradas consecutivas, la anterior
+        // se conserva como una sesión todavía abierta.
+        if (previousEntry) {
+
+          sessions.push({
+
+            id:
+              previousEntry.id,
+
+            uid:
+              previousEntry.uid,
+
+            user:
+              previousEntry.user,
+
+            email:
+              previousEntry.email,
+
+            document:
+              previousEntry.document,
+
+            role:
+              previousEntry.role,
+
+            entryDate:
+              previousEntry.date,
+
+            exitDate:
+              null,
+
+            method:
+              previousEntry.method,
+
+            device:
+              previousEntry.device,
+
+            allowed:
+              true,
+
+            status:
+              'dentro'
+
+          });
+
+        }
+
+
+        pendingEntries.set(
+          key,
+          log
+        );
+
+        continue;
+
+      }
+
+
+      // ======================================================
+      // SALIDA PERMITIDA
+      // ======================================================
+
+      const entry =
+        pendingEntries.get(
+          key
+        );
+
+
+      if (entry) {
+
+        sessions.push({
+
+          id:
+            `${entry.id}-${log.id}`,
+
+          uid:
+            log.uid ||
+            entry.uid,
+
+          user:
+            log.user ||
+            entry.user,
+
+          email:
+            log.email ||
+            entry.email,
+
+          document:
+            log.document ||
+            entry.document,
+
+          role:
+            log.role ||
+            entry.role,
+
+          entryDate:
+            entry.date,
+
+          exitDate:
+            log.date,
+
+          method:
+            log.method ||
+            entry.method,
+
+          device:
+            log.device ||
+            entry.device,
+
+          allowed:
+            true,
+
+          status:
+            'fuera'
+
+        });
+
+
+        pendingEntries.delete(
+          key
+        );
+
+      } else {
+
+        // Puede ocurrir con historiales antiguos si se eliminó
+        // la entrada pero la salida sigue existiendo.
+        sessions.push({
+
+          id:
+            log.id,
+
+          uid:
+            log.uid,
+
+          user:
+            log.user,
+
+          email:
+            log.email,
+
+          document:
+            log.document,
+
+          role:
+            log.role,
+
+          entryDate:
+            null,
+
+          exitDate:
+            log.date,
+
+          method:
+            log.method,
+
+          device:
+            log.device,
+
+          allowed:
+            true,
+
+          status:
+            'salida_sin_entrada'
+
+        });
+
+      }
+
+    }
+
+
+    // ========================================================
+    // ENTRADAS SIN SALIDA = USUARIOS ACTUALMENTE DENTRO
+    // ========================================================
+
+    pendingEntries.forEach(
+      (
+        entry: ReportAccessLog
+      ) => {
+
+        sessions.push({
+
+          id:
+            entry.id,
+
+          uid:
+            entry.uid,
+
+          user:
+            entry.user,
+
+          email:
+            entry.email,
+
+          document:
+            entry.document,
+
+          role:
+            entry.role,
+
+          entryDate:
+            entry.date,
+
+          exitDate:
+            null,
+
+          method:
+            entry.method,
+
+          device:
+            entry.device,
+
+          allowed:
+            true,
+
+          status:
+            'dentro'
+
+        });
+
+      }
+    );
+
+
+    return sessions
+      .sort(
+        (
+          a: AdminAccessSession,
+          b: AdminAccessSession
+        ) => {
+
+          const dateA =
+            this.parseReportAccessDate(
+              a.exitDate ||
+              a.entryDate
+            )?.getTime() || 0;
+
+          const dateB =
+            this.parseReportAccessDate(
+              b.exitDate ||
+              b.entryDate
+            )?.getTime() || 0;
+
+          return dateB - dateA;
+
+        }
+      );
+
+  }
+
+
+  get adminAccessSessions():
+    AdminAccessSession[] {
+
+    return this
+      .buildAdminAccessSessions(
+        this.reportAccessLogs
+      );
+
+  }
+
+
+  private isAdminAccessDateMatch(
+    value: string | null,
+    filterDate: string
+  ): boolean {
+
+    if (
+      !value ||
+      !filterDate
+    ) {
+      return false;
+    }
+
+    const date =
+      this.parseReportAccessDate(
+        value
+      );
+
+    if (!date) {
+      return false;
+    }
+
+    const parts =
+      new Intl.DateTimeFormat(
+        'en-CA',
+        {
+          timeZone:
+            'America/Bogota',
+
+          year:
+            'numeric',
+
+          month:
+            '2-digit',
+
+          day:
+            '2-digit'
+        }
+      )
+        .formatToParts(
+          date
+        );
+
+    const year =
+      parts.find(
+        part =>
+          part.type ===
+          'year'
+      )?.value || '';
+
+    const month =
+      parts.find(
+        part =>
+          part.type ===
+          'month'
+      )?.value || '';
+
+    const day =
+      parts.find(
+        part =>
+          part.type ===
+          'day'
+      )?.value || '';
+
+    return (
+      `${year}-${month}-${day}` ===
+      filterDate
+    );
+
+  }
+
+
+  get filteredAdminAccessSessions():
+    AdminAccessSession[] {
+
+    const search =
+      this.adminAccessSearch
+        .trim()
+        .toLowerCase();
+
+
+    return this.adminAccessSessions
+      .filter(
+        (
+          session:
+            AdminAccessSession
+        ) => {
+
+          // ==================================================
+          // MOVIMIENTO
+          // ==================================================
+
+          if (
+            this.adminAccessMovement ===
+              'entrada' &&
+            !session.entryDate
+          ) {
+
+            return false;
+
+          }
+
+
+          if (
+            this.adminAccessMovement ===
+              'salida' &&
+            !session.exitDate
+          ) {
+
+            return false;
+
+          }
+
+
+          // ==================================================
+          // ESTADO DE AUTORIZACIÓN
+          // ==================================================
+
+          if (
+            this.adminAccessStatus ===
+              'permitido' &&
+            !session.allowed
+          ) {
+
+            return false;
+
+          }
+
+
+          if (
+            this.adminAccessStatus ===
+              'denegado' &&
+            session.allowed
+          ) {
+
+            return false;
+
+          }
+
+
+          // ==================================================
+          // FECHA
+          // La sesión coincide si la entrada o la salida
+          // ocurrió en la fecha seleccionada.
+          // ==================================================
+
+          if (
+            this.adminAccessDate &&
+            !(
+              this.isAdminAccessDateMatch(
+                session.entryDate,
+                this.adminAccessDate
+              ) ||
+              this.isAdminAccessDateMatch(
+                session.exitDate,
+                this.adminAccessDate
+              )
+            )
+          ) {
+
+            return false;
+
+          }
+
+
+          // ==================================================
+          // BÚSQUEDA
+          // ==================================================
+
+          if (search) {
+
+            const searchable =
+              [
+                session.user,
+                session.email,
+                session.document,
+                session.role,
+                session.method,
+                session.device,
+                session.status,
+                session.allowed
+                  ? 'permitido'
+                  : 'denegado',
+                session.status === 'dentro'
+                  ? 'dentro'
+                  : '',
+                session.status === 'fuera'
+                  ? 'fuera'
+                  : ''
+              ]
+                .join(' ')
+                .toLowerCase();
+
+
+            if (
+              !searchable.includes(
+                search
+              )
+            ) {
+
+              return false;
+
+            }
+
+          }
+
+
+          return true;
+
+        }
+      );
+
+  }
+
+
+  // =========================================================
   // ACCESOS — FILTRO Y MÉTRICAS
   // =========================================================
 
@@ -2825,11 +3460,10 @@ export class AdminComponent implements OnInit, OnDestroy {
   get adminAccessEntries():
     number {
 
-    return this.filteredAdminAccessLogs
+    return this.filteredAdminAccessSessions
       .filter(
-        access =>
-          access.type ===
-          'entrada'
+        session =>
+          !!session.entryDate
       )
       .length;
 
@@ -2839,11 +3473,10 @@ export class AdminComponent implements OnInit, OnDestroy {
   get adminAccessExits():
     number {
 
-    return this.filteredAdminAccessLogs
+    return this.filteredAdminAccessSessions
       .filter(
-        access =>
-          access.type ===
-          'salida'
+        session =>
+          !!session.exitDate
       )
       .length;
 
@@ -2853,10 +3486,10 @@ export class AdminComponent implements OnInit, OnDestroy {
   get adminAccessAllowed():
     number {
 
-    return this.filteredAdminAccessLogs
+    return this.filteredAdminAccessSessions
       .filter(
-        access =>
-          access.allowed
+        session =>
+          session.allowed
       )
       .length;
 
@@ -2866,10 +3499,44 @@ export class AdminComponent implements OnInit, OnDestroy {
   get adminAccessDenied():
     number {
 
-    return this.filteredAdminAccessLogs
+    return this.filteredAdminAccessSessions
       .filter(
-        access =>
-          !access.allowed
+        session =>
+          !session.allowed
+      )
+      .length;
+
+  }
+
+
+  get adminAccessInside():
+    number {
+
+    return this.filteredAdminAccessSessions
+      .filter(
+        session =>
+          session.allowed &&
+          session.status ===
+            'dentro'
+      )
+      .length;
+
+  }
+
+
+  get adminAccessOutside():
+    number {
+
+    return this.filteredAdminAccessSessions
+      .filter(
+        session =>
+          session.allowed &&
+          (
+            session.status ===
+              'fuera' ||
+            session.status ===
+              'salida_sin_entrada'
+          )
       )
       .length;
 
@@ -3196,6 +3863,11 @@ export class AdminComponent implements OnInit, OnDestroy {
       return null;
     }
 
+
+    // ========================================================
+    // FIRESTORE TIMESTAMP
+    // ========================================================
+
     if (
       typeof
         value?.toDate ===
@@ -3212,6 +3884,11 @@ export class AdminComponent implements OnInit, OnDestroy {
         : date;
 
     }
+
+
+    // ========================================================
+    // FIRESTORE { seconds: ... }
+    // ========================================================
 
     if (
       typeof
@@ -3233,9 +3910,55 @@ export class AdminComponent implements OnInit, OnDestroy {
 
     }
 
+
+    // ========================================================
+    // STRING
+    // Compatibilidad con registros antiguos de SegurEntry.
+    //
+    // Antes Django guardaba:
+    // datetime.utcnow().isoformat()
+    //
+    // Eso representaba UTC pero no incluía "Z" ni "+00:00".
+    // ========================================================
+
+    let raw =
+      String(
+        value
+      )
+        .trim();
+
+    if (!raw) {
+      return null;
+    }
+
+
+    const isIsoDateTime =
+      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/
+        .test(
+          raw
+        );
+
+    const hasTimezone =
+      /(?:Z|[+-]\d{2}:?\d{2})$/i
+        .test(
+          raw
+        );
+
+
+    if (
+      isIsoDateTime &&
+      !hasTimezone
+    ) {
+
+      raw +=
+        'Z';
+
+    }
+
+
     const date =
       new Date(
-        value
+        raw
       );
 
     return isNaN(
@@ -3259,6 +3982,110 @@ export class AdminComponent implements OnInit, OnDestroy {
     return date
       ? date.toISOString()
       : '';
+
+  }
+
+
+
+
+  // =========================================================
+  // ACCESOS — FECHA / HORA EXACTA PARA COLOMBIA
+  // =========================================================
+
+  formatAdminAccessDay(
+    value: string | null
+  ): string {
+
+    if (!value) {
+      return '—';
+    }
+
+    const date =
+      this.parseReportAccessDate(
+        value
+      );
+
+    if (!date) {
+      return 'Fecha no válida';
+    }
+
+    return new Intl.DateTimeFormat(
+      'es-CO',
+      {
+        timeZone:
+          'America/Bogota',
+
+        day:
+          '2-digit',
+
+        month:
+          '2-digit',
+
+        year:
+          'numeric'
+      }
+    )
+      .format(
+        date
+      );
+
+  }
+
+
+  formatAdminAccessTime(
+    value: string | null
+  ): string {
+
+    if (!value) {
+      return '—';
+    }
+
+    const date =
+      this.parseReportAccessDate(
+        value
+      );
+
+    if (!date) {
+      return 'Hora no válida';
+    }
+
+    return new Intl.DateTimeFormat(
+      'en-US',
+      {
+        timeZone:
+          'America/Bogota',
+
+        hour:
+          'numeric',
+
+        minute:
+          '2-digit',
+
+        second:
+          '2-digit',
+
+        hour12:
+          true
+      }
+    )
+      .format(
+        date
+      )
+      .toUpperCase();
+
+  }
+
+
+  trackByAdminAccessSession(
+    index: number,
+    session: AdminAccessSession
+  ): string {
+
+    return (
+      session.id ||
+      `${session.uid}-${session.entryDate}-${session.exitDate}` ||
+      String(index)
+    );
 
   }
 
@@ -3832,31 +4659,103 @@ export class AdminComponent implements OnInit, OnDestroy {
 
 
 // ==========================================================
-// 14) CSV
+// 14) LOGO / EXCEL
 // ==========================================================
 
-  private csvReportValue(
-    value: any
-  ): string {
+  private async loadReportLogoBase64(): Promise<string> {
 
-    return `"${String(
-      value ??
-      ''
-    )
-      .replace(
-        /"/g,
-        '""'
-      )}"`;
+    const logoUrl =
+      new URL(
+        '/logo-segurentry.png',
+        window.location.origin
+      ).toString();
+
+    const response =
+      await fetch(
+        logoUrl,
+        {
+          cache: 'no-store'
+        }
+      );
+
+    if (!response.ok) {
+      throw new Error(
+        'No fue posible cargar /logo-segurentry.png desde frontend/public/.'
+      );
+    }
+
+    const blob =
+      await response.blob();
+
+    return await new Promise<string>(
+      (
+        resolve,
+        reject
+      ) => {
+
+        const reader =
+          new FileReader();
+
+        reader.onload = () => {
+
+          if (
+            typeof reader.result === 'string'
+          ) {
+            resolve(reader.result);
+            return;
+          }
+
+          reject(
+            new Error(
+              'No fue posible convertir el logo de SegurEntry.'
+            )
+          );
+
+        };
+
+        reader.onerror = () => {
+          reject(
+            new Error(
+              'No fue posible leer el logo de SegurEntry.'
+            )
+          );
+        };
+
+        reader.readAsDataURL(blob);
+
+      }
+    );
 
   }
 
 
-  exportReportCsv():
-    void {
+  private downloadReportBlob(
+    blob: Blob,
+    fileName: string
+  ): void {
+
+    const url =
+      URL.createObjectURL(blob);
+
+    const link =
+      document.createElement('a');
+
+    link.href = url;
+    link.download = fileName;
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    URL.revokeObjectURL(url);
+
+  }
+
+
+  async exportReportExcel(): Promise<void> {
 
     const logs =
       this.filteredReportLogs;
-
 
     if (!logs.length) {
 
@@ -3871,128 +4770,411 @@ export class AdminComponent implements OnInit, OnDestroy {
 
     }
 
+    try {
 
-    const headers = [
-      'Fecha',
-      'Usuario',
-      'Correo',
-      'Documento',
-      'Rol',
-      'Movimiento',
-      'Método',
-      'Dispositivo',
-      'Estado'
-    ];
+      const logoBase64 =
+        await this.loadReportLogoBase64();
 
+      const workbook =
+        new ExcelJS.Workbook();
 
-    const rows =
-      logs.map(
-        log => [
+      workbook.creator = 'SegurEntry';
+      workbook.company = 'SegurEntry';
+      workbook.subject = 'Reporte de accesos - Administrador';
+      workbook.title = 'Reporte SegurEntry';
+      workbook.created = new Date();
 
-          this.formatReportDate(
-            log.date
-          ),
+      const worksheet =
+        workbook.addWorksheet(
+          'Reporte de accesos',
+          {
+            properties: {
+              defaultRowHeight: 20
+            },
+            pageSetup: {
+              orientation: 'landscape',
+              fitToPage: true,
+              fitToWidth: 1,
+              fitToHeight: 0,
+              paperSize: 9,
+              margins: {
+                left: 0.25,
+                right: 0.25,
+                top: 0.5,
+                bottom: 0.5,
+                header: 0.2,
+                footer: 0.2
+              }
+            }
+          }
+        );
 
-          log.user,
+      worksheet.columns = [
+        { key: 'fecha', width: 24 },
+        { key: 'usuario', width: 28 },
+        { key: 'correo', width: 34 },
+        { key: 'documento', width: 18 },
+        { key: 'rol', width: 22 },
+        { key: 'movimiento', width: 16 },
+        { key: 'metodo', width: 18 },
+        { key: 'dispositivo', width: 24 },
+        { key: 'estado', width: 16 }
+      ];
 
-          log.email,
+      // ======================================================
+      // ENCABEZADO CORPORATIVO CON LOGO
+      // ======================================================
 
-          log.document,
+      worksheet.getRow(1).height = 34;
+      worksheet.getRow(2).height = 34;
+      worksheet.getRow(3).height = 24;
 
-          this.formatRoleName(
-            log.role
-          ),
+      const logoId =
+        workbook.addImage({
+          base64: logoBase64,
+          extension: 'png'
+        });
 
-          log.type ===
-            'salida'
-            ? 'Salida'
-            : 'Entrada',
-
-          log.method,
-
-          log.device,
-
-          log.allowed
-            ? 'Permitido'
-            : 'Denegado'
-
-        ]
-      );
-
-
-    const csv =
-      [
-        headers,
-        ...rows
-      ]
-        .map(
-          row =>
-            row
-              .map(
-                value =>
-                  this.csvReportValue(
-                    value
-                  )
-              )
-              .join(';')
-        )
-        .join('\n');
-
-
-    const blob =
-      new Blob(
-        [
-          '\uFEFF',
-          csv
-        ],
+      worksheet.addImage(
+        logoId,
         {
-          type:
-            'text/csv;charset=utf-8;'
+          tl: {
+            col: 0.15,
+            row: 0.12
+          },
+          ext: {
+            width: 68,
+            height: 65
+          }
         }
       );
 
+      worksheet.mergeCells('B1:I2');
 
-    const url =
-      URL.createObjectURL(
-        blob
-      );
+      const brandCell =
+        worksheet.getCell('B1');
 
+      brandCell.value = 'SegurEntry';
+      brandCell.font = {
+        name: 'Arial',
+        size: 24,
+        bold: true,
+        color: {
+          argb: 'FF0B3B6E'
+        }
+      };
+      brandCell.alignment = {
+        vertical: 'middle',
+        horizontal: 'left'
+      };
 
-    const link =
-      document.createElement(
-        'a'
-      );
+      worksheet.mergeCells('B3:I3');
 
+      const subtitleCell =
+        worksheet.getCell('B3');
 
-    const today =
-      new Date()
-        .toISOString()
-        .slice(
-          0,
-          10
+      subtitleCell.value =
+        'Reporte de accesos · Administrador';
+
+      subtitleCell.font = {
+        name: 'Arial',
+        size: 13,
+        bold: true,
+        color: {
+          argb: 'FFF97316'
+        }
+      };
+
+      subtitleCell.alignment = {
+        vertical: 'middle',
+        horizontal: 'left'
+      };
+
+      for (
+        let column = 1;
+        column <= 9;
+        column++
+      ) {
+        worksheet
+          .getCell(4, column)
+          .border = {
+            bottom: {
+              style: 'medium',
+              color: {
+                argb: 'FFF97316'
+              }
+            }
+          };
+      }
+
+      // ======================================================
+      // RESUMEN DEL REPORTE
+      // ======================================================
+
+      worksheet.getCell('A5').value = 'Generado';
+      worksheet.getCell('B5').value =
+        new Date().toLocaleString(
+          'es-CO',
+          {
+            timeZone: 'America/Bogota',
+            dateStyle: 'medium',
+            timeStyle: 'medium'
+          }
         );
 
+      worksheet.getCell('D5').value = 'Usuarios';
+      worksheet.getCell('E5').value = this.accesses.length;
 
-    link.href =
-      url;
+      worksheet.getCell('F5').value = 'Accesos';
+      worksheet.getCell('G5').value = logs.length;
 
-    link.download =
-      `segurentry-admin-reporte-${today}.csv`;
+      worksheet.getCell('H5').value = 'Permitidos / Denegados';
+      worksheet.getCell('I5').value =
+        `${this.reportAllowed} / ${this.reportDenied}`;
 
+      [
+        'A5',
+        'D5',
+        'F5',
+        'H5'
+      ].forEach(
+        cellAddress => {
+          const cell = worksheet.getCell(cellAddress);
+          cell.font = {
+            bold: true,
+            color: {
+              argb: 'FF334155'
+            }
+          };
+        }
+      );
 
-    document.body.appendChild(
-      link
-    );
+      // ======================================================
+      // TABLA
+      // ======================================================
 
-    link.click();
+      const headerRowNumber = 7;
+      const headerRow = worksheet.getRow(headerRowNumber);
 
-    document.body.removeChild(
-      link
-    );
+      const headers = [
+        'Fecha y hora',
+        'Usuario',
+        'Correo',
+        'Documento',
+        'Rol',
+        'Movimiento',
+        'Método',
+        'Dispositivo',
+        'Estado'
+      ];
 
-    URL.revokeObjectURL(
-      url
-    );
+      headers.forEach(
+        (
+          header,
+          index
+        ) => {
+          const cell = headerRow.getCell(index + 1);
+          cell.value = header;
+          cell.font = {
+            bold: true,
+            color: {
+              argb: 'FFFFFFFF'
+            }
+          };
+          cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: {
+              argb: 'FFF97316'
+            }
+          };
+          cell.alignment = {
+            vertical: 'middle',
+            horizontal: 'center',
+            wrapText: true
+          };
+          cell.border = {
+            top: {
+              style: 'thin',
+              color: {
+                argb: 'FFD7E3EA'
+              }
+            },
+            left: {
+              style: 'thin',
+              color: {
+                argb: 'FFD7E3EA'
+              }
+            },
+            bottom: {
+              style: 'thin',
+              color: {
+                argb: 'FFD7E3EA'
+              }
+            },
+            right: {
+              style: 'thin',
+              color: {
+                argb: 'FFD7E3EA'
+              }
+            }
+          };
+        }
+      );
+
+      headerRow.height = 28;
+
+      logs.forEach(
+        (
+          log,
+          index
+        ) => {
+
+          const row =
+            worksheet.getRow(
+              headerRowNumber + 1 + index
+            );
+
+          row.values = [
+            this.formatReportDate(log.date),
+            log.user || 'Usuario desconocido',
+            log.email || '',
+            log.document || 'No registrado',
+            this.formatRoleName(log.role),
+            log.type === 'salida'
+              ? 'Salida'
+              : 'Entrada',
+            log.method || 'No especificado',
+            log.device || 'No especificado',
+            log.allowed
+              ? 'Permitido'
+              : 'Denegado'
+          ];
+
+          row.eachCell(
+            {
+              includeEmpty: true
+            },
+            cell => {
+              cell.alignment = {
+                vertical: 'middle',
+                horizontal: 'left',
+                wrapText: true
+              };
+              cell.border = {
+                top: {
+                  style: 'thin',
+                  color: {
+                    argb: 'FFE2E8F0'
+                  }
+                },
+                left: {
+                  style: 'thin',
+                  color: {
+                    argb: 'FFE2E8F0'
+                  }
+                },
+                bottom: {
+                  style: 'thin',
+                  color: {
+                    argb: 'FFE2E8F0'
+                  }
+                },
+                right: {
+                  style: 'thin',
+                  color: {
+                    argb: 'FFE2E8F0'
+                  }
+                }
+              };
+            }
+          );
+
+          const statusCell = row.getCell(9);
+          statusCell.font = {
+            bold: true,
+            color: {
+              argb:
+                log.allowed
+                  ? 'FF15803D'
+                  : 'FFB91C1C'
+            }
+          };
+
+        }
+      );
+
+      worksheet.views = [
+        {
+          state: 'frozen',
+          ySplit: headerRowNumber
+        }
+      ];
+
+      worksheet.autoFilter = {
+        from: {
+          row: headerRowNumber,
+          column: 1
+        },
+        to: {
+          row: headerRowNumber,
+          column: 9
+        }
+      };
+
+      worksheet.headerFooter.oddFooter =
+        '&LSegurEntry&CReporte de accesos · Administrador&R Página &P de &N';
+
+      const buffer =
+        await workbook.xlsx.writeBuffer();
+
+      const blob =
+        new Blob(
+          [buffer as unknown as BlobPart],
+          {
+            type:
+              'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+          }
+        );
+
+      const today =
+        new Date()
+          .toLocaleDateString(
+            'en-CA',
+            {
+              timeZone: 'America/Bogota'
+            }
+          );
+
+      this.downloadReportBlob(
+        blob,
+        `segurentry-admin-reporte-${today}.xlsx`
+      );
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Excel generado',
+        text:
+          'El reporte del Administrador se descargó con el logo institucional de SegurEntry.',
+        timer: 1800,
+        showConfirmButton: false
+      });
+
+    } catch (error) {
+
+      console.error(
+        'ERROR GENERANDO EXCEL:',
+        error
+      );
+
+      Swal.fire({
+        icon: 'error',
+        title: 'No se pudo generar el Excel',
+        text:
+          'Verifica que exista frontend/public/logo-segurentry.png y que ExcelJS esté instalado.'
+      });
+
+    }
 
   }
 
@@ -4034,15 +5216,13 @@ export class AdminComponent implements OnInit, OnDestroy {
 
 
 // ==========================================================
-// 16) PDF / IMPRIMIR
+// 16) PDF / IMPRIMIR CON LOGO
 // ==========================================================
 
-  printReport():
-    void {
+  async printReport(): Promise<void> {
 
     const logs =
       this.filteredReportLogs;
-
 
     const printWindow =
       window.open(
@@ -4051,13 +5231,11 @@ export class AdminComponent implements OnInit, OnDestroy {
         'width=1200,height=800'
       );
 
-
     if (!printWindow) {
 
       Swal.fire({
         icon: 'warning',
-        title:
-          'Ventana bloqueada',
+        title: 'Ventana bloqueada',
         text:
           'Permite ventanas emergentes para generar el reporte.'
       });
@@ -4066,75 +5244,92 @@ export class AdminComponent implements OnInit, OnDestroy {
 
     }
 
+    try {
 
-    const rows =
-      logs
-        .map(
-          log => `
+      const logoBase64 =
+        await this.loadReportLogoBase64();
 
-            <tr>
+      const rows =
+        logs
+          .map(
+            log => `
 
-              <td>
-                ${this.escapeReportHtml(
-                  this.formatReportDate(
-                    log.date
-                  )
-                )}
-              </td>
+              <tr>
 
-              <td>
-                ${this.escapeReportHtml(
-                  log.user
-                )}
-              </td>
+                <td>
+                  ${this.escapeReportHtml(
+                    this.formatReportDate(log.date)
+                  )}
+                </td>
 
-              <td>
-                ${this.escapeReportHtml(
-                  log.document
-                )}
-              </td>
+                <td>
+                  ${this.escapeReportHtml(
+                    log.user
+                  )}
+                </td>
 
-              <td>
-                ${this.escapeReportHtml(
-                  this.formatRoleName(
-                    log.role
-                  )
-                )}
-              </td>
+                <td>
+                  ${this.escapeReportHtml(
+                    log.document || 'No registrado'
+                  )}
+                </td>
 
-              <td>
-                ${
-                  log.type ===
-                    'salida'
-                    ? 'Salida'
-                    : 'Entrada'
-                }
-              </td>
+                <td>
+                  ${this.escapeReportHtml(
+                    this.formatRoleName(log.role)
+                  )}
+                </td>
 
-              <td>
-                ${this.escapeReportHtml(
-                  log.method ||
-                  'No especificado'
-                )}
-              </td>
+                <td>
+                  ${
+                    log.type === 'salida'
+                      ? 'Salida'
+                      : 'Entrada'
+                  }
+                </td>
 
-              <td>
-                ${
+                <td>
+                  ${this.escapeReportHtml(
+                    log.method || 'No especificado'
+                  )}
+                </td>
+
+                <td>
+                  ${this.escapeReportHtml(
+                    log.device || 'No especificado'
+                  )}
+                </td>
+
+                <td class="${
                   log.allowed
-                    ? 'Permitido'
-                    : 'Denegado'
-                }
-              </td>
+                    ? 'allowed'
+                    : 'denied'
+                }">
+                  ${
+                    log.allowed
+                      ? 'Permitido'
+                      : 'Denegado'
+                  }
+                </td>
 
-            </tr>
+              </tr>
 
-          `
-        )
-        .join('');
+            `
+          )
+          .join('');
 
+      const generatedAt =
+        new Date()
+          .toLocaleString(
+            'es-CO',
+            {
+              timeZone: 'America/Bogota',
+              dateStyle: 'medium',
+              timeStyle: 'medium'
+            }
+          );
 
-    printWindow.document
-      .write(`
+      printWindow.document.write(`
 
         <!DOCTYPE html>
 
@@ -4144,229 +5339,285 @@ export class AdminComponent implements OnInit, OnDestroy {
 
           <meta charset="UTF-8">
 
-          <title>
-            Reporte SegurEntry
-          </title>
+          <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+          >
+
+          <title>Reporte SegurEntry</title>
 
           <style>
 
+            * {
+              box-sizing: border-box;
+            }
+
             body {
-              font-family:
-                Arial,
-                sans-serif;
-
-              padding:
-                32px;
-
-              color:
-                #111827;
+              margin: 0;
+              padding: 28px;
+              font-family: Arial, Helvetica, sans-serif;
+              color: #0f172a;
+              background: #ffffff;
             }
 
-            .header {
-              border-bottom:
-                3px solid
-                #f97316;
-
-              padding-bottom:
-                16px;
-
-              margin-bottom:
-                24px;
+            .report-header {
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              gap: 24px;
+              border-bottom: 3px solid #f97316;
+              padding-bottom: 18px;
+              margin-bottom: 22px;
             }
 
-            h1 {
-              margin:
-                0 0 6px;
-
-              font-size:
-                24px;
+            .brand {
+              display: flex;
+              align-items: center;
+              gap: 14px;
+              min-width: 0;
             }
 
-            p {
-              color:
-                #64748b;
+            .brand-logo {
+              width: 72px;
+              height: 72px;
+              object-fit: contain;
+              flex: 0 0 auto;
+            }
+
+            .brand-copy {
+              min-width: 0;
+            }
+
+            .brand-name {
+              margin: 0;
+              color: #0b3b6e;
+              font-size: 28px;
+              line-height: 1;
+              font-weight: 800;
+              letter-spacing: -0.5px;
+            }
+
+            .brand-subtitle {
+              display: block;
+              margin-top: 8px;
+              color: #f97316;
+              font-size: 13px;
+              font-weight: 700;
+            }
+
+            .generated {
+              text-align: right;
+              font-size: 11px;
+              color: #64748b;
+              line-height: 1.45;
+            }
+
+            .generated strong {
+              display: block;
+              color: #334155;
+              font-size: 11px;
             }
 
             .summary {
-              display:
-                grid;
-
-              grid-template-columns:
-                repeat(
-                  4,
-                  1fr
-                );
-
-              gap:
-                12px;
-
-              margin-bottom:
-                24px;
+              display: grid;
+              grid-template-columns: repeat(4, minmax(0, 1fr));
+              gap: 12px;
+              margin-bottom: 22px;
             }
 
-            .summary div {
-              border:
-                1px solid
-                #e2e8f0;
-
-              border-radius:
-                8px;
-
-              padding:
-                14px;
+            .summary-card {
+              border: 1px solid #dbe4ea;
+              border-radius: 10px;
+              padding: 13px 14px;
+              background: #fff7ed;
             }
 
-            .summary strong {
-              display:
-                block;
-
-              font-size:
-                22px;
+            .summary-card strong {
+              display: block;
+              margin-bottom: 3px;
+              color: #0b3b6e;
+              font-size: 21px;
             }
 
-            .summary span {
-              font-size:
-                11px;
+            .summary-card span {
+              color: #64748b;
+              font-size: 10px;
+              font-weight: 700;
+              text-transform: uppercase;
+              letter-spacing: 0.4px;
+            }
 
-              color:
-                #64748b;
+            .report-title {
+              margin: 0 0 12px;
+              font-size: 15px;
+              color: #0f172a;
             }
 
             table {
-              width:
-                100%;
-
-              border-collapse:
-                collapse;
-
-              font-size:
-                11px;
+              width: 100%;
+              border-collapse: collapse;
+              table-layout: auto;
+              font-size: 9.5px;
             }
 
             th,
             td {
-              border:
-                1px solid
-                #e2e8f0;
-
-              padding:
-                8px;
-
-              text-align:
-                left;
+              border: 1px solid #dbe4ea;
+              padding: 7px 6px;
+              text-align: left;
+              vertical-align: middle;
+              word-break: break-word;
             }
 
             th {
-              background:
-                #fff7ed;
+              background: #f97316;
+              color: #ffffff;
+              font-weight: 700;
+            }
+
+            tbody tr:nth-child(even) {
+              background: #fffaf5;
+            }
+
+            .allowed {
+              color: #15803d;
+              font-weight: 700;
+            }
+
+            .denied {
+              color: #b91c1c;
+              font-weight: 700;
+            }
+
+            .empty {
+              padding: 24px;
+              text-align: center;
+              color: #64748b;
             }
 
             .footer {
-              margin-top:
-                24px;
+              display: flex;
+              justify-content: space-between;
+              gap: 16px;
+              margin-top: 20px;
+              padding-top: 10px;
+              border-top: 1px solid #e2e8f0;
+              font-size: 9px;
+              color: #64748b;
+            }
 
-              font-size:
-                10px;
+            @page {
+              size: landscape;
+              margin: 12mm;
+            }
 
-              color:
-                #64748b;
+            @media print {
+
+              body {
+                padding: 0;
+              }
+
+              .report-header,
+              .summary-card,
+              thead {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+              }
+
+              tr,
+              td,
+              th {
+                page-break-inside: avoid;
+              }
+
             }
 
           </style>
 
         </head>
 
-
         <body>
 
-          <div class="header">
+          <header class="report-header">
 
-            <h1>
-              SegurEntry
-            </h1>
+            <div class="brand">
 
-            <strong>
-              Reporte de accesos
-              · Administrador
-            </strong>
+              <img
+                class="brand-logo"
+                src="${logoBase64}"
+                alt="Logo de SegurEntry"
+              >
 
-            <p>
-              Generado:
-              ${this.escapeReportHtml(
-                new Date()
-                  .toLocaleString(
-                    'es-CO'
-                  )
-              )}
-            </p>
+              <div class="brand-copy">
 
-          </div>
+                <h1 class="brand-name">
+                  SegurEntry
+                </h1>
 
+                <span class="brand-subtitle">
+                  Reporte de accesos · Administrador
+                </span>
 
-          <div class="summary">
+              </div>
 
-            <div>
-              <strong>
-                ${this.accesses.length}
-              </strong>
-
-              <span>
-                Usuarios
-              </span>
             </div>
 
+            <div class="generated">
 
-            <div>
               <strong>
-                ${logs.length}
+                Generado
               </strong>
 
-              <span>
-                Accesos
-              </span>
+              ${this.escapeReportHtml(generatedAt)}
+
             </div>
 
+          </header>
 
-            <div>
-              <strong>
-                ${this.reportAllowed}
-              </strong>
+          <section class="summary">
 
-              <span>
-                Permitidos
-              </span>
+            <div class="summary-card">
+              <strong>${this.accesses.length}</strong>
+              <span>Usuarios</span>
             </div>
 
-
-            <div>
-              <strong>
-                ${this.reportDenied}
-              </strong>
-
-              <span>
-                Denegados
-              </span>
+            <div class="summary-card">
+              <strong>${logs.length}</strong>
+              <span>Accesos</span>
             </div>
 
-          </div>
+            <div class="summary-card">
+              <strong>${this.reportAllowed}</strong>
+              <span>Permitidos</span>
+            </div>
 
+            <div class="summary-card">
+              <strong>${this.reportDenied}</strong>
+              <span>Denegados</span>
+            </div>
+
+          </section>
+
+          <h2 class="report-title">
+            Historial de accesos
+          </h2>
 
           <table>
 
             <thead>
 
               <tr>
-                <th>Fecha</th>
+                <th>Fecha y hora</th>
                 <th>Usuario</th>
                 <th>Documento</th>
                 <th>Rol</th>
                 <th>Movimiento</th>
                 <th>Método</th>
+                <th>Dispositivo</th>
                 <th>Estado</th>
               </tr>
 
             </thead>
-
 
             <tbody>
 
@@ -4374,15 +5625,12 @@ export class AdminComponent implements OnInit, OnDestroy {
                 rows ||
                 `
                   <tr>
-
                     <td
-                      colspan="7"
-                      style="text-align:center">
-
+                      colspan="8"
+                      class="empty"
+                    >
                       No existen registros.
-
                     </td>
-
                   </tr>
                 `
               }
@@ -4391,14 +5639,17 @@ export class AdminComponent implements OnInit, OnDestroy {
 
           </table>
 
+          <footer class="footer">
 
-          <div class="footer">
+            <span>
+              SegurEntry · Acceso inteligente, seguridad eficiente
+            </span>
 
-            SegurEntry ·
-            Reporte generado desde
-            el panel Administrador
+            <span>
+              Panel Administrador
+            </span>
 
-          </div>
+          </footer>
 
         </body>
 
@@ -4406,86 +5657,81 @@ export class AdminComponent implements OnInit, OnDestroy {
 
       `);
 
+      printWindow.document.close();
+      printWindow.focus();
 
-    printWindow.document
-      .close();
+      this.notificationService
+        .notifyReportGenerated({
 
-    printWindow.focus();
+          report_type:
+            'Reporte de accesos - Administrador - PDF',
 
+          records:
+            logs.length,
 
-    // La versión mejorada de NotificationService
-    // registra este evento para el SuperAdmin.
-    this.notificationService
-      .notifyReportGenerated({
+          allowed:
+            this.reportAllowed,
 
-        report_type:
-          'Reporte de accesos - Administrador',
+          denied:
+            this.reportDenied,
 
-        records:
-          logs.length,
+          filters: {
+            search:
+              this.reportSearch,
+            from:
+              this.reportFrom,
+            to:
+              this.reportTo,
+            status:
+              this.reportStatus,
+            movement:
+              this.reportType,
+            role:
+              this.reportRole
+          }
 
-        allowed:
-          this.reportAllowed,
+        })
+        .subscribe({
 
-        denied:
-          this.reportDenied,
+          next: () => {
+            console.log(
+              'Reporte del Administrador notificado.'
+            );
+          },
 
-        filters: {
-
-          search:
-            this.reportSearch,
-
-          from:
-            this.reportFrom,
-
-          to:
-            this.reportTo,
-
-          status:
-            this.reportStatus,
-
-          movement:
-            this.reportType,
-
-          role:
-            this.reportRole
-
-        }
-
-      })
-      .subscribe({
-
-        next: () => {
-
-          console.log(
-            'Reporte del Administrador notificado.'
-          );
-
-        },
-
-        error:
-          (error: any) => {
-
-            // El PDF sigue funcionando aunque
-            // falle solamente la notificación.
+          error: (error: any) => {
             console.error(
               'No se pudo registrar la notificación del reporte:',
               error
             );
-
           }
 
+        });
+
+      setTimeout(
+        () => {
+          printWindow.print();
+        },
+        450
+      );
+
+    } catch (error) {
+
+      console.error(
+        'ERROR GENERANDO REPORTE PDF:',
+        error
+      );
+
+      printWindow.close();
+
+      Swal.fire({
+        icon: 'error',
+        title: 'No se pudo generar el PDF',
+        text:
+          'Verifica que exista frontend/public/logo-segurentry.png.'
       });
 
-
-    setTimeout(
-      () => {
-
-        printWindow.print();
-
-      },
-      300
-    );
+    }
 
   }
 

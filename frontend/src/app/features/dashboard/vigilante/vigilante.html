@@ -126,21 +126,6 @@
             </button>
 
 
-            <!-- BIOMETRÍA -->
-            <button
-                type="button"
-                [class.active]="activeSection === 'biometria'"
-                (click)="setSection('biometria')">
-
-                <i class="fas fa-fingerprint"></i>
-
-                <span *ngIf="menuOpen">
-                    Biometría
-                </span>
-
-            </button>
-
-
             <!-- PERFIL -->
             <button
                 type="button"
@@ -253,19 +238,6 @@
                 </div>
 
 
-                <div *ngIf="activeSection === 'biometria'">
-
-                    <h2>
-                        Registro de Huellas
-                    </h2>
-
-                    <p class="header-subtitle">
-                        Gestión visual del enrolamiento biométrico de usuarios
-                    </p>
-
-                </div>
-
-
                 <div *ngIf="activeSection === 'profile'">
 
                     <h2>
@@ -284,42 +256,75 @@
 
 
         <!-- =====================================================
-             DASHBOARD PERSONAL
+             DASHBOARD PERSONAL — SESIONES DEL VIGILANTE
              ===================================================== -->
         <section
             *ngIf="activeSection === 'dashboard'"
             class="vigilante-dashboard">
 
-            <div class="dashboard-hero">
+            <div class="dashboard-hero personal-session-hero">
 
                 <div>
 
                     <span class="dashboard-eyebrow">
-                        MI ACTIVIDAD
+                        MI ACTIVIDAD PERSONAL
                     </span>
 
                     <h3>
-                        Mis ingresos y salidas
+                        Mis ingresos, salidas y presencia
                     </h3>
 
                     <p>
-                        Este panel muestra únicamente tus propios movimientos
-                        registrados como vigilante.
+                        Cada fila agrupa tu entrada y salida de una misma sesión.
+                        Si todavía no has registrado salida, tu estado aparecerá como Dentro.
                     </p>
 
                 </div>
 
 
-                <button
-                    type="button"
-                    class="refresh-dashboard-btn"
-                    (click)="refreshAccesses()">
+                <div class="personal-dashboard-actions">
 
-                    <i class="fas fa-rotate"></i>
+                    <span class="access-live-chip">
+                        <span></span>
+                        En vivo · 1 s
+                    </span>
 
-                    Actualizar
+                    <div
+                        class="personal-presence-panel"
+                        [class.inside]="myCurrentPresence === 'Dentro'"
+                        [class.outside]="myCurrentPresence === 'Fuera'"
+                        [class.empty]="myCurrentPresence === 'Sin registros'">
 
-                </button>
+                        <div class="personal-presence-icon">
+
+                            <i
+                                class="fas"
+                                [class.fa-location-dot]="myCurrentPresence === 'Dentro'"
+                                [class.fa-door-open]="myCurrentPresence === 'Fuera'"
+                                [class.fa-clock-rotate-left]="myCurrentPresence === 'Sin registros'">
+                            </i>
+
+                        </div>
+
+                        <div>
+                            <span>Estado actual</span>
+                            <strong>{{ myCurrentPresence }}</strong>
+                        </div>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="refresh-dashboard-btn"
+                        (click)="refreshAccesses()">
+
+                        <i class="fas fa-rotate"></i>
+
+                        Actualizar
+
+                    </button>
+
+                </div>
 
             </div>
 
@@ -388,6 +393,34 @@
 
                 </div>
 
+
+                <div
+                    class="card stat-card personal-presence-stat"
+                    [class.inside]="myCurrentPresence === 'Dentro'"
+                    [class.outside]="myCurrentPresence === 'Fuera'">
+
+                    <div class="stat-icon presence">
+                        <i
+                            class="fas"
+                            [class.fa-location-dot]="myCurrentPresence === 'Dentro'"
+                            [class.fa-door-open]="myCurrentPresence !== 'Dentro'">
+                        </i>
+                    </div>
+
+                    <div>
+
+                        <h2 class="presence-stat-value">
+                            {{ myCurrentPresence }}
+                        </h2>
+
+                        <p>
+                            Mi presencia actual
+                        </p>
+
+                    </div>
+
+                </div>
+
             </section>
 
 
@@ -398,11 +431,11 @@
                     <div>
 
                         <h3>
-                            Mis movimientos recientes
+                            Mi historial por sesiones
                         </h3>
 
                         <p>
-                            Últimos ingresos y salidas asociados a tu cuenta
+                            Fecha y hora exacta de entrada y salida, con estado de presencia en tiempo real.
                         </p>
 
                     </div>
@@ -415,8 +448,8 @@
                         <i class="fas fa-clock"></i>
 
                         <span>
-                            Último:
-                            {{ formatDate(myLastMovement.date) }}
+                            Último movimiento:
+                            {{ formatDate(myLastMovement.date) }} ·
                             {{ formatTime(myLastMovement.date) }}
                         </span>
 
@@ -427,16 +460,17 @@
 
                 <div class="table-container">
 
-                    <table>
+                    <table class="personal-session-table">
 
                         <thead>
 
                             <tr>
-                                <th>Movimiento</th>
-                                <th>Fecha</th>
+                                <th>Entrada</th>
+                                <th>Salida</th>
+                                <th>Presencia</th>
                                 <th>Método</th>
                                 <th>Dispositivo</th>
-                                <th>Resultado</th>
+                                <th>Estado</th>
                             </tr>
 
                         </thead>
@@ -445,67 +479,160 @@
                         <tbody>
 
                             <tr
-                                *ngFor="
-                                    let access
-                                    of recentMyAccesses
-                                ">
+                                *ngFor="let session of recentMyAccessSessions">
 
+                                <!-- ENTRADA -->
+                                <td>
+
+                                    <div
+                                        class="session-datetime"
+                                        *ngIf="session.entryDate">
+
+                                        <strong>
+                                            {{ formatDate(session.entryDate) }}
+                                        </strong>
+
+                                        <span>
+                                            {{ formatTime(session.entryDate) }}
+                                        </span>
+
+                                    </div>
+
+                                    <span
+                                        class="session-empty"
+                                        *ngIf="!session.entryDate">
+                                        Sin registro
+                                    </span>
+
+                                </td>
+
+
+                                <!-- SALIDA -->
+                                <td>
+
+                                    <div
+                                        class="session-datetime"
+                                        *ngIf="session.exitDate">
+
+                                        <strong>
+                                            {{ formatDate(session.exitDate) }}
+                                        </strong>
+
+                                        <span>
+                                            {{ formatTime(session.exitDate) }}
+                                        </span>
+
+                                    </div>
+
+
+                                    <span
+                                        class="session-inside-text"
+                                        *ngIf="
+                                            !session.exitDate &&
+                                            session.allowed &&
+                                            session.status === 'dentro'
+                                        ">
+
+                                        <i class="fas fa-location-dot"></i>
+                                        Aún dentro
+
+                                    </span>
+
+
+                                    <span
+                                        class="session-empty"
+                                        *ngIf="
+                                            !session.exitDate &&
+                                            (
+                                                !session.allowed ||
+                                                session.status !== 'dentro'
+                                            )
+                                        ">
+                                        —
+                                    </span>
+
+                                </td>
+
+
+                                <!-- PRESENCIA -->
                                 <td>
 
                                     <span
-                                        class="access-badge"
-                                        [class.ingreso]="access.type === 'entrada'"
-                                        [class.salida]="access.type === 'salida'">
+                                        class="presence-badge inside"
+                                        *ngIf="
+                                            session.allowed &&
+                                            session.status === 'dentro'
+                                        ">
 
-                                        <i
-                                            class="fas"
-                                            [class.fa-right-to-bracket]="access.type === 'entrada'"
-                                            [class.fa-right-from-bracket]="access.type === 'salida'">
-                                        </i>
+                                        <span></span>
+                                        Dentro
 
-                                        {{
-                                            access.type === 'entrada'
-                                                ? 'Ingreso'
-                                                : 'Salida'
-                                        }}
+                                    </span>
+
+
+                                    <span
+                                        class="presence-badge outside"
+                                        *ngIf="
+                                            session.allowed &&
+                                            session.status !== 'dentro'
+                                        ">
+
+                                        <i class="fas fa-door-open"></i>
+                                        Fuera
+
+                                    </span>
+
+
+                                    <span
+                                        class="presence-badge denied"
+                                        *ngIf="!session.allowed">
+
+                                        <i class="fas fa-ban"></i>
+                                        Denegado
 
                                     </span>
 
                                 </td>
 
 
+                                <!-- MÉTODO -->
                                 <td>
 
-                                    <strong class="access-date">
-                                        {{ formatDate(access.date) }}
-                                    </strong>
+                                    <span class="access-method-chip">
 
-                                    <small class="access-time">
-                                        {{ formatTime(access.date) }}
-                                    </small>
+                                        <i
+                                            class="fas"
+                                            [class.fa-id-card]="
+                                                (session.method || '').toLowerCase().includes('rfid')
+                                            "
+                                            [class.fa-fingerprint]="
+                                                !(session.method || '').toLowerCase().includes('rfid')
+                                            ">
+                                        </i>
+
+                                        {{ session.method || 'No registrado' }}
+
+                                    </span>
 
                                 </td>
 
 
+                                <!-- DISPOSITIVO -->
                                 <td>
-                                    {{ access.method || 'No registrado' }}
+                                    {{ session.device || 'No registrado' }}
                                 </td>
 
 
-                                <td>
-                                    {{ access.device || 'No registrado' }}
-                                </td>
-
-
+                                <!-- ESTADO -->
                                 <td>
 
                                     <span
                                         class="result-badge"
-                                        [class.allowed]="access.allowed"
-                                        [class.denied]="!access.allowed">
+                                        [class.allowed]="session.allowed"
+                                        [class.denied]="!session.allowed">
 
                                         {{
-                                            access.allowed
+                                            session.allowed
                                                 ? 'Permitido'
                                                 : 'Denegado'
                                         }}
@@ -518,12 +645,10 @@
 
 
                             <tr
-                                *ngIf="
-                                    recentMyAccesses.length === 0
-                                ">
+                                *ngIf="recentMyAccessSessions.length === 0">
 
                                 <td
-                                    colspan="5"
+                                    colspan="6"
                                     class="empty-state">
 
                                     <div>
@@ -531,11 +656,11 @@
                                         <i class="fas fa-clock-rotate-left"></i>
 
                                         <h4>
-                                            Sin movimientos personales
+                                            Sin sesiones personales
                                         </h4>
 
                                         <p>
-                                            Tus ingresos y salidas aparecerán aquí.
+                                            Tus entradas y salidas aparecerán aquí cuando utilices SegurEntry.
                                         </p>
 
                                     </div>
@@ -556,11 +681,54 @@
 
 
         <!-- =====================================================
-             ACCESOS — TODOS LOS USUARIOS
+             ACCESOS — SESIONES DE TODOS LOS USUARIOS
              ===================================================== -->
         <section
             *ngIf="activeSection === 'accesses'"
             class="accesses-section">
+
+            <div class="dashboard-hero access-session-hero">
+
+                <div>
+
+                    <span class="dashboard-eyebrow">
+                        CONTROL EN TIEMPO REAL
+                    </span>
+
+                    <h3>
+                        Entradas, salidas y presencia
+                    </h3>
+
+                    <p>
+                        Cada fila agrupa el ingreso y la salida de una misma sesión.
+                        Si una persona todavía no ha registrado salida, aparecerá como Dentro.
+                    </p>
+
+                </div>
+
+
+                <div class="access-session-hero-actions">
+
+                    <span class="access-live-chip">
+                        <span></span>
+                        En vivo · 1 s
+                    </span>
+
+                    <button
+                        type="button"
+                        class="refresh-dashboard-btn"
+                        (click)="refreshAccesses()">
+
+                        <i class="fas fa-rotate"></i>
+
+                        Actualizar
+
+                    </button>
+
+                </div>
+
+            </div>
+
 
             <section class="stats">
 
@@ -636,11 +804,11 @@
                     <div>
 
                         <h3>
-                            Registro general de accesos
+                            Historial general por sesiones
                         </h3>
 
                         <p>
-                            Movimientos de absolutamente todos los usuarios
+                            Fecha y hora exacta de entrada y salida de los usuarios.
                         </p>
 
                     </div>
@@ -655,7 +823,7 @@
                             <input
                                 type="text"
                                 [(ngModel)]="search"
-                                placeholder="Nombre, documento, correo, rol..."
+                                placeholder="Nombre, documento, rol, dentro, fuera, RFID..."
                                 aria-label="Buscar accesos">
 
                         </div>
@@ -664,7 +832,8 @@
                         <button
                             type="button"
                             class="small-refresh-btn"
-                            (click)="refreshAccesses()">
+                            (click)="refreshAccesses()"
+                            title="Actualizar accesos">
 
                             <i class="fas fa-rotate"></i>
 
@@ -677,19 +846,20 @@
 
                 <div class="table-container">
 
-                    <table>
+                    <table class="access-session-table">
 
                         <thead>
 
                             <tr>
                                 <th>Usuario</th>
-                                <th>Correo</th>
                                 <th>Documento</th>
                                 <th>Rol</th>
-                                <th>Tipo</th>
-                                <th>Fecha</th>
+                                <th>Entrada</th>
+                                <th>Salida</th>
+                                <th>Presencia</th>
                                 <th>Método</th>
-                                <th>Resultado</th>
+                                <th>Dispositivo</th>
+                                <th>Estado</th>
                             </tr>
 
                         </thead>
@@ -699,8 +869,8 @@
 
                             <tr
                                 *ngFor="
-                                    let access
-                                    of filteredAccesses()
+                                    let session
+                                    of filteredAccessSessions()
                                 ">
 
                                 <td>
@@ -714,11 +884,11 @@
                                         <div>
 
                                             <strong>
-                                                {{ access.name || 'Usuario' }}
+                                                {{ session.name || 'Usuario' }}
                                             </strong>
 
                                             <small>
-                                                {{ access.uid || 'Sin UID' }}
+                                                {{ session.email || session.uid || 'Sin correo' }}
                                             </small>
 
                                         </div>
@@ -729,19 +899,85 @@
 
 
                                 <td>
-                                    {{ access.email || 'No registrado' }}
-                                </td>
-
-
-                                <td>
-                                    {{ access.document || 'No registrado' }}
+                                    {{ session.document || 'No registrado' }}
                                 </td>
 
 
                                 <td>
 
                                     <span class="role-chip">
-                                        {{ access.role || 'usuario' }}
+                                        {{ session.role || 'usuario' }}
+                                    </span>
+
+                                </td>
+
+
+                                <td>
+
+                                    <div
+                                        class="session-datetime"
+                                        *ngIf="session.entryDate">
+
+                                        <strong>
+                                            {{ formatDate(session.entryDate) }}
+                                        </strong>
+
+                                        <span>
+                                            {{ formatTime(session.entryDate) }}
+                                        </span>
+
+                                    </div>
+
+                                    <span
+                                        class="session-empty"
+                                        *ngIf="!session.entryDate">
+                                        Sin registro
+                                    </span>
+
+                                </td>
+
+
+                                <td>
+
+                                    <div
+                                        class="session-datetime"
+                                        *ngIf="session.exitDate">
+
+                                        <strong>
+                                            {{ formatDate(session.exitDate) }}
+                                        </strong>
+
+                                        <span>
+                                            {{ formatTime(session.exitDate) }}
+                                        </span>
+
+                                    </div>
+
+
+                                    <span
+                                        class="session-inside-text"
+                                        *ngIf="
+                                            !session.exitDate &&
+                                            session.allowed &&
+                                            session.status === 'dentro'
+                                        ">
+
+                                        <i class="fas fa-location-dot"></i>
+                                        Aún dentro
+
+                                    </span>
+
+
+                                    <span
+                                        class="session-empty"
+                                        *ngIf="
+                                            !session.exitDate &&
+                                            (
+                                                !session.allowed ||
+                                                session.status !== 'dentro'
+                                            )
+                                        ">
+                                        —
                                     </span>
 
                                 </td>
@@ -750,21 +986,37 @@
                                 <td>
 
                                     <span
-                                        class="access-badge"
-                                        [class.ingreso]="access.type === 'entrada'"
-                                        [class.salida]="access.type === 'salida'">
+                                        class="presence-badge inside"
+                                        *ngIf="
+                                            session.allowed &&
+                                            session.status === 'dentro'
+                                        ">
 
-                                        <i
-                                            class="fas"
-                                            [class.fa-right-to-bracket]="access.type === 'entrada'"
-                                            [class.fa-right-from-bracket]="access.type === 'salida'">
-                                        </i>
+                                        <span></span>
+                                        Dentro
 
-                                        {{
-                                            access.type === 'entrada'
-                                                ? 'Ingreso'
-                                                : 'Salida'
-                                        }}
+                                    </span>
+
+
+                                    <span
+                                        class="presence-badge outside"
+                                        *ngIf="
+                                            session.allowed &&
+                                            session.status !== 'dentro'
+                                        ">
+
+                                        <i class="fas fa-door-open"></i>
+                                        Fuera
+
+                                    </span>
+
+
+                                    <span
+                                        class="presence-badge denied"
+                                        *ngIf="!session.allowed">
+
+                                        <i class="fas fa-ban"></i>
+                                        Denegado
 
                                     </span>
 
@@ -773,19 +1025,27 @@
 
                                 <td>
 
-                                    <strong class="access-date">
-                                        {{ formatDate(access.date) }}
-                                    </strong>
+                                    <span class="access-method-chip">
 
-                                    <small class="access-time">
-                                        {{ formatTime(access.date) }}
-                                    </small>
+                                        <i
+                                            class="fas"
+                                            [class.fa-id-card]="
+                                                (session.method || '').toLowerCase().includes('rfid')
+                                            "
+                                            [class.fa-fingerprint]="
+                                                !(session.method || '').toLowerCase().includes('rfid')
+                                            ">
+                                        </i>
+
+                                        {{ session.method || 'No registrado' }}
+
+                                    </span>
 
                                 </td>
 
 
                                 <td>
-                                    {{ access.method || 'No registrado' }}
+                                    {{ session.device || 'No registrado' }}
                                 </td>
 
 
@@ -793,11 +1053,11 @@
 
                                     <span
                                         class="result-badge"
-                                        [class.allowed]="access.allowed"
-                                        [class.denied]="!access.allowed">
+                                        [class.allowed]="session.allowed"
+                                        [class.denied]="!session.allowed">
 
                                         {{
-                                            access.allowed
+                                            session.allowed
                                                 ? 'Permitido'
                                                 : 'Denegado'
                                         }}
@@ -811,11 +1071,11 @@
 
                             <tr
                                 *ngIf="
-                                    filteredAccesses().length === 0
+                                    filteredAccessSessions().length === 0
                                 ">
 
                                 <td
-                                    colspan="8"
+                                    colspan="9"
                                     class="empty-state">
 
                                     <div>
@@ -848,11 +1108,12 @@
 
 
         <!-- =====================================================
-             USUARIOS TEMPORALES
+             USUARIOS TEMPORALES + RFID
              ===================================================== -->
-        <section *ngIf="activeSection === 'temporary'" class="temporary-section">
+        <section
+            *ngIf="activeSection === 'temporary'"
+            class="temporary-section">
 
-            <!-- ENCABEZADO -->
             <div class="section-top">
 
                 <div>
@@ -862,43 +1123,105 @@
                     </h3>
 
                     <p>
-                        Los usuarios temporales requieren aprobación
-                        del administrador antes de ser creados.
+                        Registra correctamente al visitante, solicita la aprobación
+                        y, cuando sea aprobada, asígnale una tarjeta RFID para sus ingresos y salidas.
                     </p>
 
                 </div>
 
 
-                <button type="button" class="primary-btn" (click)="openForm()">
+                <button
+                    type="button"
+                    class="primary-btn"
+                    (click)="openForm()">
 
-                    <i class="fas fa-user-clock"></i>
+                    <i class="fas fa-user-plus"></i>
 
-                    Solicitar usuario temporal
+                    Registrar visitante temporal
 
                 </button>
 
             </div>
 
 
-            <!-- INFORMACIÓN -->
-            <div class="info-banner">
+            <div class="rfid-process-grid">
+
+                <article class="rfid-process-card">
+
+                    <div class="rfid-process-number">
+                        1
+                    </div>
+
+                    <div>
+                        <strong>Registrar visitante</strong>
+                        <span>Nombre, documento, contacto, motivo y duración.</span>
+                    </div>
+
+                </article>
+
+
+                <article class="rfid-process-card">
+
+                    <div class="rfid-process-number">
+                        2
+                    </div>
+
+                    <div>
+                        <strong>Aprobación administrativa</strong>
+                        <span>El acceso temporal se activa únicamente después de ser aprobado.</span>
+                    </div>
+
+                </article>
+
+
+                <article class="rfid-process-card">
+
+                    <div class="rfid-process-number">
+                        3
+                    </div>
+
+                    <div>
+                        <strong>Asignar tarjeta RFID</strong>
+                        <span>Acerca la tarjeta al lector ESP32 para asociarla al visitante.</span>
+                    </div>
+
+                </article>
+
+
+                <article class="rfid-process-card">
+
+                    <div class="rfid-process-number">
+                        4
+                    </div>
+
+                    <div>
+                        <strong>Entrada / salida</strong>
+                        <span>La primera lectura registra entrada y la siguiente registra salida.</span>
+                    </div>
+
+                </article>
+
+            </div>
+
+
+            <div class="info-banner rfid-info-banner">
 
                 <div class="info-icon">
 
-                    <i class="fas fa-shield-halved"></i>
+                    <i class="fas fa-id-card"></i>
 
                 </div>
 
                 <div>
 
                     <strong>
-                        Acceso temporal protegido
+                        Acceso temporal con RFID
                     </strong>
 
                     <p>
-                        Los usuarios temporales tendrán una duración
-                        máxima de 24 horas y solamente se crearán
-                        cuando un administrador apruebe la solicitud.
+                        La tarjeta solo puede asignarse a una solicitud aprobada.
+                        Cuando venza el tiempo autorizado, el backend rechazará nuevos ingresos
+                        aunque la tarjeta siga siendo detectada por el lector.
                     </p>
 
                 </div>
@@ -906,27 +1229,30 @@
             </div>
 
 
-            <!-- =================================================
-                 FORMULARIO
-                 ================================================= -->
-            <div class="card temporary-form" *ngIf="showForm">
+            <div
+                class="card temporary-form"
+                *ngIf="showForm">
 
                 <div class="form-header">
 
                     <div>
 
                         <h3>
-                            Nueva solicitud
+                            Registrar visitante temporal
                         </h3>
 
                         <p>
-                            Datos del usuario que necesita acceso temporal
+                            Completa todos los datos necesarios antes de solicitar la aprobación.
                         </p>
 
                     </div>
 
 
-                    <button type="button" class="close-btn" (click)="closeForm()" title="Cerrar formulario"
+                    <button
+                        type="button"
+                        class="close-btn"
+                        (click)="closeForm()"
+                        title="Cerrar formulario"
                         aria-label="Cerrar formulario">
 
                         <i class="fas fa-xmark"></i>
@@ -936,110 +1262,161 @@
                 </div>
 
 
-                <!-- FORMULARIO -->
                 <div class="form-grid">
 
-                    <!-- NOMBRE -->
                     <div class="form-group">
 
                         <label for="temporary-name">
                             Nombre completo
                         </label>
 
-                        <input id="temporary-name" type="text" [(ngModel)]="form.name"
-                            placeholder="Nombre del visitante">
+                        <input
+                            id="temporary-name"
+                            type="text"
+                            [(ngModel)]="form.name"
+                            placeholder="Nombre y apellidos"
+                            maxlength="100">
+
+                        <small>
+                            Solo letras, espacios, puntos, apóstrofes y guiones.
+                        </small>
 
                     </div>
 
 
-                    <!-- CORREO -->
                     <div class="form-group">
 
                         <label for="temporary-email">
                             Correo electrónico
                         </label>
 
-                        <input id="temporary-email" type="email" [(ngModel)]="form.email"
-                            placeholder="correo@ejemplo.com">
+                        <input
+                            id="temporary-email"
+                            type="email"
+                            [(ngModel)]="form.email"
+                            placeholder="correo@ejemplo.com"
+                            maxlength="150">
 
                     </div>
 
 
-                    <!-- DOCUMENTO -->
                     <div class="form-group">
 
-                        <label for="temporary-document">
-                            Documento
+                        <label for="temporary-document-type">
+                            Tipo de documento
                         </label>
 
-                        <input id="temporary-document" type="text" [(ngModel)]="form.document"
-                            placeholder="Número de documento">
-
-                    </div>
-
-                    <!-- MOTIVO -->
-                    <div class="form-group form-group-full">
-
-                        <label for="temporary-reason">
-                            Motivo del acceso temporal
-                        </label>
-
-                        <textarea id="temporary-reason" [(ngModel)]="form.reason"
-                            placeholder="Explica por qué se solicita el acceso temporal..." rows="4" maxlength="500">
-                        </textarea>
-
-                        <small>
-                            Indica claramente el motivo por el cual esta persona necesita ingresar.
-                        </small>
-
-                    </div>
-
-
-                    <!-- DURACIÓN -->
-                    <div class="form-group">
-
-                        <label for="temporary-duration">
-                            Duración del acceso
-                        </label>
-
-                        <select id="temporary-duration" [(ngModel)]="form.expirationDate">
+                        <select
+                            id="temporary-document-type"
+                            [(ngModel)]="form.documentType">
 
                             <option value="">
-                                Seleccionar duración
+                                Selecciona un tipo
                             </option>
 
-                            <option value="1">
-                                1 hora
+                            <option value="CC">
+                                CC - Cédula de Ciudadanía
                             </option>
 
-                            <option value="2">
-                                2 horas
-                            </option>
-
-                            <option value="4">
-                                4 horas
-                            </option>
-
-                            <option value="8">
-                                8 horas
-                            </option>
-
-                            <option value="12">
-                                12 horas
-                            </option>
-
-                            <option value="24">
-                                24 horas
+                            <option value="TI">
+                                TI - Tarjeta de Identidad
                             </option>
 
                         </select>
 
                     </div>
 
+
+                    <div class="form-group">
+
+                        <label for="temporary-document">
+                            Número de documento
+                        </label>
+
+                        <input
+                            id="temporary-document"
+                            type="text"
+                            [(ngModel)]="form.document"
+                            placeholder="Solo números"
+                            inputmode="numeric"
+                            maxlength="15">
+
+                        <small>
+                            Entre 6 y 15 dígitos.
+                        </small>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="temporary-phone">
+                            Teléfono
+                        </label>
+
+                        <input
+                            id="temporary-phone"
+                            type="tel"
+                            [(ngModel)]="form.phone"
+                            placeholder="Ej. 3001234567"
+                            maxlength="16">
+
+                        <small>
+                            Opcional. Entre 7 y 15 dígitos.
+                        </small>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="temporary-duration">
+                            Duración autorizada
+                        </label>
+
+                        <select
+                            id="temporary-duration"
+                            [(ngModel)]="form.expirationDate">
+
+                            <option value="">
+                                Seleccionar duración
+                            </option>
+
+                            <option value="1">1 hora</option>
+                            <option value="2">2 horas</option>
+                            <option value="4">4 horas</option>
+                            <option value="8">8 horas</option>
+                            <option value="12">12 horas</option>
+                            <option value="24">24 horas</option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-group form-group-full">
+
+                        <label for="temporary-reason">
+                            Motivo del acceso temporal
+                        </label>
+
+                        <textarea
+                            id="temporary-reason"
+                            [(ngModel)]="form.reason"
+                            placeholder="Describe la visita, persona o área a la que se dirige..."
+                            rows="4"
+                            maxlength="500">
+                        </textarea>
+
+                        <small>
+                            Máximo 500 caracteres.
+                        </small>
+
+                    </div>
+
                 </div>
 
 
-                <!-- AVISO -->
                 <div class="approval-warning">
 
                     <i class="fas fa-circle-info"></i>
@@ -1047,13 +1424,12 @@
                     <div>
 
                         <strong>
-                            Esta solicitud necesita aprobación
+                            La tarjeta RFID se asigna después de la aprobación
                         </strong>
 
                         <p>
-                            Al enviar la solicitud, el administrador
-                            recibirá una notificación. El usuario
-                            temporal no será creado hasta que sea aprobado.
+                            Primero se crea la solicitud. Cuando el Administrador o Super Administrador
+                            la apruebe, aparecerá el botón “Asignar RFID” en la tabla inferior.
                         </p>
 
                     </div>
@@ -1061,17 +1437,22 @@
                 </div>
 
 
-                <!-- BOTONES -->
                 <div class="form-actions">
 
-                    <button type="button" class="secondary-btn" (click)="closeForm()">
+                    <button
+                        type="button"
+                        class="secondary-btn"
+                        (click)="closeForm()">
 
                         Cancelar
 
                     </button>
 
 
-                    <button type="button" class="primary-btn" (click)="saveAccess()">
+                    <button
+                        type="button"
+                        class="primary-btn"
+                        (click)="saveAccess()">
 
                         <i class="fas fa-paper-plane"></i>
 
@@ -1084,22 +1465,18 @@
             </div>
 
 
-            <!-- =================================================
-     LISTA DE SOLICITUDES
-     ================================================= -->
             <section class="card list-card">
 
-                <!-- HEADER -->
                 <div class="table-header">
 
                     <div>
 
                         <h3>
-                            Solicitudes
+                            Visitantes y solicitudes
                         </h3>
 
                         <p>
-                            Historial de solicitudes de acceso temporal
+                            Revisa el estado de aprobación y administra la tarjeta RFID del usuario temporal.
                         </p>
 
                     </div>
@@ -1107,10 +1484,12 @@
                 </div>
 
 
-                <!-- FILTROS -->
                 <div class="request-filters">
 
-                    <button type="button" [class.active]="requestFilter === 'todas'" (click)="requestFilter = 'todas'">
+                    <button
+                        type="button"
+                        [class.active]="requestFilter === 'todas'"
+                        (click)="requestFilter = 'todas'">
 
                         Todas
 
@@ -1121,7 +1500,9 @@
                     </button>
 
 
-                    <button type="button" [class.active]="requestFilter === 'pendiente'"
+                    <button
+                        type="button"
+                        [class.active]="requestFilter === 'pendiente'"
                         (click)="requestFilter = 'pendiente'">
 
                         Pendientes
@@ -1133,7 +1514,9 @@
                     </button>
 
 
-                    <button type="button" [class.active]="requestFilter === 'aprobada'"
+                    <button
+                        type="button"
+                        [class.active]="requestFilter === 'aprobada'"
                         (click)="requestFilter = 'aprobada'">
 
                         Aprobadas
@@ -1145,7 +1528,9 @@
                     </button>
 
 
-                    <button type="button" [class.active]="requestFilter === 'rechazada'"
+                    <button
+                        type="button"
+                        [class.active]="requestFilter === 'rechazada'"
                         (click)="requestFilter = 'rechazada'">
 
                         Rechazadas
@@ -1159,39 +1544,20 @@
                 </div>
 
 
-                <!-- TABLA -->
                 <div class="table-container">
 
-                    <table>
+                    <table class="temporary-rfid-table">
 
                         <thead>
 
                             <tr>
-
-                                <th>
-                                    Usuario
-                                </th>
-
-                                <th>
-                                    Documento
-                                </th>
-
-                                <th>
-                                    Motivo
-                                </th>
-
-                                <th>
-                                    Duración
-                                </th>
-
-                                <th>
-                                    Fecha
-                                </th>
-
-                                <th>
-                                    Estado
-                                </th>
-
+                                <th>Visitante</th>
+                                <th>Documento</th>
+                                <th>Motivo</th>
+                                <th>Vigencia</th>
+                                <th>Estado</th>
+                                <th>Tarjeta RFID</th>
+                                <th>Acción</th>
                             </tr>
 
                         </thead>
@@ -1199,18 +1565,18 @@
 
                         <tbody>
 
-                            <!-- SOLICITUDES -->
-                            <tr *ngFor="let request of filteredTemporaryRequests()">
+                            <tr
+                                *ngFor="
+                                    let request
+                                    of filteredTemporaryRequests()
+                                ">
 
-                                <!-- USUARIO -->
                                 <td>
 
                                     <div class="user-cell">
 
                                         <div class="user-mini-avatar">
-
                                             <i class="fas fa-user-clock"></i>
-
                                         </div>
 
                                         <div>
@@ -1223,6 +1589,10 @@
                                                 {{ request.email || 'Sin correo' }}
                                             </small>
 
+                                            <small *ngIf="request.phone">
+                                                {{ request.phone }}
+                                            </small>
+
                                         </div>
 
                                     </div>
@@ -1230,13 +1600,16 @@
                                 </td>
 
 
-                                <!-- DOCUMENTO -->
                                 <td>
-                                    {{ request.document || '—' }}
+
+                                    <strong class="temporary-document">
+                                        {{ request.documentType || 'Doc.' }}
+                                        {{ request.document || '—' }}
+                                    </strong>
+
                                 </td>
 
 
-                                <!-- MOTIVO -->
                                 <td>
 
                                     <div class="request-reason">
@@ -1247,11 +1620,12 @@
 
                                     </div>
 
-                                    <!-- MOTIVO RECHAZO -->
-                                    <small class="rejection-reason" *ngIf="
-                                request.status === 'rechazada' &&
-                                request.rejection_reason
-                            ">
+                                    <small
+                                        class="rejection-reason"
+                                        *ngIf="
+                                            request.status === 'rechazada' &&
+                                            request.rejection_reason
+                                        ">
 
                                         <i class="fas fa-circle-exclamation"></i>
 
@@ -1262,75 +1636,158 @@
                                 </td>
 
 
-                                <!-- DURACIÓN -->
                                 <td>
 
                                     <span class="temporary-badge">
 
                                         <i class="fas fa-clock"></i>
 
-                                        {{ request.durationHours || 0 }} horas
+                                        {{ request.durationHours || 0 }} h
 
                                     </span>
 
-                                </td>
+                                    <small
+                                        class="temporary-expiration"
+                                        *ngIf="request.expires_at">
 
+                                        Vence:
+                                        {{ formatDate(request.expires_at) }}
+                                        {{ formatTime(request.expires_at) }}
 
-                                <!-- FECHA -->
-                                <td>
-
-                                    {{
-                                    request.created_at
-                                    ? (request.created_at | date:'dd/MM/yyyy HH:mm')
-                                    : 'Sin fecha'
-                                    }}
+                                    </small>
 
                                 </td>
 
 
-                                <!-- ESTADO -->
                                 <td>
 
-                                    <!-- PENDIENTE -->
-                                    <span *ngIf="request.status === 'pendiente'" class="pending-badge">
+                                    <span
+                                        *ngIf="request.status === 'pendiente'"
+                                        class="pending-badge">
 
                                         <i class="fas fa-hourglass-half"></i>
-
                                         Pendiente
 
                                     </span>
 
 
-                                    <!-- APROBADA -->
-                                    <span *ngIf="request.status === 'aprobada'" class="approved-badge">
+                                    <span
+                                        *ngIf="
+                                            request.status === 'aprobada' &&
+                                            !isTemporaryRequestExpired(request)
+                                        "
+                                        class="approved-badge">
 
                                         <i class="fas fa-circle-check"></i>
-
                                         Aprobada
 
                                     </span>
 
 
-                                    <!-- RECHAZADA -->
-                                    <span *ngIf="request.status === 'rechazada'" class="rejected-badge">
+                                    <span
+                                        *ngIf="
+                                            request.status === 'aprobada' &&
+                                            isTemporaryRequestExpired(request)
+                                        "
+                                        class="expired-badge">
 
-                                        <i class="fas fa-circle-xmark"></i>
-
-                                        Rechazada
+                                        <i class="fas fa-clock-rotate-left"></i>
+                                        Vencida
 
                                     </span>
 
 
-                                    <!-- ESTADO DESCONOCIDO -->
-                                    <span *ngIf="
-                                request.status !== 'pendiente' &&
-                                request.status !== 'aprobada' &&
-                                request.status !== 'rechazada'
-                            " class="pending-badge">
+                                    <span
+                                        *ngIf="request.status === 'rechazada'"
+                                        class="rejected-badge">
 
-                                        <i class="fas fa-circle-question"></i>
+                                        <i class="fas fa-circle-xmark"></i>
+                                        Rechazada
 
-                                        {{ request.status || 'Sin estado' }}
+                                    </span>
+
+                                </td>
+
+
+                                <td>
+
+                                    <div
+                                        class="rfid-assigned"
+                                        *ngIf="request.rfid_uid">
+
+                                        <span class="rfid-card-icon">
+                                            <i class="fas fa-id-card"></i>
+                                        </span>
+
+                                        <div>
+                                            <strong>Asignada</strong>
+                                            <code>{{ request.rfid_uid }}</code>
+                                        </div>
+
+                                    </div>
+
+
+                                    <span
+                                        class="rfid-not-assigned"
+                                        *ngIf="
+                                            !request.rfid_uid &&
+                                            request.status === 'aprobada'
+                                        ">
+
+                                        <i class="fas fa-id-card-clip"></i>
+                                        Sin tarjeta
+
+                                    </span>
+
+
+                                    <span
+                                        class="session-empty"
+                                        *ngIf="request.status !== 'aprobada'">
+                                        —
+                                    </span>
+
+                                </td>
+
+
+                                <td>
+
+                                    <button
+                                        type="button"
+                                        class="rfid-assign-btn"
+                                        *ngIf="request.status === 'aprobada'"
+                                        [disabled]="!canAssignRfid(request)"
+                                        (click)="startRfidEnrollment(request)">
+
+                                        <i
+                                            class="fas"
+                                            [class.fa-id-card]="!rfidActionInProgress"
+                                            [class.fa-spinner]="rfidActionInProgress"
+                                            [class.fa-spin]="rfidActionInProgress">
+                                        </i>
+
+                                        {{
+                                            request.rfid_uid
+                                                ? 'Cambiar tarjeta'
+                                                : 'Asignar RFID'
+                                        }}
+
+                                    </button>
+
+
+                                    <span
+                                        class="rfid-action-help"
+                                        *ngIf="request.status === 'pendiente'">
+
+                                        Esperando aprobación
+
+                                    </span>
+
+
+                                    <span
+                                        class="rfid-action-help rejected"
+                                        *ngIf="request.status === 'rechazada'">
+
+                                        No autorizada
 
                                     </span>
 
@@ -1339,10 +1796,11 @@
                             </tr>
 
 
-                            <!-- CARGANDO -->
                             <tr *ngIf="loadingRequests">
 
-                                <td colspan="6" class="empty-state">
+                                <td
+                                    colspan="7"
+                                    class="empty-state">
 
                                     <div>
 
@@ -1359,13 +1817,15 @@
                             </tr>
 
 
-                            <!-- SIN SOLICITUDES -->
-                            <tr *ngIf="
-                        !loadingRequests &&
-                        filteredTemporaryRequests().length === 0
-                    ">
+                            <tr
+                                *ngIf="
+                                    !loadingRequests &&
+                                    filteredTemporaryRequests().length === 0
+                                ">
 
-                                <td colspan="6" class="empty-state">
+                                <td
+                                    colspan="7"
+                                    class="empty-state">
 
                                     <div>
 
@@ -1376,13 +1836,7 @@
                                         </h4>
 
                                         <p>
-                                            No existen solicitudes
-                                            {{
-                                            requestFilter !== 'todas'
-                                            ? requestFilter
-                                            : ''
-                                            }}
-                                            para mostrar.
+                                            No existen registros que coincidan con el filtro actual.
                                         </p>
 
                                     </div>
@@ -1400,9 +1854,6 @@
             </section>
 
         </section>
-
-
-
 
 
         <!-- =====================================================
@@ -1684,262 +2135,6 @@
             </section>
 
         </section>
-
-
-    <!-- =====================================================
-         BIOMETRÍA
-         Vista preparada para futura conexión ESP32 + AS608
-         ===================================================== -->
-
-    <section *ngIf="activeSection === 'biometria'" class="biometric-section">
-
-        <div class="biometric-page-header">
-
-            <div>
-                <span class="biometric-eyebrow">
-                    <i class="fas fa-fingerprint"></i>
-                    Gestión biométrica
-                </span>
-
-                <h2>Registro de huellas</h2>
-
-                <p>
-                    Busca un usuario registrado y prepara su enrolamiento biométrico.
-                    La captura real se habilitará cuando el ESP32 y el sensor AS608 estén conectados.
-                </p>
-            </div>
-
-            <div class="biometric-device-status offline">
-
-                <span class="device-status-dot"></span>
-
-                <div>
-                    <strong>Sensor no conectado</strong>
-                    <small>ESP32 + AS608 pendientes de integración</small>
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <div class="biometric-summary-grid">
-
-            <div class="card biometric-summary-card">
-
-                <div class="biometric-summary-icon">
-                    <i class="fas fa-users"></i>
-                </div>
-
-                <div>
-                    <strong>{{ biometricUsers.length }}</strong>
-                    <span>Usuarios disponibles</span>
-                </div>
-
-            </div>
-
-
-            <div class="card biometric-summary-card">
-
-                <div class="biometric-summary-icon success">
-                    <i class="fas fa-fingerprint"></i>
-                </div>
-
-                <div>
-                    <strong>0</strong>
-                    <span>Huellas registradas</span>
-                </div>
-
-            </div>
-
-
-            <div class="card biometric-summary-card">
-
-                <div class="biometric-summary-icon pending">
-                    <i class="fas fa-user-clock"></i>
-                </div>
-
-                <div>
-                    <strong>{{ biometricUsers.length }}</strong>
-                    <span>Pendientes de enrolamiento</span>
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <section class="card biometric-users-card">
-
-            <div class="biometric-table-header">
-
-                <div>
-                    <h3>Usuarios registrados</h3>
-
-                    <p>
-                        Selecciona el usuario al que deseas asociar una huella.
-                    </p>
-                </div>
-
-
-                <div class="biometric-search-box">
-
-                    <i class="fas fa-search"></i>
-
-                    <input
-                        type="text"
-                        [(ngModel)]="biometricSearch"
-                        placeholder="Buscar por nombre, correo, documento o rol"
-                        aria-label="Buscar usuario para registrar huella">
-
-                    <button
-                        type="button"
-                        *ngIf="biometricSearch"
-                        (click)="biometricSearch = ''"
-                        title="Limpiar búsqueda"
-                        aria-label="Limpiar búsqueda">
-
-                        <i class="fas fa-xmark"></i>
-
-                    </button>
-
-                </div>
-
-            </div>
-
-
-            <div class="biometric-info-banner">
-
-                <i class="fas fa-circle-info"></i>
-
-                <div>
-                    <strong>Vista preparada para el hardware</strong>
-
-                    <p>
-                        Por ahora ninguna huella se guarda. El botón Registrar huella abre
-                        el flujo visual y muestra el usuario seleccionado.
-                    </p>
-                </div>
-
-            </div>
-
-
-            <div class="biometric-table-container">
-
-                <table class="biometric-table">
-
-                    <thead>
-
-                        <tr>
-                            <th>Usuario</th>
-                            <th>Documento</th>
-                            <th>Rol</th>
-                            <th>Estado biométrico</th>
-                            <th class="biometric-actions-column">Acción</th>
-                        </tr>
-
-                    </thead>
-
-
-                    <tbody>
-
-                        <tr *ngFor="let user of filteredBiometricUsers()">
-
-                            <td>
-
-                                <div class="biometric-user-cell">
-
-                                    <div class="biometric-user-avatar">
-                                        {{ user.name.charAt(0).toUpperCase() || 'U' }}
-                                    </div>
-
-                                    <div>
-                                        <strong>{{ user.name || 'Usuario' }}</strong>
-                                        <small>{{ user.email || 'Sin correo registrado' }}</small>
-                                    </div>
-
-                                </div>
-
-                            </td>
-
-
-                            <td>
-                                {{ user.document || 'No registrado' }}
-                            </td>
-
-
-                            <td>
-
-                                <span class="biometric-role-badge">
-                                    {{ user.role || 'Usuario' }}
-                                </span>
-
-                            </td>
-
-
-                            <td>
-
-                                <span class="biometric-status-badge not-registered">
-
-                                    <i class="fas fa-circle-minus"></i>
-
-                                    No registrada
-
-                                </span>
-
-                            </td>
-
-
-                            <td class="biometric-actions-column">
-
-                                <button
-                                    type="button"
-                                    class="biometric-register-btn"
-                                    (click)="openFingerprintEnrollment(user)">
-
-                                    <i class="fas fa-fingerprint"></i>
-
-                                    Registrar huella
-
-                                </button>
-
-                            </td>
-
-                        </tr>
-
-
-                        <tr *ngIf="filteredBiometricUsers().length === 0">
-
-                            <td colspan="5">
-
-                                <div class="biometric-empty-state">
-
-                                    <i class="fas fa-user-slash"></i>
-
-                                    <h4>No encontramos usuarios</h4>
-
-                                    <p>
-                                        Prueba con otro nombre, correo, documento o rol.
-                                    </p>
-
-                                </div>
-
-                            </td>
-
-                        </tr>
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        </section>
-
-    </section>
-
-
-
 
 
         <!-- =====================================================
@@ -2257,152 +2452,5 @@
         </section>
 
     </main>
-
-</div>
-
-
-<!-- =========================================================
-     MODAL BIOMETRÍA — SOLO VISTA
-     ========================================================= -->
-
-<div
-    class="biometric-modal-backdrop"
-    *ngIf="showBiometricModal"
-    (click)="closeFingerprintEnrollment()">
-
-    <div
-        class="biometric-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="biometricModalTitle"
-        (click)="$event.stopPropagation()">
-
-        <button
-            type="button"
-            class="biometric-modal-close"
-            (click)="closeFingerprintEnrollment()"
-            title="Cerrar"
-            aria-label="Cerrar">
-
-            <i class="fas fa-xmark"></i>
-
-        </button>
-
-
-        <div class="biometric-modal-icon">
-
-            <i class="fas fa-fingerprint"></i>
-
-        </div>
-
-
-        <div class="biometric-modal-heading">
-
-            <span>Enrolamiento biométrico</span>
-
-            <h2 id="biometricModalTitle">
-                Registrar huella
-            </h2>
-
-            <p>
-                La interfaz está lista. La lectura física se habilitará
-                cuando conectemos el ESP32 DevKit V1 y el AS608.
-            </p>
-
-        </div>
-
-
-        <div class="biometric-selected-user" *ngIf="selectedBiometricUser">
-
-            <div class="biometric-selected-avatar">
-                {{ selectedBiometricUser.name.charAt(0).toUpperCase() || 'U' }}
-            </div>
-
-            <div>
-                <strong>
-                    {{ selectedBiometricUser.name || 'Usuario' }}
-                </strong>
-
-                <span>
-                    {{ selectedBiometricUser.document || 'Documento no registrado' }}
-                    ·
-                    {{ selectedBiometricUser.role || 'Usuario' }}
-                </span>
-
-                <small>
-                    {{ selectedBiometricUser.email || 'Sin correo registrado' }}
-                </small>
-            </div>
-
-        </div>
-
-
-        <div class="biometric-hardware-state">
-
-            <div class="hardware-state-icon">
-                <i class="fas fa-microchip"></i>
-            </div>
-
-            <div>
-                <strong>Dispositivo biométrico desconectado</strong>
-
-                <p>
-                    No se enviará ni almacenará información biométrica en este momento.
-                </p>
-            </div>
-
-        </div>
-
-
-        <div class="biometric-future-flow">
-
-            <div class="future-step">
-                <span>1</span>
-                <p>Colocar el dedo sobre el AS608</p>
-            </div>
-
-            <div class="future-step">
-                <span>2</span>
-                <p>Retirar el dedo después de la primera lectura</p>
-            </div>
-
-            <div class="future-step">
-                <span>3</span>
-                <p>Colocar nuevamente el mismo dedo</p>
-            </div>
-
-            <div class="future-step">
-                <span>4</span>
-                <p>Asociar la plantilla biométrica con este usuario</p>
-            </div>
-
-        </div>
-
-
-        <div class="biometric-modal-actions">
-
-            <button
-                type="button"
-                class="biometric-close-btn"
-                (click)="closeFingerprintEnrollment()">
-
-                Cerrar
-
-            </button>
-
-            <button
-                type="button"
-                class="biometric-disabled-btn"
-                disabled>
-
-                <i class="fas fa-fingerprint"></i>
-
-                Esperando sensor
-
-            </button>
-
-        </div>
-
-    </div>
 
 </div>

@@ -1,35 +1,110 @@
 <div class="landing">
 
-  <!-- ================= NAVBAR ================= -->
+  <!-- =======================================================
+       NAVBAR
+       ======================================================= -->
+  <nav
+    class="navbar"
+    [class.scrolled]="navbarScrolled">
 
-  <nav class="navbar">
+    <button
+      type="button"
+      class="brand-button"
+      (click)="scrollTo('inicio')"
+      aria-label="Ir al inicio">
 
-    <div class="logo">
+      <div class="logo">
 
-      <div class="logo-icon">
-        <i class="fa-solid fa-shield-halved"></i>
+        <div class="logo-icon">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+
+        <div class="logo-copy">
+          <strong>SegurEntry</strong>
+          <span>Control inteligente</span>
+        </div>
+
       </div>
 
-      <span>SegurEntry</span>
+    </button>
 
-    </div>
 
     <ul class="nav-links">
 
-      <li><a href="#inicio">Inicio</a></li>
-      <li><a href="#features">Características</a></li>
-      <li><a href="#contacto">Contacto</a></li>
+      <li>
+        <a
+          href="#inicio"
+          [class.active]="activeSection === 'inicio'"
+          (click)="scrollTo('inicio', $event)">
+          Inicio
+        </a>
+      </li>
+
+      <li>
+        <a
+          href="#features"
+          [class.active]="activeSection === 'features'"
+          (click)="scrollTo('features', $event)">
+          Características
+        </a>
+      </li>
+
+      <li>
+        <a
+          href="#workflow"
+          [class.active]="activeSection === 'workflow'"
+          (click)="scrollTo('workflow', $event)">
+          Cómo funciona
+        </a>
+      </li>
+
+      <li>
+        <a
+          href="#benefits"
+          [class.active]="activeSection === 'benefits'"
+          (click)="scrollTo('benefits', $event)">
+          Resultados
+        </a>
+      </li>
+
+      <li>
+        <a
+          href="#contacto"
+          [class.active]="activeSection === 'contacto'"
+          (click)="scrollTo('contacto', $event)">
+          Contacto
+        </a>
+      </li>
 
     </ul>
 
+
     <div class="nav-buttons">
 
-      <button class="btn-login" (click)="login()">
-        Iniciar sesión
+      <button
+        type="button"
+        class="btn-login"
+        (click)="login()">
+
+        <i class="fa-solid fa-right-to-bracket"></i>
+
+        <span>
+          Iniciar sesión
+        </span>
+
       </button>
 
-      <button class="btn-register" (click)="register()">
-        Registrarse
+      <button
+        type="button"
+        class="btn-register"
+        (click)="register()">
+
+        <i class="fa-solid fa-user-plus"></i>
+
+        <span>
+          Registrarse
+        </span>
+
       </button>
 
     </div>
@@ -37,48 +112,55 @@
   </nav>
 
 
+  <!-- =======================================================
+       HERO
+       ======================================================= -->
+  <section
+    class="hero"
+    id="inicio">
 
-  <!-- ================= HERO ================= -->
-
-  <section class="hero" id="inicio">
-
-    <div class="hero-left">
+    <div class="hero-left fade-left">
 
       <span class="badge">
 
         <i class="fa-solid fa-bolt"></i>
 
-        Plataforma IoT
+        Plataforma IoT de control de acceso
 
       </span>
 
       <h1>
-
         Control inteligente
         <br>
         para accesos
         <span>seguros</span>
-
       </h1>
 
       <p>
-
-        Administra empleados, visitantes y dispositivos IoT
-        desde un solo lugar con monitoreo en tiempo real,
-        autenticación segura y reportes automáticos.
-
+        Administra aprendices, instructores, visitantes y dispositivos IoT
+        desde un solo lugar, con monitoreo en tiempo real, autenticación
+        segura y trazabilidad de ingresos y salidas.
       </p>
 
       <div class="hero-buttons">
 
-        <button class="btn-primary"
-                (click)="register()">
+        <button
+          type="button"
+          class="btn-primary"
+          (click)="register()">
 
-          Comenzar
+          Crear cuenta
+
+          <i class="fa-solid fa-arrow-right"></i>
 
         </button>
 
-        <button class="btn-secondary">
+        <button
+          type="button"
+          class="btn-secondary"
+          (click)="scrollTo('features')">
+
+          <i class="fa-solid fa-compass"></i>
 
           Ver características
 
@@ -89,27 +171,23 @@
       <div class="hero-info">
 
         <div>
-
           <i class="fa-solid fa-circle-check"></i>
-
           Seguridad
-
         </div>
 
         <div>
+          <i class="fa-solid fa-fingerprint"></i>
+          Biometría
+        </div>
 
+        <div>
           <i class="fa-solid fa-microchip"></i>
-
           IoT
-
         </div>
 
         <div>
-
           <i class="fa-solid fa-chart-line"></i>
-
           Reportes
-
         </div>
 
       </div>
@@ -117,34 +195,62 @@
     </div>
 
 
-
-    <!-- ================= DASHBOARD ================= -->
-
-    <div class="hero-right">
+    <!-- =====================================================
+         PREVIEW DASHBOARD
+         ===================================================== -->
+    <div class="hero-right fade-right">
 
       <div class="dashboard-card">
+
+        <div class="dashboard-glow"></div>
+
+        <div class="dashboard-topbar">
+
+          <div class="window-dots">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+
+          <span class="dashboard-live">
+            <span></span>
+            EN VIVO
+          </span>
+
+        </div>
 
         <div class="dashboard-header">
 
           <div>
 
-            <h3>Dashboard</h3>
+            <span class="dashboard-kicker">
+              SEGURENTRY
+            </span>
 
-            <span>Monitoreo en tiempo real</span>
+            <h3>
+              Dashboard de accesos
+            </h3>
+
+            <span>
+              Monitoreo en tiempo real
+            </span>
 
           </div>
 
-          <i class="fa-solid fa-chart-simple"></i>
+          <div class="dashboard-header-icon">
+            <i class="fa-solid fa-chart-simple"></i>
+          </div>
 
         </div>
-
 
 
         <div class="stats-grid">
 
           <div class="stat-card">
 
-            <i class="fa-solid fa-users"></i>
+            <div class="stat-icon users">
+              <i class="fa-solid fa-users"></i>
+            </div>
 
             <h2>324</h2>
 
@@ -154,7 +260,9 @@
 
           <div class="stat-card">
 
-            <i class="fa-solid fa-door-open"></i>
+            <div class="stat-icon access">
+              <i class="fa-solid fa-door-open"></i>
+            </div>
 
             <h2>87</h2>
 
@@ -164,7 +272,9 @@
 
           <div class="stat-card">
 
-            <i class="fa-solid fa-user-clock"></i>
+            <div class="stat-icon visitors">
+              <i class="fa-solid fa-user-clock"></i>
+            </div>
 
             <h2>14</h2>
 
@@ -174,60 +284,61 @@
 
           <div class="stat-card">
 
-            <i class="fa-solid fa-shield-halved"></i>
+            <div class="stat-icon security">
+              <i class="fa-solid fa-shield-halved"></i>
+            </div>
 
             <h2>99%</h2>
 
-            <p>Seguridad</p>
+            <p>Disponibilidad</p>
 
           </div>
 
         </div>
 
 
-
         <div class="activity">
 
-          <h4>
+          <div class="activity-header">
 
-            <i class="fa-solid fa-clock-rotate-left"></i>
+            <h4>
+              <i class="fa-solid fa-clock-rotate-left"></i>
+              Actividad reciente
+            </h4>
 
-            Actividad reciente
+            <span>
+              Últimos eventos
+            </span>
 
-          </h4>
+          </div>
 
           <ul>
 
             <li>
-
-              <i class="fa-solid fa-circle"></i>
-
-              Juan ingresó al edificio
-
+              <span class="activity-dot success"></span>
+              <div>
+                <strong>Ingreso autorizado</strong>
+                <small>Juan ingresó al edificio</small>
+              </div>
+              <time>Ahora</time>
             </li>
 
             <li>
-
-              <i class="fa-solid fa-circle"></i>
-
-              Visitante autorizado
-
+              <span class="activity-dot orange"></span>
+              <div>
+                <strong>Visitante temporal</strong>
+                <small>Usuario autorizado por RFID</small>
+              </div>
+              <time>2 min</time>
             </li>
 
             <li>
-
-              <i class="fa-solid fa-circle"></i>
-
-              Sensor IoT conectado
-
-            </li>
-
-            <li>
-
-              <i class="fa-solid fa-circle"></i>
-
-              Acceso registrado correctamente
-
+              <span class="activity-dot blue"></span>
+              <div>
+                <strong>Dispositivo conectado</strong>
+                <small>ESP32 · Entrada principal</small>
+              </div>
+              <time>4 min</time>
             </li>
 
           </ul>
@@ -240,354 +351,562 @@
 
   </section>
 
-</div>
 
-<!-- ================= CARACTERÍSTICAS ================= -->
+  <!-- =======================================================
+       CARACTERÍSTICAS
+       ======================================================= -->
+  <section
+    class="features"
+    id="features">
 
-<section class="features" id="features">
+    <div class="section-title fade-up">
 
-    <div class="section-title">
+      <span>CARACTERÍSTICAS</span>
 
-        <span>CARACTERÍSTICAS</span>
+      <h2>
+        Todo lo necesario para gestionar accesos
+      </h2>
 
-        <h2>Todo lo necesario para gestionar accesos</h2>
-
-        <p>
-            Una plataforma diseñada para administrar usuarios,
-            visitantes y dispositivos IoT de forma segura.
-        </p>
+      <p>
+        Una plataforma diseñada para administrar usuarios,
+        visitantes, sesiones de acceso y dispositivos IoT
+        desde una experiencia centralizada.
+      </p>
 
     </div>
+
 
     <div class="features-grid">
 
-        <div class="feature-card">
+      <article class="feature-card fade-up">
 
-            <i class="fa-solid fa-shield-halved"></i>
-
-            <h3>Seguridad Avanzada</h3>
-
-            <p>
-                Protege el acceso mediante autenticación segura,
-                invitaciones y control de permisos.
-            </p>
-
+        <div class="feature-number">
+          01
         </div>
 
-        <div class="feature-card">
+        <i class="fa-solid fa-shield-halved"></i>
 
-            <i class="fa-solid fa-users"></i>
+        <h3>
+          Seguridad avanzada
+        </h3>
 
-            <h3>Gestión de Usuarios</h3>
+        <p>
+          Controla permisos, estados de cuenta, invitaciones y accesos
+          con reglas centralizadas.
+        </p>
 
-            <p>
-                Administra empleados, visitantes y administradores
-                desde un único panel.
-            </p>
+        <button
+          type="button"
+          class="feature-link"
+          (click)="scrollTo('workflow')">
 
+          Ver funcionamiento
+
+          <i class="fa-solid fa-arrow-right"></i>
+
+        </button>
+
+      </article>
+
+
+      <article class="feature-card fade-up">
+
+        <div class="feature-number">
+          02
         </div>
 
-        <div class="feature-card">
+        <i class="fa-solid fa-users"></i>
 
-            <i class="fa-solid fa-microchip"></i>
+        <h3>
+          Gestión de usuarios
+        </h3>
 
-            <h3>Integración IoT</h3>
+        <p>
+          Administra aprendices, instructores, vigilantes,
+          administradores y usuarios temporales.
+        </p>
 
-            <p>
-                Comunicación con sensores y dispositivos
-                inteligentes para automatizar accesos.
-            </p>
+        <button
+          type="button"
+          class="feature-link"
+          (click)="scrollTo('benefits')">
 
+          Ver resultados
+
+          <i class="fa-solid fa-arrow-right"></i>
+
+        </button>
+
+      </article>
+
+
+      <article class="feature-card fade-up">
+
+        <div class="feature-number">
+          03
         </div>
 
-        <div class="feature-card">
+        <i class="fa-solid fa-microchip"></i>
 
-            <i class="fa-solid fa-chart-column"></i>
+        <h3>
+          Integración IoT
+        </h3>
 
-            <h3>Reportes</h3>
+        <p>
+          Integra ESP32, sensor de huella y RFID para automatizar
+          entradas y salidas.
+        </p>
 
-            <p>
-                Consulta estadísticas y registros
-                en tiempo real desde cualquier lugar.
-            </p>
+        <button
+          type="button"
+          class="feature-link"
+          (click)="scrollTo('workflow')">
 
+          Conocer el flujo
+
+          <i class="fa-solid fa-arrow-right"></i>
+
+        </button>
+
+      </article>
+
+
+      <article class="feature-card fade-up">
+
+        <div class="feature-number">
+          04
         </div>
+
+        <i class="fa-solid fa-chart-column"></i>
+
+        <h3>
+          Reportes y trazabilidad
+        </h3>
+
+        <p>
+          Consulta sesiones, horarios, estados de presencia
+          y reportes desde los paneles autorizados.
+        </p>
+
+        <button
+          type="button"
+          class="feature-link"
+          (click)="scrollTo('benefits')">
+
+          Ver beneficios
+
+          <i class="fa-solid fa-arrow-right"></i>
+
+        </button>
+
+      </article>
 
     </div>
 
-</section>
+  </section>
 
 
+  <!-- =======================================================
+       CÓMO FUNCIONA
+       ======================================================= -->
+  <section
+    class="workflow"
+    id="workflow">
 
+    <div class="section-title fade-up">
 
+      <span>
+        ¿CÓMO FUNCIONA?
+      </span>
 
-<!-- ================= CÓMO FUNCIONA ================= -->
+      <h2>
+        Un proceso simple, seguro y trazable
+      </h2>
 
-<section class="workflow">
-
-    <div class="section-title">
-
-        <span>¿CÓMO FUNCIONA?</span>
-
-        <h2>Un proceso simple y seguro</h2>
+      <p>
+        Desde la creación del usuario hasta el registro del acceso,
+        SegurEntry mantiene un flujo claro y controlado.
+      </p>
 
     </div>
+
 
     <div class="workflow-container">
 
-        <div class="step">
+      <article class="step fade-up">
 
-            <div class="step-number">01</div>
-
-            <i class="fa-solid fa-envelope-open-text"></i>
-
-            <h3>Crear invitación</h3>
-
-            <p>
-                El administrador genera una invitación con un rol
-                específico para el nuevo usuario.
-            </p>
-
+        <div class="step-number">
+          01
         </div>
 
-        <div class="step-line"></div>
+        <i class="fa-solid fa-envelope-open-text"></i>
 
-        <div class="step">
+        <h3>
+          Crear invitación
+        </h3>
 
-            <div class="step-number">02</div>
+        <p>
+          Un usuario autorizado genera la invitación con el rol
+          correspondiente.
+        </p>
 
-            <i class="fa-solid fa-user-plus"></i>
+      </article>
 
-            <h3>Registro</h3>
 
-            <p>
-                El usuario completa el registro utilizando
-                el código de invitación recibido.
-            </p>
+      <div class="step-line"></div>
 
+
+      <article class="step fade-up">
+
+        <div class="step-number">
+          02
         </div>
 
-        <div class="step-line"></div>
+        <i class="fa-solid fa-user-plus"></i>
 
-        <div class="step">
+        <h3>
+          Registro
+        </h3>
 
-            <div class="step-number">03</div>
+        <p>
+          El usuario completa su información y activa su cuenta
+          de forma controlada.
+        </p>
 
-            <i class="fa-solid fa-id-card"></i>
+      </article>
 
-            <h3>Autenticación</h3>
 
-            <p>
-                El sistema valida la identidad y asigna
-                automáticamente el rol correspondiente.
-            </p>
+      <div class="step-line"></div>
 
+
+      <article class="step fade-up">
+
+        <div class="step-number">
+          03
         </div>
 
-        <div class="step-line"></div>
+        <i class="fa-solid fa-fingerprint"></i>
 
-        <div class="step">
+        <h3>
+          Autenticación
+        </h3>
 
-            <div class="step-number">04</div>
+        <p>
+          El acceso puede validarse mediante huella o RFID
+          según el tipo de usuario.
+        </p>
 
-            <i class="fa-solid fa-chart-line"></i>
+      </article>
 
-            <h3>Monitoreo</h3>
 
-            <p>
-                Todos los accesos quedan registrados y
-                disponibles en el dashboard.
-            </p>
+      <div class="step-line"></div>
 
+
+      <article class="step fade-up">
+
+        <div class="step-number">
+          04
         </div>
+
+        <i class="fa-solid fa-chart-line"></i>
+
+        <h3>
+          Monitoreo
+        </h3>
+
+        <p>
+          Cada entrada y salida queda registrada para consulta
+          en tiempo real.
+        </p>
+
+      </article>
 
     </div>
 
-</section>
+  </section>
 
 
+  <!-- =======================================================
+       RESULTADOS / BENEFICIOS
+       ======================================================= -->
+  <section
+    class="benefits"
+    id="benefits">
 
+    <div class="section-title fade-up">
 
+      <span>
+        RESULTADOS
+      </span>
 
-<!-- ================= BENEFICIOS ================= -->
+      <h2>
+        Una plataforma preparada para crecer
+      </h2>
 
-<section class="benefits">
-
-    <div class="section-title">
-
-        <span>RESULTADOS</span>
-
-        <h2>Una plataforma preparada para crecer</h2>
+      <p>
+        SegurEntry centraliza la operación y facilita el seguimiento
+        de cada movimiento de acceso.
+      </p>
 
     </div>
+
 
     <div class="benefits-grid">
 
-        <div class="benefit-card">
+      <article class="benefit-card fade-up">
 
-            <h2>99.9%</h2>
-
-            <p>Disponibilidad</p>
-
+        <div class="benefit-icon">
+          <i class="fa-solid fa-signal"></i>
         </div>
-
-        <div class="benefit-card">
-
-            <h2>24/7</h2>
-
-            <p>Monitoreo continuo</p>
-
-        </div>
-
-        <div class="benefit-card">
-
-            <h2>+500</h2>
-
-            <p>Usuarios administrables</p>
-
-        </div>
-
-        <div class="benefit-card">
-
-            <h2>100%</h2>
-
-            <p>Control de accesos</p>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-
-
-
-<!-- ================= CTA ================= -->
-
-<section class="cta">
-
-    <div class="cta-content">
 
         <h2>
-
-            Comienza a gestionar los accesos
-            de forma inteligente
-
+          99.9%
         </h2>
 
         <p>
-
-            Registra usuarios, administra permisos
-            y monitorea tu infraestructura desde
-            una sola plataforma.
-
+          Disponibilidad objetivo
         </p>
 
-        <div class="cta-buttons">
+      </article>
 
-            <button
-                class="btn-primary"
-                (click)="register()">
 
-                Crear cuenta
+      <article class="benefit-card fade-up">
 
-            </button>
-
-            <button
-                class="btn-secondary"
-                (click)="login()">
-
-                Iniciar sesión
-
-            </button>
-
+        <div class="benefit-icon">
+          <i class="fa-solid fa-clock"></i>
         </div>
+
+        <h2>
+          24/7
+        </h2>
+
+        <p>
+          Monitoreo continuo
+        </p>
+
+      </article>
+
+
+      <article class="benefit-card fade-up">
+
+        <div class="benefit-icon">
+          <i class="fa-solid fa-users-gear"></i>
+        </div>
+
+        <h2>
+          +500
+        </h2>
+
+        <p>
+          Usuarios administrables
+        </p>
+
+      </article>
+
+
+      <article class="benefit-card fade-up">
+
+        <div class="benefit-icon">
+          <i class="fa-solid fa-route"></i>
+        </div>
+
+        <h2>
+          100%
+        </h2>
+
+        <p>
+          Trazabilidad de accesos
+        </p>
+
+      </article>
 
     </div>
 
-</section>
+  </section>
 
 
+  <!-- =======================================================
+       CTA
+       ======================================================= -->
+  <section
+    class="cta zoom"
+    id="cta">
+
+    <div class="cta-content">
+
+      <span class="cta-kicker">
+        SEGURENTRY
+      </span>
+
+      <h2>
+        Gestiona los accesos de forma inteligente
+      </h2>
+
+      <p>
+        Registra usuarios, administra permisos y monitorea
+        la infraestructura desde una sola plataforma.
+      </p>
+
+      <div class="cta-buttons">
+
+        <button
+          type="button"
+          class="btn-primary"
+          (click)="register()">
+
+          Crear cuenta
+
+          <i class="fa-solid fa-arrow-right"></i>
+
+        </button>
+
+        <button
+          type="button"
+          class="btn-secondary"
+          (click)="login()">
+
+          <i class="fa-solid fa-right-to-bracket"></i>
+
+          Iniciar sesión
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </section>
 
 
-
-<!-- ================= FOOTER ================= -->
-
-<footer class="footer" id="contacto">
+  <!-- =======================================================
+       FOOTER / CONTACTO
+       ======================================================= -->
+  <footer
+    class="footer"
+    id="contacto">
 
     <div class="footer-container">
 
-        <div class="footer-brand">
+      <div class="footer-brand">
 
-            <div class="logo">
+        <button
+          type="button"
+          class="brand-button footer-brand-button"
+          (click)="scrollTo('inicio')">
 
-                <div class="logo-icon">
+          <div class="logo">
 
-                    <i class="fa-solid fa-shield-halved"></i>
-
-                </div>
-
-                <span>SegurEntry</span>
-
+            <div class="logo-icon">
+              <i class="fa-solid fa-shield-halved"></i>
             </div>
 
-            <p>
+            <div class="logo-copy">
+              <strong>SegurEntry</strong>
+              <span>Control inteligente</span>
+            </div>
 
-                Plataforma inteligente para el
-                control de accesos, usuarios,
-                visitantes y dispositivos IoT.
+          </div>
 
-            </p>
+        </button>
 
-        </div>
+        <p>
+          Plataforma inteligente para el control de accesos,
+          usuarios, visitantes y dispositivos IoT.
+        </p>
 
-        <div class="footer-links">
+      </div>
 
-            <h4>Navegación</h4>
 
-            <a href="#inicio">Inicio</a>
+      <div class="footer-links">
 
-            <a href="#features">Características</a>
+        <h4>
+          Navegación
+        </h4>
 
-            <a href="#contacto">Contacto</a>
+        <a
+          href="#inicio"
+          (click)="scrollTo('inicio', $event)">
+          Inicio
+        </a>
 
-        </div>
+        <a
+          href="#features"
+          (click)="scrollTo('features', $event)">
+          Características
+        </a>
 
-        <div class="footer-links">
+        <a
+          href="#workflow"
+          (click)="scrollTo('workflow', $event)">
+          Cómo funciona
+        </a>
 
-            <h4>Acceso</h4>
+        <a
+          href="#benefits"
+          (click)="scrollTo('benefits', $event)">
+          Resultados
+        </a>
 
-            <a (click)="login()">Iniciar sesión</a>
+      </div>
 
-            <a (click)="register()">Registrarse</a>
 
-        </div>
+      <div class="footer-links">
 
-        <div class="footer-links">
+        <h4>
+          Acceso
+        </h4>
 
-            <h4>Tecnologías</h4>
+        <button
+          type="button"
+          class="footer-link-button"
+          (click)="login()">
+          Iniciar sesión
+        </button>
 
-            <p>Angular</p>
+        <button
+          type="button"
+          class="footer-link-button"
+          (click)="register()">
+          Registrarse
+        </button>
 
-            <p>Django</p>
+      </div>
 
-            <p>Firebase</p>
 
-            <p>IoT</p>
+      <div class="footer-links">
 
-        </div>
+        <h4>
+          Tecnologías
+        </h4>
+
+        <p>Angular</p>
+        <p>Django</p>
+        <p>Firebase</p>
+        <p>ESP32 / IoT</p>
+
+      </div>
 
     </div>
+
 
     <div class="footer-bottom">
 
-        <p>
+      <p>
+        © {{ currentYear }} SegurEntry · Todos los derechos reservados.
+      </p>
 
-            © 2026 SegurEntry · Todos los derechos reservados.
+      <button
+        type="button"
+        class="back-to-top"
+        (click)="scrollTo('inicio')"
+        aria-label="Volver al inicio">
 
-        </p>
+        <i class="fa-solid fa-arrow-up"></i>
+
+      </button>
 
     </div>
 
-</footer>
+  </footer>
+
+</div>

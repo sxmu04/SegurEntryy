@@ -22,9 +22,6 @@ import {
 
 import Swal from 'sweetalert2';
 
-import {
-  FirestoreService
-} from '../../../core/services/firestore.service';
 
 import {
   DashboardService
@@ -44,7 +41,9 @@ interface Access {
   uid?: string;
   name: string;
   email: string;
+  documentType?: string;
   document: string;
+  phone?: string;
   role: string;
   status?: string;
   type?: 'entrada' | 'salida';
@@ -58,11 +57,33 @@ interface Access {
 }
 
 
+interface AccessSession {
+  id: string;
+  uid: string;
+  name: string;
+  email: string;
+  document: string;
+  role: string;
+  entryDate: string | null;
+  exitDate: string | null;
+  method: string;
+  device: string;
+  allowed: boolean;
+  status:
+    'completo' |
+    'dentro' |
+    'salida_sin_entrada' |
+    'denegado';
+}
+
+
 interface TemporaryRequest {
   id?: string;
   name: string;
   email: string;
+  documentType: string;
   document: string;
+  phone: string;
   reason: string;
   requestedBy?: string;
   requestedByEmail?: string;
@@ -73,17 +94,21 @@ interface TemporaryRequest {
   rejection_reason?: string;
   reviewed_by?: string;
   reviewed_at?: string;
+  userUid?: string;
+  rfid_uid?: string;
+  rfid_assigned_at?: string;
+  rfid_device?: string;
 }
 
 
-interface BiometricUser {
-  uid?: string;
-  id?: string;
-  name: string;
-  email?: string;
-  document?: string;
-  role?: string;
-  active?: boolean;
+interface RfidJob {
+  id: string;
+  status: string;
+  message?: string;
+  error?: string;
+  rfid_uid?: string;
+  request_id?: string;
+  user_uid?: string;
 }
 
 
@@ -141,6 +166,16 @@ export class VigilanteComponent
   accesosHoy:
     Access[] =
       [];
+
+  private accessRequestInProgress =
+    false;
+
+  private accessRefreshTimer:
+    ReturnType<typeof setInterval> | null =
+      null;
+
+  private readonly accessRefreshMs =
+    1000;
 
 
   // =========================================================
@@ -200,6 +235,20 @@ export class VigilanteComponent
     'rechazada' =
       'todas';
 
+  rfidActionInProgress =
+    false;
+
+  private rfidJobTimer:
+    ReturnType<typeof setInterval> | null =
+      null;
+
+  private rfidJobRequestInProgress =
+    false;
+
+  private activeRfidJobId:
+    string | null =
+      null;
+
 
   // =========================================================
   // NOTIFICACIONES
@@ -230,25 +279,6 @@ export class VigilanteComponent
 
 
   // =========================================================
-  // BIOMETRÍA
-  // =========================================================
-
-  biometricUsers:
-    BiometricUser[] =
-      [];
-
-  biometricSearch =
-    '';
-
-  showBiometricModal =
-    false;
-
-  selectedBiometricUser:
-    BiometricUser | null =
-      null;
-
-
-  // =========================================================
   // FORMULARIO TEMPORAL
   // =========================================================
 
@@ -257,20 +287,20 @@ export class VigilanteComponent
       id: '',
       name: '',
       email: '',
+      documentType: '',
       document: '',
+      phone: '',
       role: '',
       status: '',
       tempAccess: false,
-      expirationDate: null
+      expirationDate: null,
+      reason: ''
     };
 
 
   constructor(
     private router:
       Router,
-
-    private firestoreService:
-      FirestoreService,
 
     private dashboardService:
       DashboardService,
@@ -295,8 +325,8 @@ export class VigilanteComponent
     this.loadProfile();
     this.loadAccessLogs();
     this.loadTemporaryRequests();
-    this.loadBiometricUsers();
     this.loadNotifications();
+    this.startAccessAutoRefresh();
 
   }
 
@@ -309,6 +339,9 @@ export class VigilanteComponent
         subscription =>
           subscription.unsubscribe()
       );
+
+    this.stopAccessAutoRefresh();
+    this.stopRfidJobWatch();
 
   }
 
@@ -354,6 +387,15 @@ export class VigilanteComponent
 
     if (
       section ===
+      'temporary'
+    ) {
+
+      this.loadTemporaryRequests();
+
+    }
+
+    if (
+      section ===
       'notifications'
     ) {
 
@@ -377,8 +419,17 @@ export class VigilanteComponent
   // ACCESOS — TODOS LOS USUARIOS
   // =========================================================
 
-  loadAccessLogs():
+  loadAccessLogs(
+    silent: boolean = false
+  ):
     void {
+
+    if (this.accessRequestInProgress) {
+      return;
+    }
+
+    this.accessRequestInProgress =
+      true;
 
     this.dashboardService
       .getAccesses()
@@ -444,19 +495,23 @@ export class VigilanteComponent
                         .toLowerCase();
 
                     const allowed =
-                      access?.allowed ===
-                        true
+                      access?.allowed === true
                       ||
-                      access?.granted ===
-                        true
+                      access?.granted === true
                       ||
-                      rawStatus.includes(
-                        'permit'
-                      )
+                      [
+                        'granted',
+                        'permitido',
+                        'allowed',
+                        'approved',
+                        'aprobado',
+                        'success',
+                        'exitoso'
+                      ].includes(rawStatus)
                       ||
-                      rawStatus.includes(
-                        'author'
-                      );
+                      rawStatus.includes('permit')
+                      ||
+                      rawStatus.includes('author');
 
                     return {
 
@@ -563,6 +618,9 @@ export class VigilanteComponent
                 )
               : [];
 
+          this.accessRequestInProgress =
+            false;
+
           this.calculateAccessStats();
           this.calculatePersonalDashboard();
 
@@ -573,10 +631,27 @@ export class VigilanteComponent
             any
         ) => {
 
+
+          this.accessRequestInProgress =
+            false;
+
           console.error(
             'ERROR CARGANDO ACCESOS:',
             err
           );
+
+
+          if (!silent) {
+
+            Swal.fire({
+              icon: 'error',
+              title: 'No se pudieron cargar los accesos',
+              text:
+                err?.error?.message ||
+                'No fue posible consultar el historial de accesos.'
+            });
+
+          }
 
         }
 
@@ -588,7 +663,7 @@ export class VigilanteComponent
   refreshAccesses():
     void {
 
-    this.loadAccessLogs();
+    this.loadAccessLogs(false);
 
   }
 
@@ -647,6 +722,455 @@ export class VigilanteComponent
 
         }
       );
+
+  }
+
+
+  get accessSessions():
+    AccessSession[] {
+
+    return this.buildAccessSessions(
+      this.accesses
+    );
+
+  }
+
+
+  filteredAccessSessions():
+    AccessSession[] {
+
+    const normalized =
+      this.normalizeSearch(
+        this.search
+      );
+
+    if (!normalized) {
+      return this.accessSessions;
+    }
+
+    const terms =
+      normalized
+        .split(/\s+/)
+        .filter(Boolean);
+
+    return this.accessSessions
+      .filter(
+        session => {
+
+          const presence =
+            session.status === 'dentro'
+              ? 'dentro'
+              : (
+                  session.status === 'completo'
+                  ||
+                  session.status === 'salida_sin_entrada'
+                )
+                ? 'fuera'
+                : session.status;
+
+          const searchable =
+            this.normalizeSearch(
+              [
+                session.name,
+                session.email,
+                session.document,
+                session.role,
+                session.method,
+                session.device,
+                session.status,
+                presence
+              ].join(' ')
+            );
+
+          return terms.every(
+            term =>
+              searchable.includes(term)
+          );
+
+        }
+      );
+
+  }
+
+
+  private buildAccessSessions(
+    logs: Access[]
+  ):
+    AccessSession[] {
+
+    const orderedLogs =
+      [...logs]
+        .sort(
+          (
+            a: Access,
+            b: Access
+          ) => {
+
+            const dateA =
+              this.parseDate(a.date)
+                ?.getTime() || 0;
+
+            const dateB =
+              this.parseDate(b.date)
+                ?.getTime() || 0;
+
+            return dateA - dateB;
+
+          }
+        );
+
+    const pendingEntries =
+      new Map<string, Access>();
+
+    const sessions:
+      AccessSession[] =
+        [];
+
+    for (
+      const access
+      of orderedLogs
+    ) {
+
+      const key =
+        this.getAccessIdentityKey(
+          access
+        );
+
+      if (
+        access.allowed !== true
+      ) {
+
+        sessions.push({
+          id:
+            access.id,
+          uid:
+            String(access.uid || ''),
+          name:
+            access.name || 'Usuario desconocido',
+          email:
+            access.email || '',
+          document:
+            access.document || '',
+          role:
+            access.role || '',
+          entryDate:
+            access.type === 'entrada'
+              ? access.date || null
+              : null,
+          exitDate:
+            access.type === 'salida'
+              ? access.date || null
+              : null,
+          method:
+            access.method || '',
+          device:
+            access.device || '',
+          allowed:
+            false,
+          status:
+            'denegado'
+        });
+
+        continue;
+
+      }
+
+      if (
+        access.type === 'entrada'
+      ) {
+
+        const previousEntry =
+          pendingEntries.get(key);
+
+        if (previousEntry) {
+
+          sessions.push({
+            id:
+              previousEntry.id,
+            uid:
+              String(previousEntry.uid || ''),
+            name:
+              previousEntry.name || 'Usuario desconocido',
+            email:
+              previousEntry.email || '',
+            document:
+              previousEntry.document || '',
+            role:
+              previousEntry.role || '',
+            entryDate:
+              previousEntry.date || null,
+            exitDate:
+              null,
+            method:
+              previousEntry.method || '',
+            device:
+              previousEntry.device || '',
+            allowed:
+              true,
+            status:
+              'dentro'
+          });
+
+        }
+
+        pendingEntries.set(
+          key,
+          access
+        );
+
+        continue;
+
+      }
+
+      const entry =
+        pendingEntries.get(key);
+
+      if (entry) {
+
+        sessions.push({
+          id:
+            `${entry.id}-${access.id}`,
+          uid:
+            String(
+              access.uid ||
+              entry.uid ||
+              ''
+            ),
+          name:
+            access.name ||
+            entry.name ||
+            'Usuario desconocido',
+          email:
+            access.email ||
+            entry.email ||
+            '',
+          document:
+            access.document ||
+            entry.document ||
+            '',
+          role:
+            access.role ||
+            entry.role ||
+            '',
+          entryDate:
+            entry.date || null,
+          exitDate:
+            access.date || null,
+          method:
+            access.method ||
+            entry.method ||
+            '',
+          device:
+            access.device ||
+            entry.device ||
+            '',
+          allowed:
+            true,
+          status:
+            'completo'
+        });
+
+        pendingEntries.delete(
+          key
+        );
+
+      } else {
+
+        sessions.push({
+          id:
+            access.id,
+          uid:
+            String(access.uid || ''),
+          name:
+            access.name || 'Usuario desconocido',
+          email:
+            access.email || '',
+          document:
+            access.document || '',
+          role:
+            access.role || '',
+          entryDate:
+            null,
+          exitDate:
+            access.date || null,
+          method:
+            access.method || '',
+          device:
+            access.device || '',
+          allowed:
+            true,
+          status:
+            'salida_sin_entrada'
+        });
+
+      }
+
+    }
+
+    pendingEntries.forEach(
+      entry => {
+
+        sessions.push({
+          id:
+            entry.id,
+          uid:
+            String(entry.uid || ''),
+          name:
+            entry.name || 'Usuario desconocido',
+          email:
+            entry.email || '',
+          document:
+            entry.document || '',
+          role:
+            entry.role || '',
+          entryDate:
+            entry.date || null,
+          exitDate:
+            null,
+          method:
+            entry.method || '',
+          device:
+            entry.device || '',
+          allowed:
+            true,
+          status:
+            'dentro'
+        });
+
+      }
+    );
+
+    return sessions
+      .sort(
+        (
+          a: AccessSession,
+          b: AccessSession
+        ) => {
+
+          const dateA =
+            this.parseDate(
+              a.exitDate ||
+              a.entryDate
+            )
+              ?.getTime() || 0;
+
+          const dateB =
+            this.parseDate(
+              b.exitDate ||
+              b.entryDate
+            )
+              ?.getTime() || 0;
+
+          return dateB - dateA;
+
+        }
+      );
+
+  }
+
+
+  private getAccessIdentityKey(
+    access: Access
+  ):
+    string {
+
+    const uid =
+      String(
+        access.uid || ''
+      )
+        .trim();
+
+    if (uid) {
+      return `uid:${uid}`;
+    }
+
+    const email =
+      String(
+        access.email || ''
+      )
+        .trim()
+        .toLowerCase();
+
+    if (email) {
+      return `email:${email}`;
+    }
+
+    const document =
+      String(
+        access.document || ''
+      )
+        .trim();
+
+    if (document) {
+      return `document:${document}`;
+    }
+
+    return `name:${this.normalizeSearch(access.name)}`;
+
+  }
+
+
+  getPresenceLabel(
+    session: AccessSession
+  ):
+    string {
+
+    if (!session.allowed) {
+      return 'Denegado';
+    }
+
+    if (
+      session.status === 'dentro'
+    ) {
+      return 'Dentro';
+    }
+
+    return 'Fuera';
+
+  }
+
+
+  private startAccessAutoRefresh():
+    void {
+
+    if (this.accessRefreshTimer) {
+      return;
+    }
+
+    this.accessRefreshTimer =
+      setInterval(
+        () => {
+
+          if (
+            this.activeSection === 'dashboard'
+            ||
+            this.activeSection === 'accesses'
+          ) {
+
+            this.loadAccessLogs(true);
+
+          }
+
+        },
+        this.accessRefreshMs
+      );
+
+  }
+
+
+  private stopAccessAutoRefresh():
+    void {
+
+    if (!this.accessRefreshTimer) {
+      return;
+    }
+
+    clearInterval(
+      this.accessRefreshTimer
+    );
+
+    this.accessRefreshTimer =
+      null;
 
   }
 
@@ -897,6 +1421,56 @@ export class VigilanteComponent
         0,
         8
       );
+
+  }
+
+
+  // =========================================================
+  // DASHBOARD PERSONAL — SESIONES Y PRESENCIA
+  // =========================================================
+
+  get myAccessSessions():
+    AccessSession[] {
+
+    return this.buildAccessSessions(
+      this.myAccesses
+    );
+
+  }
+
+
+  get recentMyAccessSessions():
+    AccessSession[] {
+
+    return this.myAccessSessions
+      .slice(
+        0,
+        8
+      );
+
+  }
+
+
+  get myCurrentPresence():
+    'Dentro' |
+    'Fuera' |
+    'Sin registros' {
+
+    const lastAllowedMovement =
+      this.myAccesses
+        .find(
+          access =>
+            access.allowed === true
+        );
+
+    if (!lastAllowedMovement) {
+      return 'Sin registros';
+    }
+
+    return lastAllowedMovement.type ===
+      'entrada'
+        ? 'Dentro'
+        : 'Fuera';
 
   }
 
@@ -1353,7 +1927,9 @@ export class VigilanteComponent
       id: '',
       name: '',
       email: '',
+      documentType: '',
       document: '',
+      phone: '',
       role: '',
       status: '',
       tempAccess:
@@ -1389,13 +1965,49 @@ export class VigilanteComponent
   createTemporaryRequest():
     void {
 
-    if (
-      !this.form.name?.trim()
-    ) {
+    const name =
+      String(
+        this.form.name || ''
+      )
+        .trim();
+
+    const email =
+      String(
+        this.form.email || ''
+      )
+        .trim()
+        .toLowerCase();
+
+    const documentType =
+      String(
+        this.form.documentType || ''
+      )
+        .trim()
+        .toUpperCase();
+
+    const document =
+      String(
+        this.form.document || ''
+      )
+        .trim();
+
+    const phone =
+      String(
+        this.form.phone || ''
+      )
+        .trim();
+
+    const reason =
+      String(
+        this.form.reason || ''
+      )
+        .trim();
+
+    if (!name) {
 
       Swal.fire(
         'Campo obligatorio',
-        'El nombre del visitante es obligatorio.',
+        'El nombre completo del visitante es obligatorio.',
         'warning'
       );
 
@@ -1404,12 +2016,15 @@ export class VigilanteComponent
     }
 
     if (
-      !this.form.email?.trim()
+      name.length < 3
+      ||
+      !/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s'.-]+$/
+        .test(name)
     ) {
 
       Swal.fire(
-        'Campo obligatorio',
-        'El correo electrónico es obligatorio.',
+        'Nombre no válido',
+        'Usa únicamente letras, espacios, apóstrofes, puntos o guiones.',
         'warning'
       );
 
@@ -1418,12 +2033,15 @@ export class VigilanteComponent
     }
 
     if (
-      !this.form.document?.trim()
+      !email
+      ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        .test(email)
     ) {
 
       Swal.fire(
-        'Campo obligatorio',
-        'El documento es obligatorio.',
+        'Correo no válido',
+        'Ingresa un correo electrónico válido.',
         'warning'
       );
 
@@ -1432,12 +2050,66 @@ export class VigilanteComponent
     }
 
     if (
-      !this.form.reason?.trim()
+      ![
+        'CC',
+        'TI'
+      ].includes(documentType)
+    ) {
+
+      Swal.fire(
+        'Tipo de documento requerido',
+        'Selecciona CC o TI.',
+        'warning'
+      );
+
+      return;
+
+    }
+
+    if (
+      !/^\d{6,15}$/
+        .test(document)
+    ) {
+
+      Swal.fire(
+        'Documento no válido',
+        'El documento debe contener entre 6 y 15 dígitos.',
+        'warning'
+      );
+
+      return;
+
+    }
+
+    const normalizedPhone =
+      phone.replace(/\s+/g, '');
+
+    if (
+      normalizedPhone
+      &&
+      !/^\+?\d{7,15}$/
+        .test(normalizedPhone)
+    ) {
+
+      Swal.fire(
+        'Teléfono no válido',
+        'El teléfono debe contener entre 7 y 15 dígitos y puede iniciar con +.',
+        'warning'
+      );
+
+      return;
+
+    }
+
+    if (
+      !reason
+      ||
+      reason.length < 5
     ) {
 
       Swal.fire(
         'Motivo requerido',
-        'Debes indicar el motivo por el cual se solicita el acceso temporal.',
+        'Describe claramente el motivo del acceso temporal.',
         'warning'
       );
 
@@ -1463,9 +2135,7 @@ export class VigilanteComponent
       this.authService
         .getUser();
 
-    if (
-      !firebaseUser
-    ) {
+    if (!firebaseUser) {
 
       Swal.fire(
         'Sesión no válida',
@@ -1482,33 +2152,49 @@ export class VigilanteComponent
         this.form.expirationDate
       );
 
+    if (
+      !Number.isFinite(durationHours)
+      ||
+      durationHours <= 0
+      ||
+      durationHours > 24
+    ) {
+
+      Swal.fire(
+        'Duración no válida',
+        'La duración debe estar entre 1 y 24 horas.',
+        'warning'
+      );
+
+      return;
+
+    }
+
     const data = {
 
-      name:
-        this.form.name.trim(),
+      name,
 
-      email:
-        this.form.email.trim(),
+      email,
 
-      document:
-        this.form.document.trim(),
+      documentType,
 
-      reason:
-        this.form.reason.trim(),
+      document,
+
+      phone:
+        normalizedPhone,
+
+      reason,
 
       requestedBy:
-        firebaseUser.uid ||
-        '',
+        firebaseUser.uid || '',
 
       requestedByEmail:
-        firebaseUser.email ||
-        '',
+        firebaseUser.email || '',
 
       status:
         'pendiente',
 
-      durationHours:
-        durationHours
+      durationHours
 
     };
 
@@ -1527,9 +2213,9 @@ export class VigilanteComponent
               title:
                 'Solicitud enviada',
               text:
-                'La solicitud fue enviada al administrador para su aprobación.',
+                'La solicitud fue enviada al administrador. Cuando sea aprobada podrás asignar la tarjeta RFID.',
               timer:
-                2200,
+                2600,
               showConfirmButton:
                 false
             });
@@ -1609,8 +2295,17 @@ export class VigilanteComponent
                         request?.email ||
                         '',
 
+                      documentType:
+                        request?.documentType ||
+                        request?.document_type ||
+                        '',
+
                       document:
                         request?.document ||
+                        '',
+
+                      phone:
+                        request?.phone ||
                         '',
 
                       reason:
@@ -1668,6 +2363,26 @@ export class VigilanteComponent
                       reviewed_at:
                         request?.reviewed_at ||
                         request?.reviewedAt ||
+                        '',
+
+                      userUid:
+                        request?.userUid ||
+                        request?.user_uid ||
+                        '',
+
+                      rfid_uid:
+                        request?.rfid_uid ||
+                        request?.rfidUid ||
+                        '',
+
+                      rfid_assigned_at:
+                        request?.rfid_assigned_at ||
+                        request?.rfidAssignedAt ||
+                        '',
+
+                      rfid_device:
+                        request?.rfid_device ||
+                        request?.rfidDevice ||
                         ''
 
                     })
@@ -1740,6 +2455,390 @@ export class VigilanteComponent
           status
       )
       .length;
+
+  }
+
+
+  canAssignRfid(
+    request:
+      TemporaryRequest
+  ):
+    boolean {
+
+    if (
+      request.status !== 'aprobada'
+      ||
+      !request.id
+      ||
+      !request.userUid
+      ||
+      this.rfidActionInProgress
+    ) {
+      return false;
+    }
+
+    return !this.isTemporaryRequestExpired(
+      request
+    );
+
+  }
+
+
+  isTemporaryRequestExpired(
+    request:
+      TemporaryRequest
+  ):
+    boolean {
+
+    if (!request.expires_at) {
+      return false;
+    }
+
+    const expiresAt =
+      this.parseDate(
+        request.expires_at
+      );
+
+    if (!expiresAt) {
+      return false;
+    }
+
+    return (
+      expiresAt.getTime()
+      <=
+      Date.now()
+    );
+
+  }
+
+
+  startRfidEnrollment(
+    request:
+      TemporaryRequest
+  ):
+    void {
+
+    if (
+      !this.canAssignRfid(
+        request
+      )
+    ) {
+
+      Swal.fire({
+        icon: 'info',
+        title: 'RFID no disponible',
+        text:
+          this.isTemporaryRequestExpired(request)
+            ? 'Este acceso temporal ya venció.'
+            : 'La solicitud debe estar aprobada antes de asignar una tarjeta RFID.'
+      });
+
+      return;
+
+    }
+
+    const actor =
+      this.authService
+        .getUser();
+
+    if (
+      !actor?.uid
+      ||
+      !request.id
+    ) {
+
+      Swal.fire(
+        'Error',
+        'No se pudo identificar al vigilante o la solicitud.',
+        'error'
+      );
+
+      return;
+
+    }
+
+    const isReplacement =
+      !!request.rfid_uid;
+
+    Swal.fire({
+      icon: 'question',
+      title:
+        isReplacement
+          ? 'Cambiar tarjeta RFID'
+          : 'Asignar tarjeta RFID',
+      text:
+        'Después de continuar, acerca la tarjeta al lector RFID conectado al ESP32.',
+      showCancelButton:
+        true,
+      confirmButtonText:
+        isReplacement
+          ? 'Cambiar tarjeta'
+          : 'Leer tarjeta',
+      cancelButtonText:
+        'Cancelar'
+    })
+      .then(
+        result => {
+
+          if (!result.isConfirmed) {
+            return;
+          }
+
+          this.rfidActionInProgress =
+            true;
+
+          Swal.fire({
+            title:
+              'Esperando tarjeta RFID',
+            html:
+              'Acerca la tarjeta al lector conectado al ESP32.<br><small>El proceso expira automáticamente si no se detecta una tarjeta.</small>',
+            allowOutsideClick:
+              false,
+            allowEscapeKey:
+              false,
+            showConfirmButton:
+              false,
+            didOpen:
+              () => {
+                Swal.showLoading();
+              }
+          });
+
+          this.dashboardService
+            .startTemporaryRfidEnrollment(
+              request.id!,
+              actor.uid,
+              'SEGURENTRY-ESP32'
+            )
+            .subscribe({
+
+              next:
+                (
+                  res:
+                    any
+                ) => {
+
+                  const jobId =
+                    String(
+                      res?.job?.id ||
+                      res?.job_id ||
+                      ''
+                    );
+
+                  if (!jobId) {
+
+                    this.rfidActionInProgress =
+                      false;
+
+                    Swal.fire(
+                      'Error',
+                      'El backend no devolvió el ID del proceso RFID.',
+                      'error'
+                    );
+
+                    return;
+
+                  }
+
+                  this.watchRfidJob(
+                    jobId,
+                    request
+                  );
+
+                },
+
+              error:
+                (
+                  err:
+                    any
+                ) => {
+
+                  this.rfidActionInProgress =
+                    false;
+
+                  Swal.fire(
+                    'No se pudo iniciar',
+                    err?.error?.message ||
+                    'No fue posible iniciar la lectura RFID.',
+                    'error'
+                  );
+
+                }
+
+            });
+
+        }
+      );
+
+  }
+
+
+  private watchRfidJob(
+    jobId:
+      string,
+    request:
+      TemporaryRequest
+  ):
+    void {
+
+    this.stopRfidJobWatch();
+
+    this.activeRfidJobId =
+      jobId;
+
+    const checkJob =
+      () => {
+
+        if (
+          this.rfidJobRequestInProgress
+        ) {
+          return;
+        }
+
+        this.rfidJobRequestInProgress =
+          true;
+
+        this.dashboardService
+          .getTemporaryRfidJob(
+            jobId
+          )
+          .subscribe({
+
+            next:
+              (
+                res:
+                  any
+              ) => {
+
+                this.rfidJobRequestInProgress =
+                  false;
+
+                const job:
+                  RfidJob =
+                    res?.job ||
+                    ({} as RfidJob);
+
+                const status =
+                  String(
+                    job?.status ||
+                    ''
+                  )
+                    .trim()
+                    .toLowerCase();
+
+                if (
+                  status === 'completed'
+                ) {
+
+                  this.stopRfidJobWatch();
+
+                  this.rfidActionInProgress =
+                    false;
+
+                  this.loadTemporaryRequests();
+                  this.loadAccessLogs(true);
+
+                  Swal.fire({
+                    icon:
+                      'success',
+                    title:
+                      request.rfid_uid
+                        ? 'Tarjeta RFID actualizada'
+                        : 'Tarjeta RFID asignada',
+                    text:
+                      job?.rfid_uid
+                        ? `Tarjeta ${job.rfid_uid} asociada correctamente.`
+                        : 'La tarjeta quedó asociada al usuario temporal.',
+                    timer:
+                      2300,
+                    showConfirmButton:
+                      false
+                  });
+
+                  return;
+
+                }
+
+                if (
+                  [
+                    'failed',
+                    'expired',
+                    'cancelled'
+                  ].includes(status)
+                ) {
+
+                  this.stopRfidJobWatch();
+
+                  this.rfidActionInProgress =
+                    false;
+
+                  Swal.fire({
+                    icon:
+                      'error',
+                    title:
+                      'No se asignó la tarjeta',
+                    text:
+                      job?.error ||
+                      job?.message ||
+                      'El proceso RFID terminó sin completar la asociación.'
+                  });
+
+                }
+
+              },
+
+            error:
+              (
+                err:
+                  any
+              ) => {
+
+                this.rfidJobRequestInProgress =
+                  false;
+
+                console.error(
+                  'ERROR CONSULTANDO JOB RFID:',
+                  err
+                );
+
+              }
+
+          });
+
+      };
+
+    checkJob();
+
+    this.rfidJobTimer =
+      setInterval(
+        checkJob,
+        1500
+      );
+
+  }
+
+
+  private stopRfidJobWatch():
+    void {
+
+    if (
+      this.rfidJobTimer
+    ) {
+
+      clearInterval(
+        this.rfidJobTimer
+      );
+
+      this.rfidJobTimer =
+        null;
+
+    }
+
+    this.activeRfidJobId =
+      null;
+
+    this.rfidJobRequestInProgress =
+      false;
 
   }
 
@@ -2077,167 +3176,6 @@ export class VigilanteComponent
 
 
   // =========================================================
-  // BIOMETRÍA
-  // =========================================================
-
-  loadBiometricUsers():
-    void {
-
-    this.dashboardService
-      .getUsers()
-      .subscribe({
-
-        next:
-          (
-            res:
-              any
-          ) => {
-
-            const users =
-              res?.users ||
-              res ||
-              [];
-
-            this.biometricUsers =
-              Array.isArray(
-                users
-              )
-                ? users.map(
-                    (
-                      user:
-                        any
-                    ):
-                      BiometricUser => ({
-
-                      uid:
-                        user?.uid ||
-                        user?.id ||
-                        '',
-
-                      id:
-                        user?.id ||
-                        user?.uid ||
-                        '',
-
-                      name:
-                        user?.name ||
-                        'Usuario',
-
-                      email:
-                        user?.email ||
-                        '',
-
-                      document:
-                        user?.document ||
-                        '',
-
-                      role:
-                        user?.role ||
-                        'usuario',
-
-                      active:
-                        user?.active ??
-                        true
-
-                    })
-                  )
-                : [];
-
-          },
-
-        error:
-          (
-            err:
-              any
-          ) => {
-
-            console.error(
-              'ERROR CARGANDO USUARIOS PARA BIOMETRÍA:',
-              err
-            );
-
-            this.biometricUsers =
-              [];
-
-          }
-
-      });
-
-  }
-
-
-  filteredBiometricUsers():
-    BiometricUser[] {
-
-    const term =
-      this.normalizeSearch(
-        this.biometricSearch
-      );
-
-    if (
-      !term
-    ) {
-      return this.biometricUsers;
-    }
-
-    return this.biometricUsers
-      .filter(
-        (
-          user:
-            BiometricUser
-        ) => {
-
-          const searchable =
-            this.normalizeSearch(
-              [
-                user.name,
-                user.email,
-                user.document,
-                user.role
-              ]
-                .join(
-                  ' '
-                )
-            );
-
-          return searchable.includes(
-            term
-          );
-
-        }
-      );
-
-  }
-
-
-  openFingerprintEnrollment(
-    user:
-      BiometricUser
-  ):
-    void {
-
-    this.selectedBiometricUser =
-      user;
-
-    this.showBiometricModal =
-      true;
-
-  }
-
-
-  closeFingerprintEnrollment():
-    void {
-
-    this.showBiometricModal =
-      false;
-
-    this.selectedBiometricUser =
-      null;
-
-  }
-
-
-  // =========================================================
   // UTILIDADES
   // =========================================================
 
@@ -2252,23 +3190,25 @@ export class VigilanteComponent
         value
       );
 
-    if (
-      !date
-    ) {
+    if (!date) {
       return 'Sin fecha';
     }
 
-    return date
-      .toLocaleDateString(
-        'es-CO',
-        {
-          day:
-            '2-digit',
-          month:
-            '2-digit',
-          year:
-            'numeric'
-        }
+    return new Intl.DateTimeFormat(
+      'es-CO',
+      {
+        timeZone:
+          'America/Bogota',
+        day:
+          '2-digit',
+        month:
+          '2-digit',
+        year:
+          'numeric'
+      }
+    )
+      .format(
+        date
       );
 
   }
@@ -2285,24 +3225,46 @@ export class VigilanteComponent
         value
       );
 
-    if (
-      !date
-    ) {
+    if (!date) {
       return '--:--';
     }
 
-    return date
-      .toLocaleTimeString(
-        'es-CO',
-        {
-          hour:
-            '2-digit',
-          minute:
-            '2-digit',
-          hour12:
-            false
-        }
-      );
+    return new Intl.DateTimeFormat(
+      'en-US',
+      {
+        timeZone:
+          'America/Bogota',
+        hour:
+          'numeric',
+        minute:
+          '2-digit',
+        second:
+          '2-digit',
+        hour12:
+          true
+      }
+    )
+      .format(
+        date
+      )
+      .toUpperCase();
+
+  }
+
+
+  formatDateTime(
+    value:
+      any
+  ):
+    string {
+
+    if (!value) {
+      return '—';
+    }
+
+    return (
+      `${this.formatDate(value)} · ${this.formatTime(value)}`
+    );
 
   }
 
@@ -2313,9 +3275,7 @@ export class VigilanteComponent
   ):
     Date | null {
 
-    if (
-      !value
-    ) {
+    if (!value) {
       return null;
     }
 
@@ -2367,9 +3327,34 @@ export class VigilanteComponent
 
     }
 
+    let raw =
+      String(
+        value
+      )
+        .trim();
+
+    if (!raw) {
+      return null;
+    }
+
+    const isIsoDateTime =
+      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/
+        .test(raw);
+
+    const hasTimezone =
+      /(?:Z|[+-]\d{2}:\d{2})$/i
+        .test(raw);
+
+    if (
+      isIsoDateTime &&
+      !hasTimezone
+    ) {
+      raw += 'Z';
+    }
+
     const date =
       new Date(
-        value
+        raw
       );
 
     return isNaN(

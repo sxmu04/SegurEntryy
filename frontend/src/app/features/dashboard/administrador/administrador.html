@@ -887,7 +887,7 @@
 
     <!-- =====================================================
          ACCESOS — ADMINISTRADOR
-         Historial completo con lógica Ingreso / Salida
+         Sesiones completas: entrada, salida y presencia actual
          ===================================================== -->
 
     <section
@@ -915,8 +915,8 @@
                     </h3>
 
                     <p>
-                        Consulta todos los movimientos registrados
-                        y diferencia cada ingreso y salida del sistema.
+                        Consulta la fecha y hora exacta de entrada y salida,
+                        además del estado de presencia de cada usuario.
                     </p>
 
                 </div>
@@ -953,8 +953,8 @@
                 </div>
 
                 <div>
-                    <span>Total</span>
-                    <strong>{{ filteredAdminAccessLogs.length }}</strong>
+                    <span>Sesiones</span>
+                    <strong>{{ filteredAdminAccessSessions.length }}</strong>
                 </div>
 
             </article>
@@ -967,7 +967,7 @@
                 </div>
 
                 <div>
-                    <span>Ingresos</span>
+                    <span>Entradas</span>
                     <strong>{{ adminAccessEntries }}</strong>
                 </div>
 
@@ -983,6 +983,34 @@
                 <div>
                     <span>Salidas</span>
                     <strong>{{ adminAccessExits }}</strong>
+                </div>
+
+            </article>
+
+
+            <article class="admin-access-stat allowed">
+
+                <div class="admin-access-stat-icon">
+                    <i class="fas fa-building-circle-check"></i>
+                </div>
+
+                <div>
+                    <span>Dentro</span>
+                    <strong>{{ adminAccessInside }}</strong>
+                </div>
+
+            </article>
+
+
+            <article class="admin-access-stat exit">
+
+                <div class="admin-access-stat-icon">
+                    <i class="fas fa-person-walking-arrow-right"></i>
+                </div>
+
+                <div>
+                    <span>Fuera</span>
+                    <strong>{{ adminAccessOutside }}</strong>
                 </div>
 
             </article>
@@ -1029,7 +1057,7 @@
                 <input
                     type="text"
                     [(ngModel)]="adminAccessSearch"
-                    placeholder="Buscar usuario, documento, rol, método o dispositivo...">
+                    placeholder="Buscar usuario, documento, rol, método, dispositivo, dentro o fuera...">
 
                 <button
                     type="button"
@@ -1051,11 +1079,11 @@
                 </option>
 
                 <option value="entrada">
-                    Ingresos
+                    Con entrada
                 </option>
 
                 <option value="salida">
-                    Salidas
+                    Con salida
                 </option>
 
             </select>
@@ -1081,7 +1109,7 @@
             <input
                 type="date"
                 [(ngModel)]="adminAccessDate"
-                title="Filtrar por fecha">
+                title="Filtrar por fecha de entrada o salida">
 
 
             <button
@@ -1119,7 +1147,7 @@
             class="admin-access-state empty"
             *ngIf="
                 !reportLoading &&
-                filteredAdminAccessLogs.length === 0
+                filteredAdminAccessSessions.length === 0
             ">
 
             <i class="fas fa-door-closed"></i>
@@ -1141,7 +1169,7 @@
             class="admin-access-table-card"
             *ngIf="
                 !reportLoading &&
-                filteredAdminAccessLogs.length > 0
+                filteredAdminAccessSessions.length > 0
             ">
 
             <div class="admin-access-table-heading">
@@ -1149,15 +1177,15 @@
                 <div>
 
                     <strong>
-                        Movimientos registrados
+                        Sesiones registradas
                     </strong>
 
                     <span>
-                        {{ filteredAdminAccessLogs.length }}
-                        registro{{
-                            filteredAdminAccessLogs.length === 1
+                        {{ filteredAdminAccessSessions.length }}
+                        sesión{{
+                            filteredAdminAccessSessions.length === 1
                                 ? ''
-                                : 's'
+                                : 'es'
                         }}
                     </span>
 
@@ -1184,14 +1212,14 @@
                     <thead>
 
                         <tr>
-                            <th>Fecha</th>
                             <th>Usuario</th>
                             <th>Documento</th>
                             <th>Rol</th>
-                            <th>Movimiento</th>
+                            <th>Entrada</th>
+                            <th>Salida</th>
                             <th>Método</th>
                             <th>Dispositivo</th>
-                            <th>Estado</th>
+                            <th>Presencia</th>
                         </tr>
 
                     </thead>
@@ -1200,22 +1228,10 @@
                     <tbody>
 
                         <tr
-                            *ngFor="let access of filteredAdminAccessLogs">
-
-                            <!-- FECHA -->
-
-                            <td
-                                data-label="Fecha"
-                                class="admin-access-date">
-
-                                {{
-                                    formatReportDate(
-                                        access.date
-                                    )
-                                }}
-
-                            </td>
-
+                            *ngFor="
+                                let session of filteredAdminAccessSessions;
+                                trackBy: trackByAdminAccessSession
+                            ">
 
                             <!-- USUARIO -->
 
@@ -1227,7 +1243,7 @@
 
                                         {{
                                             (
-                                                access.user ||
+                                                session.user ||
                                                 'U'
                                             )
                                             .charAt(0)
@@ -1239,11 +1255,14 @@
                                     <div>
 
                                         <strong>
-                                            {{ access.user }}
+                                            {{
+                                                session.user ||
+                                                'Usuario desconocido'
+                                            }}
                                         </strong>
 
-                                        <span *ngIf="access.email">
-                                            {{ access.email }}
+                                        <span *ngIf="session.email">
+                                            {{ session.email }}
                                         </span>
 
                                     </div>
@@ -1258,7 +1277,7 @@
                             <td data-label="Documento">
 
                                 {{
-                                    access.document ||
+                                    session.document ||
                                     '—'
                                 }}
 
@@ -1273,7 +1292,7 @@
 
                                     {{
                                         formatRoleName(
-                                            access.role
+                                            session.role
                                         )
                                     }}
 
@@ -1282,32 +1301,111 @@
                             </td>
 
 
-                            <!-- MOVIMIENTO -->
+                            <!-- ENTRADA -->
 
-                            <td data-label="Movimiento">
+                            <td
+                                data-label="Entrada"
+                                class="admin-access-date">
 
-                                <span
-                                    class="admin-access-movement"
-                                    [class.entry]="access.type === 'entrada'"
-                                    [class.exit]="access.type === 'salida'">
+                                <ng-container
+                                    *ngIf="
+                                        session.entryDate;
+                                        else adminNoEntry
+                                    ">
 
-                                    <i
-                                        class="fas"
-                                        [class.fa-arrow-right-to-bracket]="
-                                            access.type === 'entrada'
-                                        "
-                                        [class.fa-arrow-right-from-bracket]="
-                                            access.type === 'salida'
+                                    <strong>
+                                        {{
+                                            formatAdminAccessDay(
+                                                session.entryDate
+                                            )
+                                        }}
+                                    </strong>
+
+                                    <span>
+                                        {{
+                                            formatAdminAccessTime(
+                                                session.entryDate
+                                            )
+                                        }}
+                                    </span>
+
+                                </ng-container>
+
+
+                                <ng-template #adminNoEntry>
+
+                                    <span>
+                                        Sin registro
+                                    </span>
+
+                                </ng-template>
+
+                            </td>
+
+
+                            <!-- SALIDA -->
+
+                            <td
+                                data-label="Salida"
+                                class="admin-access-date">
+
+                                <ng-container
+                                    *ngIf="
+                                        session.exitDate;
+                                        else adminNoExit
+                                    ">
+
+                                    <strong>
+                                        {{
+                                            formatAdminAccessDay(
+                                                session.exitDate
+                                            )
+                                        }}
+                                    </strong>
+
+                                    <span>
+                                        {{
+                                            formatAdminAccessTime(
+                                                session.exitDate
+                                            )
+                                        }}
+                                    </span>
+
+                                </ng-container>
+
+
+                                <ng-template #adminNoExit>
+
+                                    <span
+                                        *ngIf="
+                                            session.allowed &&
+                                            session.status === 'dentro'
                                         ">
-                                    </i>
 
-                                    {{
-                                        access.type === 'salida'
-                                            ? 'Salida'
-                                            : 'Ingreso'
-                                    }}
+                                        <i class="fas fa-location-dot"></i>
 
-                                </span>
+                                        Aún dentro
+
+                                    </span>
+
+
+                                    <span
+                                        *ngIf="
+                                            !session.allowed
+                                        ">
+                                        —
+                                    </span>
+
+
+                                    <span
+                                        *ngIf="
+                                            session.allowed &&
+                                            session.status !== 'dentro'
+                                        ">
+                                        Sin registro
+                                    </span>
+
+                                </ng-template>
 
                             </td>
 
@@ -1322,13 +1420,13 @@
                                         class="fas"
                                         [ngClass]="
                                             getAccessMethodIcon(
-                                                access.method
+                                                session.method
                                             )
                                         ">
                                     </i>
 
                                     {{
-                                        access.method ||
+                                        session.method ||
                                         'No especificado'
                                     }}
 
@@ -1342,32 +1440,74 @@
                             <td data-label="Dispositivo">
 
                                 {{
-                                    access.device ||
+                                    session.device ||
                                     '—'
                                 }}
 
                             </td>
 
 
-                            <!-- ESTADO -->
+                            <!-- PRESENCIA -->
 
-                            <td data-label="Estado">
+                            <td data-label="Presencia">
+
+                                <!-- DENTRO -->
 
                                 <span
-                                    class="admin-access-status"
-                                    [class.denied]="!access.allowed">
+                                    *ngIf="
+                                        session.allowed &&
+                                        session.status === 'dentro'
+                                    "
+                                    class="admin-access-status">
 
-                                    <i
-                                        class="fas"
-                                        [class.fa-circle-check]="access.allowed"
-                                        [class.fa-circle-xmark]="!access.allowed">
-                                    </i>
+                                    <i class="fas fa-building-circle-check"></i>
 
-                                    {{
-                                        access.allowed
-                                            ? 'Permitido'
-                                            : 'Denegado'
-                                    }}
+                                    Dentro
+
+                                </span>
+
+
+                                <!-- FUERA -->
+
+                                <span
+                                    *ngIf="
+                                        session.allowed &&
+                                        session.status === 'fuera'
+                                    "
+                                    class="admin-access-status">
+
+                                    <i class="fas fa-person-walking-arrow-right"></i>
+
+                                    Fuera
+
+                                </span>
+
+
+                                <!-- SALIDA ANTIGUA SIN ENTRADA -->
+
+                                <span
+                                    *ngIf="
+                                        session.allowed &&
+                                        session.status === 'salida_sin_entrada'
+                                    "
+                                    class="admin-access-status">
+
+                                    <i class="fas fa-arrow-right-from-bracket"></i>
+
+                                    Fuera
+
+                                </span>
+
+
+                                <!-- DENEGADO -->
+
+                                <span
+                                    *ngIf="!session.allowed"
+                                    class="admin-access-status denied">
+
+                                    <i class="fas fa-circle-xmark"></i>
+
+                                    Denegado
 
                                 </span>
 
@@ -1437,12 +1577,12 @@
                 </button>
 
 
-                <button type="button" class="admin-report-secondary-btn csv" (click)="exportReportCsv()"
+                <button type="button" class="admin-report-secondary-btn csv" (click)="exportReportExcel()"
                     [disabled]="reportLoading">
 
-                    <i class="fas fa-file-csv"></i>
+                    <i class="fas fa-file-excel"></i>
 
-                    Exportar CSV
+                    Exportar Excel
 
                 </button>
 

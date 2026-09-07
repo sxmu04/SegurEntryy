@@ -45,6 +45,25 @@ interface AccessLog {
 }
 
 
+interface AccessSession {
+  id: string;
+  uid: string;
+  name: string;
+  email: string;
+  document: string;
+  entryDate: string | null;
+  exitDate: string | null;
+  method: string;
+  device: string;
+  allowed: boolean;
+  status:
+    'dentro' |
+    'fuera' |
+    'denegado' |
+    'salida_sin_entrada';
+}
+
+
 interface User {
   id: string;
   name: string;
@@ -55,6 +74,8 @@ interface User {
   active: boolean;
   lastEntry: string;
   lastExit: string;
+  inside: boolean;
+  presence: 'Dentro' | 'Fuera' | 'Sin registro';
 }
 
 
@@ -113,6 +134,10 @@ export class InstructorComponent
 
   filteredLogs:
     AccessLog[] =
+      [];
+
+  myAccessSessions:
+    AccessSession[] =
       [];
 
   private accessRefreshTimer:
@@ -660,6 +685,11 @@ export class InstructorComponent
           this.filteredLogs =
             this.logs;
 
+          this.myAccessSessions =
+            this.buildAccessSessions(
+              this.logs
+            );
+
           this.calculateStats();
 
           this.accessRequestInProgress =
@@ -719,7 +749,9 @@ export class InstructorComponent
 
           if (
             this.activeTab ===
-              'dashboard'
+              'dashboard' ||
+            this.activeTab ===
+              'accesos'
           ) {
 
             this.loadMyAccesses(
@@ -835,6 +867,260 @@ export class InstructorComponent
 
 
   // =========================================================
+  // SESIONES DE ACCESO — ENTRADA / SALIDA EMPAREJADAS
+  // =========================================================
+
+  private buildAccessSessions(
+    logs: AccessLog[]
+  ):
+    AccessSession[] {
+
+    const orderedLogs =
+      [...logs]
+        .sort(
+          (
+            a: AccessLog,
+            b: AccessLog
+          ) => {
+
+            const dateA =
+              this.parseAccessDate(
+                a.date
+              )?.getTime() || 0;
+
+            const dateB =
+              this.parseAccessDate(
+                b.date
+              )?.getTime() || 0;
+
+            return dateA - dateB;
+
+          }
+        );
+
+    const pendingEntries =
+      new Map<string, AccessLog>();
+
+    const sessions:
+      AccessSession[] = [];
+
+    for (
+      const log
+      of orderedLogs
+    ) {
+
+      const key =
+        String(
+          log.uid ||
+          log.email ||
+          log.document ||
+          log.name ||
+          log.id
+        )
+          .trim()
+          .toLowerCase();
+
+      if (
+        log.result !==
+        'Permitido'
+      ) {
+
+        sessions.push({
+          id: log.id,
+          uid: log.uid,
+          name: log.name,
+          email: log.email,
+          document: log.document,
+          entryDate:
+            log.type === 'Ingreso'
+              ? log.date
+              : null,
+          exitDate:
+            log.type === 'Salida'
+              ? log.date
+              : null,
+          method: log.method,
+          device: log.device,
+          allowed: false,
+          status: 'denegado'
+        });
+
+        continue;
+
+      }
+
+      if (
+        log.type ===
+        'Ingreso'
+      ) {
+
+        const previousEntry =
+          pendingEntries.get(
+            key
+          );
+
+        if (previousEntry) {
+
+          sessions.push({
+            id: previousEntry.id,
+            uid: previousEntry.uid,
+            name: previousEntry.name,
+            email: previousEntry.email,
+            document: previousEntry.document,
+            entryDate: previousEntry.date,
+            exitDate: null,
+            method: previousEntry.method,
+            device: previousEntry.device,
+            allowed: true,
+            status: 'dentro'
+          });
+
+        }
+
+        pendingEntries.set(
+          key,
+          log
+        );
+
+        continue;
+
+      }
+
+      const entry =
+        pendingEntries.get(
+          key
+        );
+
+      if (entry) {
+
+        sessions.push({
+          id:
+            `${entry.id}-${log.id}`,
+          uid:
+            log.uid || entry.uid,
+          name:
+            log.name || entry.name,
+          email:
+            log.email || entry.email,
+          document:
+            log.document || entry.document,
+          entryDate:
+            entry.date,
+          exitDate:
+            log.date,
+          method:
+            log.method || entry.method,
+          device:
+            log.device || entry.device,
+          allowed:
+            true,
+          status:
+            'fuera'
+        });
+
+        pendingEntries.delete(
+          key
+        );
+
+      } else {
+
+        sessions.push({
+          id: log.id,
+          uid: log.uid,
+          name: log.name,
+          email: log.email,
+          document: log.document,
+          entryDate: null,
+          exitDate: log.date,
+          method: log.method,
+          device: log.device,
+          allowed: true,
+          status: 'salida_sin_entrada'
+        });
+
+      }
+
+    }
+
+    pendingEntries.forEach(
+      (
+        entry: AccessLog
+      ) => {
+
+        sessions.push({
+          id: entry.id,
+          uid: entry.uid,
+          name: entry.name,
+          email: entry.email,
+          document: entry.document,
+          entryDate: entry.date,
+          exitDate: null,
+          method: entry.method,
+          device: entry.device,
+          allowed: true,
+          status: 'dentro'
+        });
+
+      }
+    );
+
+    return sessions
+      .sort(
+        (
+          a: AccessSession,
+          b: AccessSession
+        ) => {
+
+          const dateA =
+            this.parseAccessDate(
+              a.exitDate ||
+              a.entryDate
+            )?.getTime() || 0;
+
+          const dateB =
+            this.parseAccessDate(
+              b.exitDate ||
+              b.entryDate
+            )?.getTime() || 0;
+
+          return dateB - dateA;
+
+        }
+      );
+
+  }
+
+
+  getAccessSessionStatusLabel(
+    session: AccessSession
+  ):
+    string {
+
+    switch (
+      session.status
+    ) {
+
+      case 'dentro':
+        return 'Dentro';
+
+      case 'fuera':
+        return 'Fuera';
+
+      case 'denegado':
+        return 'Denegado';
+
+      case 'salida_sin_entrada':
+        return 'Fuera';
+
+      default:
+        return 'Sin estado';
+
+    }
+
+  }
+
+
+  // =========================================================
   // UTILIDADES FECHA / HORA
   // =========================================================
 
@@ -895,9 +1181,43 @@ export class InstructorComponent
 
     }
 
+    let raw =
+      String(
+        value
+      )
+        .trim();
+
+    if (!raw) {
+      return null;
+    }
+
+    // Compatibilidad con registros antiguos creados con
+    // datetime.utcnow().isoformat(), que eran UTC pero
+    // no incluían la zona horaria en el texto.
+    const isIsoDateTime =
+      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/
+        .test(
+          raw
+        );
+
+    const hasTimezone =
+      /(?:Z|[+-]\d{2}:\d{2})$/i
+        .test(
+          raw
+        );
+
+    if (
+      isIsoDateTime &&
+      !hasTimezone
+    ) {
+
+      raw += 'Z';
+
+    }
+
     const date =
       new Date(
-        value
+        raw
       );
 
     return isNaN(
@@ -927,12 +1247,11 @@ export class InstructorComponent
       .toLocaleDateString(
         'es-CO',
         {
-          day:
-            '2-digit',
-          month:
-            '2-digit',
-          year:
-            'numeric'
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          timeZone:
+            'America/Bogota'
         }
       );
 
@@ -955,16 +1274,17 @@ export class InstructorComponent
 
     return date
       .toLocaleTimeString(
-        'es-CO',
+        'en-US',
         {
-          hour:
-            '2-digit',
-          minute:
-            '2-digit',
-          hour12:
-            false
+          hour: 'numeric',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: true,
+          timeZone:
+            'America/Bogota'
         }
-      );
+      )
+      .toUpperCase();
 
   }
 
@@ -1058,7 +1378,13 @@ export class InstructorComponent
                     '',
 
                   lastExit:
-                    ''
+                    '',
+
+                  inside:
+                    false,
+
+                  presence:
+                    'Sin registro'
 
                 })
               )
@@ -1389,21 +1715,16 @@ export class InstructorComponent
     this.users =
       this.users.map(
         (
-          user:
-            User
+          user: User
         ) => {
 
           const personalLogs =
             this.apprenticeAccessLogs
               .filter(
                 (
-                  log:
-                    AccessLog
+                  log: AccessLog
                 ) => {
 
-                  // Para "último ingreso" y "última salida"
-                  // únicamente cuentan movimientos realmente
-                  // permitidos.
                   if (
                     log.result !==
                     'Permitido'
@@ -1419,30 +1740,53 @@ export class InstructorComponent
                 }
               );
 
-          const lastEntry =
-            personalLogs.find(
-              log =>
-                log.type ===
-                'Ingreso'
-            );
+          const sessions =
+            this.buildAccessSessions(
+              personalLogs
+            )
+              .filter(
+                session =>
+                  session.allowed
+              );
 
-          const lastExit =
-            personalLogs.find(
-              log =>
-                log.type ===
-                'Salida'
-            );
+          const latestSession =
+            sessions.length > 0
+              ? sessions[0]
+              : null;
+
+          if (!latestSession) {
+
+            return {
+              ...user,
+              lastEntry: '',
+              lastExit: '',
+              inside: false,
+              presence: 'Sin registro' as const
+            };
+
+          }
+
+          const inside =
+            latestSession.status ===
+            'dentro';
 
           return {
             ...user,
 
             lastEntry:
-              lastEntry?.date ||
+              latestSession.entryDate ||
               '',
 
             lastExit:
-              lastExit?.date ||
-              ''
+              latestSession.exitDate ||
+              '',
+
+            inside,
+
+            presence:
+              inside
+                ? 'Dentro'
+                : 'Fuera'
           };
 
         }
@@ -1727,6 +2071,17 @@ export class InstructorComponent
 
       this.loadUsers();
       this.loadApprenticeAccesses(
+        true
+      );
+
+    }
+
+    if (
+      tab ===
+      'accesos'
+    ) {
+
+      this.loadMyAccesses(
         true
       );
 
